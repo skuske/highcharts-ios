@@ -21,7 +21,7 @@ A declarative filter to control of which data labels to display. The declarative
 /**
 The operator to compare by. Can be one of `>`, `<`, `>=`, `<=`, `==`, and `===`.
 */
-@property(nonatomic, readwrite) NSString *operator;
+@property(nonatomic, readwrite) NSString *strOperator;
 /**
 The point property to filter by. Point options are passed directly to properties, additionally there are `y` value, `percentage` and others listed under {@link Highcharts.Point} members.
 */

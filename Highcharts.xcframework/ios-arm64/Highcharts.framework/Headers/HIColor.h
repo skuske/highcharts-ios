@@ -6,7 +6,7 @@
  * In case of questions, please contact sales@highsoft.com
  */
 
-@import UIKit;
+#import "UIKit/UIKit.h"
 #import "HIPatternObject.h"
 
 /**

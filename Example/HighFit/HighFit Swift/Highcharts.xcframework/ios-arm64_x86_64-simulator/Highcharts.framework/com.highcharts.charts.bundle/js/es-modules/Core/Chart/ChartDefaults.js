@@ -430,7 +430,7 @@ var ChartDefaults = {
          * @type       {string}
          * @validvalue ["x", "y", "xy"]
          * @default    {highcharts|highstock} x
-         * @default    {highmaps} xy
+         * @product    highcharts highstock gantt
          */
         type: 'x'
     },
@@ -479,7 +479,7 @@ var ChartDefaults = {
     /**
      * In styled mode, this sets how many colors the class names
      * should rotate between. With ten colors, series (or points) are
-     * given class names like `highcharts-color-0`, `highcharts-color-0`
+     * given class names like `highcharts-color-0`, `highcharts-color-1`
      * [...] `highcharts-color-9`. The equivalent in non-styled mode
      * is to set colors using the [colors](#colors) setting.
      *
@@ -851,6 +851,8 @@ var ChartDefaults = {
      * Additional CSS styles to apply inline to the container `div`. Note
      * that since the default font styles are applied in the renderer, it
      * is ignorant of the individual chart options and must be set globally.
+     * Also note that changing the font size in the `chart.style` options only
+     * applies to those elements that do not have a specific `fontSize` setting.
      *
      * @see    In styled mode, general chart styles can be set with the
      *         `.highcharts-root` class.
@@ -1188,8 +1190,7 @@ var ChartDefaults = {
      *
      * @see In styled mode, a plot background image can be set with the
      *      `.highcharts-plot-background` class and a [custom pattern](
-     *      https://www.highcharts.com/docs/chart-design-and-style/
-     *      gradients-shadows-and-patterns).
+     *      https://www.highcharts.com/docs/chart-design-and-style/gradients-shadows-and-patterns).
      *
      * @sample {highcharts} highcharts/chart/plotbackgroundimage/
      *         Skies

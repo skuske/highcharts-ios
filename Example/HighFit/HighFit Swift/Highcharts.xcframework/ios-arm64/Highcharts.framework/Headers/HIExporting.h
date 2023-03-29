@@ -33,6 +33,14 @@ An object consisting of definitions for the menu items in the context menu. Each
 */
 @property(nonatomic, readwrite) id menuItemDefinitions;
 /**
+Additional chart options to be merged into the chart before exporting to an image format. This does not apply to printing the chart via the export menu. For example, a common use case is to add data labels to improve readability of the exported chart, or to add a printer-friendly color scheme to exported PDFs.
+
+**Try it**
+
+* [Added data labels](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/exporting/chartoptions-data-labels/)
+*/
+@property(nonatomic, readwrite) NSDictionary *chartOptions;
+/**
 Analogous to `sourceWidth`.
 */
 @property(nonatomic, readwrite) NSNumber *sourceHeight;
@@ -122,6 +130,8 @@ An object containing additional key value data for the POST form that sends the 
 /**
 Use multi level headers in data table. If `csv.columnHeaderFormatter` is defined, it has to return objects in order for multi level headers to work.
 
+**Defaults to** `True`.
+
 **Try it**
 
 * [Multiple table headers](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/export-data/multilevel-table)
@@ -174,13 +184,11 @@ Settings for a custom font for the exported PDF, when using the `offline-exporti
 */
 @property(nonatomic, readwrite) HIPdfFont *pdfFont;
 /**
-Additional chart options to be merged into the chart before exporting to an image format. This does not apply to printing the chart via the export menu. For example, a common use case is to add data labels to improve readability of the exported chart, or to add a printer-friendly color scheme to exported PDFs.
+Allows the end user to sort the data table by clicking on column headers.
 
-**Try it**
-
-* [Added data labels](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/exporting/chartoptions-data-labels/)
+**Defaults to** `True`.
 */
-@property(nonatomic, readwrite) NSDictionary *chartOptions;
+@property(nonatomic, readwrite) NSNumber /* Bool */ *allowTableSorting;
 /**
 Function to call if the offline-exporting module fails to export a chart on the client side, and `fallbackToExportServer` is disabled. If left undefined, an exception is thrown instead. Receives two parameters, the exporting options, and the error from the module.
 */

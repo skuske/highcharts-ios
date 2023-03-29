@@ -296,7 +296,7 @@ Options for the series data sorting.
 */
 @property(nonatomic, readwrite) HIDataSortingOptionsObject *dataSorting;
 /**
-Options for the point markers of line-like series. Properties like `fillColor`, `lineColor` and `lineWidth` define the visual appearance of the markers. Other series types, like column series, don't have markers, but have visual options on the series level instead. In styled mode, the markers can be styled with the `.highcharts-point`, `.highcharts-point-hover` and `.highcharts-point-select` class names.
+Options for the point markers of line and scatter-like series. Properties like `fillColor`, `lineColor` and `lineWidth` define the visual appearance of the markers. The `symbol` option defines the shape. Other series types, like column series, don't have markers, but have visual options on the series level instead. In styled mode, the markers can be styled with the `.highcharts-point`, `.highcharts-point-hover` and `.highcharts-point-select` class names.
 */
 @property(nonatomic, readwrite) HIMarker *marker;
 /**
@@ -388,6 +388,8 @@ Options for the _Series on point_ feature. Only `pie` and `sunburst` series are 
 /**
 Whether to stack the values of each series on top of each other. Possible values are `undefined` to disable, `"normal"` to stack by value or `"percent"`. When stacking is enabled, data must be sorted in ascending X order. Some stacking options are related to specific series types. In the streamgraph series type, the stacking option is set to `"stream"`. The second one is `"overlap"`, which only applies to waterfall series.
 
+**Accepted values:** `["normal", "overlap", "percent", "stream"]`.
+
 **Try it**
 
 * [Line](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-stacking-line/)
@@ -416,6 +418,8 @@ Enable or disable the initial animation when a series is displayed. The animatio
 @property(nonatomic, readwrite) HIAnimationOptionsObject *animation;
 /**
 Determines whether the series should look for the nearest point in both dimensions or just the x-dimension when hovering the series. Defaults to `'xy'` for scatter series and `'x'` for most other series. If the data has duplicate x-values, it is recommended to set this to `'xy'` to allow hovering over all points. Applies only to series types using nearest neighbor search (not direct hover) for tooltip.
+
+**Accepted values:** `["x", "xy"]`.
 
 **Defaults to** `x`.
 
@@ -450,6 +454,8 @@ If true, a checkbox is displayed next to the legend item to allow selecting the 
 @property(nonatomic, readwrite) NSNumber /* Bool */ *showCheckbox;
 /**
 Sets the color blending in the boost module.
+
+**Accepted values:** `["add", "multiply", "darken"]`.
 
 **Defaults to** `undefined`.
 */
@@ -508,6 +514,8 @@ Accessibility options for a series.
 /**
 Whether to apply steps to the line. Possible values are `left`, `center` and `right`.
 
+**Accepted values:** `["left", "center", "right"]`.
+
 **Try it**
 
 * [Different step line options](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/line-step/)
@@ -553,16 +561,15 @@ When using dual or multiple color axes, this number defines which colorAxis the 
 */
 @property(nonatomic, readwrite) id /* NSNumber, NSString */ colorAxis;
 /**
-Sticky tracking of mouse events. When true, the `mouseOut` event on a series isn't triggered until the mouse moves over another series, or out of the plot area. When false, the `mouseOut` event on a series is triggered when the mouse leaves the area around the series' graph or markers. This also implies the tooltip when not shared. When `stickyTracking` is false and `tooltip.shared` is false, the tooltip will be hidden when moving the mouse between series. Defaults to true for line and area type series, but to false for columns, pies etc. **Note:** The boost module will force this option because of technical limitations.
+Defines the Axis on which the zones are applied.
 
-**Defaults to** `True`.
+**Defaults to** `y`.
 
 **Try it**
 
-* [True by default](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-stickytracking-true/)
-* [False](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-stickytracking-false/)
+* [Zones on the X-Axis](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series/color-zones-zoneaxis-x/)
 */
-@property(nonatomic, readwrite) NSNumber /* Bool */ *stickyTracking;
+@property(nonatomic, readwrite) NSString *zoneAxis;
 /**
 An array defining zones within a series. Zones can be applied to the X axis, Y axis or Z axis for bubbles, according to the `zoneAxis` option. The zone definitions have to be in ascending order regarding to the value. In styled mode, the color zones are styled with the `.highcharts-zone-{n}` class, or custom classed from the `className` option ([view live demo](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/css/color-zones/)).
 
@@ -573,6 +580,8 @@ An array defining zones within a series. Zones can be applied to the X axis, Y a
 @property(nonatomic, readwrite) NSArray <HIZones *> *zones;
 /**
 On datetime series, this allows for setting the `pointInterval` to irregular time units, `day`, `month` and `year`. A day is usually the same as 24 hours, but `pointIntervalUnit` also takes the DST crossover into consideration when dealing with local time. Combine this option with `pointInterval` to draw weeks, quarters, 6 months, 10 years etc. Please note that this options applies to the _series data_, not the interval of the axis ticks, which is independent.
+
+**Accepted values:** `["day", "month", "year"]`.
 
 **Try it**
 
@@ -619,19 +628,16 @@ The `id` of another series to link to. Additionally, the value can be ":previous
 */
 @property(nonatomic, readwrite) NSString *linkedTo;
 /**
-Indicates data is structured as columns instead of rows.
-*/
-@property(nonatomic, readwrite) NSNumber /* Bool */ *dataAsColumns;
-/**
-Defines the Axis on which the zones are applied.
+Sticky tracking of mouse events. When true, the `mouseOut` event on a series isn't triggered until the mouse moves over another series, or out of the plot area. When false, the `mouseOut` event on a series is triggered when the mouse leaves the area around the series' graph or markers. This also implies the tooltip when not shared. When `stickyTracking` is false and `tooltip.shared` is false, the tooltip will be hidden when moving the mouse between series. Defaults to true for line and area type series, but to false for columns, pies etc. **Note:** The boost module will force this option because of technical limitations.
 
-**Defaults to** `y`.
+**Defaults to** `True`.
 
 **Try it**
 
-* [Zones on the X-Axis](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series/color-zones-zoneaxis-x/)
+* [True by default](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-stickytracking-true/)
+* [False](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-stickytracking-false/)
 */
-@property(nonatomic, readwrite) NSString *zoneAxis;
+@property(nonatomic, readwrite) NSNumber /* Bool */ *stickyTracking;
 /**
 Options for the series data labels, appearing next to each data point. Since v6.2.0, multiple data labels can be applied to each single point by defining them as an array of configs. In styled mode, the data labels can be styled with the `.highcharts-data-label-box` and `.highcharts-data-label` class names ([see example](https://www.highcharts.com/samples/highcharts/css/series-datalabels)).
 
@@ -639,11 +645,15 @@ Options for the series data labels, appearing next to each data point. Since v6.
 
 * [Data labels enabled](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-datalabels-enabled)
 * [Multiple data labels on a bar series](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-datalabels-multiple)
-* [Style mode example](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/css/series-datalabels)
+* [Styled mode example](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/css/series-datalabels)
 */
 @property(nonatomic, readwrite) NSArray <HIDataLabels *> *dataLabels;
 /**
-An additional class name to apply to the series' graphical elements. This option does not replace default class names of the graphical element.
+An additional class name to apply to the series' graphical elements. This option does not replace default class names of the graphical element. Changes to the series' color will also be reflected in a chart's legend and tooltip.
+
+**Try it**
+
+* [e](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/)
 */
 @property(nonatomic, readwrite) NSString *className;
 /**

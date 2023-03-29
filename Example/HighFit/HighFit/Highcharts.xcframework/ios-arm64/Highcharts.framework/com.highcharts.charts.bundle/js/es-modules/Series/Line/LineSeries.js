@@ -125,12 +125,16 @@ var LineSeries = /** @class */ (function (_super) {
             if (graph && !styledMode) {
                 attribs = {
                     'stroke': prop[2],
-                    'stroke-width': options.lineWidth,
+                    'stroke-width': options.lineWidth || 0,
                     // Polygon series use filled graph
                     'fill': (series.fillGraph && series.color) || 'none'
                 };
+                // Apply dash style
                 if (prop[3]) {
                     attribs.dashstyle = prop[3];
+                    // The reason for the `else if` is that linecaps don't mix well
+                    // with dashstyle. The gaps get partially filled by the
+                    // linecap.
                 }
                 else if (options.linecap !== 'square') {
                     attribs['stroke-linecap'] =
@@ -406,7 +410,10 @@ export default LineSeries;
  */
 /**
  * An additional, individual class name for the data point's graphic
- * representation.
+ * representation. Changes to a point's color will also be reflected in a
+ * chart's legend and tooltip.
+ *
+ * @sample {highcharts} highcharts/css/point-series-classname
  *
  * @type      {string}
  * @since     5.0.0

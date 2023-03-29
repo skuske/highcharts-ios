@@ -277,7 +277,7 @@ var Chart = /** @class */ (function () {
              */
             this.numberFormatter = optionsChart.numberFormatter || numberFormat;
             /**
-             * Whether the chart is in styled mode, meaning all presentatinoal
+             * Whether the chart is in styled mode, meaning all presentational
              * attributes are avoided.
              *
              * @name Highcharts.Chart#styledMode
@@ -1967,7 +1967,9 @@ var Chart = /** @class */ (function () {
             // Make chart behave as an image with the title as alt text
             this.renderer.boxWrapper.attr({
                 role: 'img',
-                'aria-label': (title && title.element.textContent) || ''
+                'aria-label': ((title && title.element.textContent) || ''
+                // #17753, < is not allowed in SVG attributes
+                ).replace(/</g, '&lt;')
             });
             if (!(options.accessibility && options.accessibility.enabled === false)) {
                 error('Highcharts warning: Consider including the ' +

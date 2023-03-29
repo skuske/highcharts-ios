@@ -47,14 +47,6 @@ var Point = /** @class */ (function () {
          * @type {number|string}
          */
         this.category = void 0;
-        /**
-         * The point's current color index, used in styled mode instead of
-         * `color`. The color index is inserted in class names used for styling.
-         *
-         * @name Highcharts.Point#colorIndex
-         * @type {number}
-         */
-        this.colorIndex = void 0;
         this.formatPrefix = 'point';
         this.id = void 0;
         this.isNull = false;
@@ -314,7 +306,7 @@ var Point = /** @class */ (function () {
         });
         props.plural.forEach(function (plural) {
             point[plural].forEach(function (item) {
-                if (item.element) {
+                if (item && item.element) {
                     item.destroy();
                 }
             });
@@ -592,6 +584,25 @@ var Point = /** @class */ (function () {
         return ret;
     };
     /**
+     * Get the pixel position of the point relative to the plot area.
+     * @private
+     * @function Highcharts.Point#pos
+     */
+    Point.prototype.pos = function (chartCoordinates, plotY) {
+        if (plotY === void 0) { plotY = this.plotY; }
+        var _a = this, plotX = _a.plotX, series = _a.series, chart = series.chart, xAxis = series.xAxis, yAxis = series.yAxis;
+        var posX = 0, posY = 0;
+        if (isNumber(plotX) && isNumber(plotY)) {
+            if (chartCoordinates) {
+                posX = xAxis ? xAxis.pos : chart.plotLeft;
+                posY = yAxis ? yAxis.pos : chart.plotTop;
+            }
+            return chart.inverted && xAxis && yAxis ?
+                [yAxis.len - plotY + posY, xAxis.len - plotX + posX] :
+                [plotX + posX, plotY + posY];
+        }
+    };
+    /**
      * @private
      * @function Highcharts.Point#resolveColor
      */
@@ -619,6 +630,13 @@ var Point = /** @class */ (function () {
             }
             colorIndex = series.colorIndex;
         }
+        /**
+         * The point's current color index, used in styled mode instead of
+         * `color`. The color index is inserted in class names used for styling.
+         *
+         * @name Highcharts.Point#colorIndex
+         * @type {number|undefined}
+         */
         this.colorIndex = pick(this.options.colorIndex, colorIndex);
         /**
          * The point's current color.
@@ -1001,7 +1019,7 @@ var Point = /** @class */ (function () {
                 var opacity_1 = pointAttribs.opacity;
                 // Some inactive points (e.g. slices in pie) should apply
                 // opacity also for their labels
-                if (isNumber(opacity_1)) {
+                if (series.options.inactiveOtherPoints && isNumber(opacity_1)) {
                     (point.dataLabels || []).forEach(function (label) {
                         if (label &&
                             !label.hasClass('highcharts-data-label-hidden')) {
@@ -1119,8 +1137,8 @@ var Point = /** @class */ (function () {
      *         The path definition.
      */
     Point.prototype.haloPath = function (size) {
-        var series = this.series, chart = series.chart;
-        return chart.renderer.symbols.circle(Math.floor(this.plotX) - size, this.plotY - size, size * 2, size * 2);
+        var pos = this.pos();
+        return pos ? this.series.chart.renderer.symbols.circle(Math.floor(pos[0]) - size, pos[1] - size, size * 2, size * 2) : [];
     };
     return Point;
 }());

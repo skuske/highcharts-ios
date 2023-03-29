@@ -456,6 +456,16 @@ var AreaRangeSeries = /** @class */ (function (_super) {
         i = 0;
         while (i < pointLength) {
             point = series.points[i];
+            /**
+             * Array for multiple SVG graphics representing the point in the
+             * chart. Only used in cases where the point can not be represented
+             * by a single graphic.
+             *
+             * @see Highcharts.Point#graphic
+             *
+             * @name Highcharts.Point#graphics
+             * @type {Array<Highcharts.SVGElement>|undefined}
+             */
             point.graphics = point.graphics || [];
             // Save original props to be overridden by temporary props for top
             // points
@@ -467,7 +477,7 @@ var AreaRangeSeries = /** @class */ (function (_super) {
                 zone: point.zone,
                 y: point.y
             };
-            if (point.graphic) {
+            if (point.graphic || point.graphics[0]) {
                 point.graphics[0] = point.graphic;
             }
             point.graphic = point.graphics[1];
@@ -496,7 +506,7 @@ var AreaRangeSeries = /** @class */ (function (_super) {
         while (i < pointLength) {
             point = series.points[i];
             point.graphics = point.graphics || [];
-            if (point.graphic) {
+            if (point.graphic || point.graphics[1]) {
                 point.graphics[1] = point.graphic;
             }
             point.graphic = point.graphics[0];
@@ -535,17 +545,27 @@ addEvent(AreaRangeSeries, 'afterTranslate', function () {
 }, { order: 0 });
 addEvent(AreaRangeSeries, 'afterTranslate', function () {
     var _this = this;
-    // Postprocess after the PolarComposition's afterTranslate
-    if (this.chart.polar) {
-        this.points.forEach(function (point) {
+    var inverted = this.chart.inverted;
+    this.points.forEach(function (point) {
+        // Postprocessing after the PolarComposition's afterTranslate
+        if (_this.chart.polar) {
             _this.highToXY(point);
             point.plotLow = point.plotY;
             point.tooltipPos = [
                 ((point.plotHighX || 0) + (point.plotLowX || 0)) / 2,
                 ((point.plotHigh || 0) + (point.plotLow || 0)) / 2
             ];
-        });
-    }
+            // Put the tooltip in the middle of the range
+        }
+        else {
+            var tooltipPos = point.pos(false, point.plotLow), posHigh = point.pos(false, point.plotHigh);
+            if (tooltipPos && posHigh) {
+                tooltipPos[0] = (tooltipPos[0] + posHigh[0]) / 2;
+                tooltipPos[1] = (tooltipPos[1] + posHigh[1]) / 2;
+            }
+            point.tooltipPos = tooltipPos;
+        }
+    });
 }, { order: 3 });
 extend(AreaRangeSeries.prototype, {
     deferTranslatePolar: true,

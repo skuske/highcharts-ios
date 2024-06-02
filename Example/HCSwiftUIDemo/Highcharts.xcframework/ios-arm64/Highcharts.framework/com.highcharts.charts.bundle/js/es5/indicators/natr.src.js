@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Paweł Dalek
+ * (c) 2010-2024 Paweł Dalek
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -79,24 +77,7 @@
         var NATRIndicator = /** @class */ (function (_super) {
             __extends(NATRIndicator, _super);
             function NATRIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /**
-                 * @lends Highcharts.Series#
-                 */
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -116,6 +97,11 @@
                 }
                 return atrData;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Normalized average true range indicator (NATR). This series requires
              * `linkedTo` option to be set and should be loaded after the
@@ -162,12 +148,13 @@
          * @requires  stock/indicators/natr
          * @apioption series.natr
          */
-        ''; // to include the above in the js output'
+        ''; // To include the above in the js output'
 
         return NATRIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/natr.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/natr.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

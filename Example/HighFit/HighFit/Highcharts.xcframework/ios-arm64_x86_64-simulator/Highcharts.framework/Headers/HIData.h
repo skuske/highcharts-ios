@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -75,7 +75,7 @@ An HTML table or the id of such to be parsed as input data. Related options are 
 */
 @property(nonatomic, readwrite) NSString *table;
 /**
-A callback function to access the parsed columns, the two-dimentional input data array directly, before they are interpreted into series data and categories. Return `false` to stop completion, or call `this.complete()` to continue async.
+A callback function to access the parsed columns, the two-dimensional input data array directly, before they are interpreted into series data and categories. Return `false` to stop completion, or call `this.complete()` to continue async.
 
 **Try it**
 
@@ -95,7 +95,7 @@ An array containing dictionaries for each series. A dictionary exists of Point p
 */
 @property(nonatomic, readwrite) NSArray *seriesMapping;
 /**
-The same as the columns input option, but defining rows intead of columns.
+The same as the columns input option, but defining rows instead of columns.
 
 **Try it**
 
@@ -113,9 +113,6 @@ An URL to a remote CSV dataset. Will be fetched when the chart is created using 
 @property(nonatomic, readwrite) NSString *csvURL;
 /**
 Which of the predefined date formats in Date.prototype.dateFormats to use to parse date values. Defaults to a best guess based on what format gives valid and ordered dates. Valid options include: `YYYY/mm/dd`, `dd/mm/YYYY`, `mm/dd/YYYY`, `dd/mm/YY`, `mm/dd/YY`.
-
-**Accepted values:** `["YYYY/mm/dd", "dd/mm/YYYY", "mm/dd/YYYY", "dd/mm/YYYY",
-            "dd/mm/YY", "mm/dd/YY"]`.
 
 **Try it**
 
@@ -242,6 +239,16 @@ Switch rows and columns of the input data, so that `this.columns` effectively be
 * [Switch rows and columns](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/data/switchrowsandcolumns/)
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *switchRowsAndColumns;
+/**
+An array option that specifies the data type for each column in the series loaded within the data module. Possible values: `"string"`, `"number"`, `"float"`, `"date"`.
+
+**Accepted values:** `["string", "number", "float", "date"]`.
+
+**Try it**
+
+* [X-axis categories based on CSV data](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/data/column-types/)
+*/
+@property(nonatomic, readwrite) NSArray *columnTypes;
 /**
 The decimal point used for parsing numbers in the CSV. If both this and data.delimiter is set to `undefined`, the parser will attempt to deduce the decimal point automatically.
 
@@ -379,7 +386,7 @@ An additional, individual class name for the data point's graphic representation
 
 **Try it**
 
-* [e](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/)
+* [Series and point class name](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/css/point-series-classname)
 */
 @property(nonatomic, readwrite) NSString *className;
 /**
@@ -413,7 +420,7 @@ Individual data label for each point. The options are the same as the ones for `
 
 * [Show a label for the last value](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/point/datalabels/)
 */
-@property(nonatomic, readwrite) HIDataLabels *dataLabels;
+@property(nonatomic, readwrite) NSArray <HIDataLabels *> *dataLabels;
 /**
 The individual point events.
 */
@@ -446,14 +453,6 @@ The weight of the link.
 The node that the link runs to.
 */
 @property(nonatomic, readwrite) NSString *to;
-/**
-The vector direction in degrees, where 0 is north (pointing towards south).
-*/
-@property(nonatomic, readwrite) NSNumber *direction;
-/**
-The length of the vector. The rendered length will relate to the `vectorLength` setting.
-*/
-@property(nonatomic, readwrite) NSNumber *length;
 /**
 The target value of a point.
 */
@@ -507,11 +506,11 @@ Point padding for a single point.
 */
 @property(nonatomic, readwrite) NSNumber *pointPadding;
 /**
-The value of the point, resulting in a color controled by options as set in the `colorAxis` configuration.
+The value of the point, resulting in a color controlled by options as set in the `colorAxis` configuration.
 */
 @property(nonatomic, readwrite) NSNumber *value;
 /**
-When this property is true, the points acts as a summary column for the values added or substracted since the last intermediate sum, or since the start of the series. The `y` value is ignored.
+When this property is true, the points acts as a summary column for the values added or subtracted since the last intermediate sum, or since the start of the series. The `y` value is ignored.
 
 **Defaults to** `false`.
 
@@ -539,9 +538,17 @@ Whether to display a slice offset from the center.
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *sliced;
 /**
-By deafult sides fill is set to a gradient through this option being set to `true`. Set to `false` to get solid color for the sides.
+By default sides fill is set to a gradient through this option being set to `true`. Set to `false` to get solid color for the sides.
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *gradientForSides;
+/**
+The vector direction in degrees, where 0 is north (pointing towards south).
+*/
+@property(nonatomic, readwrite) NSNumber *direction;
+/**
+The length of the vector. The rendered length will relate to the `vectorLength` setting.
+*/
+@property(nonatomic, readwrite) NSNumber *length;
 /**
 The inner radius of an individual point in a solid gauge. Can be given only in percentage, either as a number or a string like `"50%"`.
 
@@ -573,7 +580,7 @@ The size value for each bubble. The bubbles' diameters are computed based on the
 */
 @property(nonatomic, readwrite) NSNumber *z;
 /**
-Color of the start markers in a dumbbell graph.
+Color of the start markers in a dumbbell graph. This option takes priority over the series color. To avoid this, set `lowColor` to `undefined`.
 
 **Defaults to** `#333333`.
 */

@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
  * Dependency wheel module
  *
- * (c) 2010-2021 Torstein Honsi
+ * (c) 2010-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -42,7 +40,7 @@
          *
          *  Dependency wheel module
          *
-         *  (c) 2018-2021 Torstein Honsi
+         *  (c) 2018-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -65,7 +63,7 @@
             };
         })();
         var SankeyPoint = SeriesRegistry.seriesTypes.sankey.prototype.pointClass;
-        var wrap = U.wrap;
+        var pInt = U.pInt, wrap = U.wrap;
         /* *
          *
          *  Class
@@ -74,54 +72,37 @@
         var DependencyWheelPoint = /** @class */ (function (_super) {
             __extends(DependencyWheelPoint, _super);
             function DependencyWheelPoint() {
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                _this.angle = void 0;
-                _this.fromNode = void 0;
-                _this.index = void 0;
-                _this.linksFrom = void 0;
-                _this.linksTo = void 0;
-                _this.options = void 0;
-                _this.series = void 0;
-                _this.shapeArgs = void 0;
-                _this.toNode = void 0;
-                return _this;
-                /* eslint-enable valid-jsdoc */
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
              *  Functions
              *
              * */
-            /* eslint-disable valid-jsdoc */
             /**
              * Return a text path that the data label uses.
              * @private
              */
             DependencyWheelPoint.prototype.getDataLabelPath = function (label) {
-                var _this = this;
-                var renderer = this.series.chart.renderer, shapeArgs = this.shapeArgs, upperHalf = this.angle < 0 || this.angle > Math.PI, start = shapeArgs.start || 0, end = shapeArgs.end || 0;
+                var _a;
+                var point = this, renderer = point.series.chart.renderer, shapeArgs = point.shapeArgs, upperHalf = point.angle < 0 || point.angle > Math.PI, start = shapeArgs.start || 0, end = shapeArgs.end || 0;
                 // First time
-                if (!this.dataLabelPath) {
+                if (!point.dataLabelPath) {
                     // Destroy the path with the label
                     wrap(label, 'destroy', function (proceed) {
-                        if (_this.dataLabelPath) {
-                            _this.dataLabelPath = _this.dataLabelPath.destroy();
+                        if (point.dataLabelPath) {
+                            point.dataLabelPath = point.dataLabelPath.destroy();
                         }
-                        return proceed.call(label);
+                        return proceed.call(this);
                     });
                     // Subsequent times
                 }
                 else {
-                    this.dataLabelPath = this.dataLabelPath.destroy();
-                    delete this.dataLabelPath;
+                    point.dataLabelPath = point.dataLabelPath.destroy();
+                    delete point.dataLabelPath;
                 }
                 // All times
-                this.dataLabelPath = renderer
+                point.dataLabelPath = renderer
                     .arc({
                     open: true,
                     longArc: Math.abs(Math.abs(start) - Math.abs(end)) < Math.PI ? 0 : 1
@@ -129,13 +110,13 @@
                     .attr({
                     x: shapeArgs.x,
                     y: shapeArgs.y,
-                    r: (shapeArgs.r + (label.options.distance || 0)),
+                    r: ((shapeArgs.r || 0) + pInt(((_a = label.options) === null || _a === void 0 ? void 0 : _a.distance) || 0)),
                     start: (upperHalf ? start : end),
                     end: (upperHalf ? end : start),
                     clockwise: +upperHalf
                 })
                     .add(renderer.defs);
-                return this.dataLabelPath;
+                return point.dataLabelPath;
             };
             DependencyWheelPoint.prototype.isValid = function () {
                 // No null points here
@@ -156,7 +137,7 @@
          *
          *  Dependency wheel module
          *
-         *  (c) 2018-2021 Torstein Honsi
+         *  (c) 2018-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -165,7 +146,7 @@
          * */
         /* *
          *
-         *  Constants
+         *  API Options
          *
          * */
         /**
@@ -176,7 +157,7 @@
          *         Dependency wheel
          *
          * @extends      plotOptions.sankey
-         * @exclude      dataSorting
+         * @exclude      dataSorting, nodeAlignment, nodeDistance
          * @since        7.1.0
          * @product      highcharts
          * @requires     modules/dependency-wheel
@@ -267,16 +248,6 @@
                 }
             }
         };
-        /* *
-         *
-         *  Default Export
-         *
-         * */
-        /* *
-         *
-         *  API Options
-         *
-         * */
         /**
          * A `dependencywheel` series. If the [type](#series.dependencywheel.type)
          * option is not specified, it is inherited from [chart.type](#chart.type).
@@ -332,7 +303,12 @@
          *
          * @apioption series.dependencywheel.nodes.dataLabels
          */
-        ''; // adds doclets above to the transpiled file
+        ''; // Keeps doclets above separate
+        /* *
+         *
+         *  Default Export
+         *
+         * */
 
         return DependencyWheelSeriesDefaults;
     });
@@ -341,7 +317,7 @@
          *
          *  Dependency wheel module
          *
-         *  (c) 2018-2021 Torstein Honsi
+         *  (c) 2018-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -366,7 +342,7 @@
         var animObject = A.animObject;
         var deg2rad = H.deg2rad;
         var _a = SeriesRegistry.seriesTypes, PieSeries = _a.pie, SankeySeries = _a.sankey;
-        var extend = U.extend, merge = U.merge;
+        var extend = U.extend, merge = U.merge, relativeLength = U.relativeLength;
         /* *
          *
          *  Class
@@ -382,35 +358,19 @@
         var DependencyWheelSeries = /** @class */ (function (_super) {
             __extends(DependencyWheelSeries, _super);
             function DependencyWheelSeries() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.nodeColumns = void 0;
-                _this.nodes = void 0;
-                _this.points = void 0;
-                return _this;
-                /* eslint-enable valid-jsdoc */
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
              *  Functions
              *
              * */
-            /* eslint-disable valid-jsdoc */
             DependencyWheelSeries.prototype.animate = function (init) {
+                var series = this;
                 if (!init) {
-                    var duration = animObject(this.options.animation).duration, step_1 = (duration / 2) / this.nodes.length;
-                    this.nodes.forEach(function (point, i) {
+                    var duration = animObject(series.options.animation).duration, step_1 = (duration / 2) / series.nodes.length;
+                    var i = 0;
+                    var _loop_1 = function (point) {
                         var graphic = point.graphic;
                         if (graphic) {
                             graphic.attr({ opacity: 0 });
@@ -418,54 +378,47 @@
                                 if (point.graphic) {
                                     point.graphic.animate({ opacity: 1 }, { duration: step_1 });
                                 }
-                            }, step_1 * i);
+                            }, step_1 * i++);
                         }
-                    }, this);
-                    this.points.forEach(function (point) {
+                    };
+                    for (var _i = 0, _a = series.nodes; _i < _a.length; _i++) {
+                        var point = _a[_i];
+                        _loop_1(point);
+                    }
+                    for (var _b = 0, _c = series.points; _b < _c.length; _b++) {
+                        var point = _c[_b];
                         var graphic = point.graphic;
                         if (!point.isNode && graphic) {
                             graphic.attr({ opacity: 0 })
                                 .animate({
                                 opacity: 1
-                            }, this.options.animation);
+                            }, series.options.animation);
                         }
-                    }, this);
+                    }
                 }
             };
             DependencyWheelSeries.prototype.createNode = function (id) {
-                var node = SankeySeries.prototype.createNode.call(this, id);
+                var node = _super.prototype.createNode.call(this, id);
                 /**
                  * Return the sum of incoming and outgoing links.
                  * @private
                  */
-                node.getSum = function () {
-                    return node.linksFrom
-                        .concat(node.linksTo)
-                        .reduce(function (acc, link) {
-                        return acc + link.weight;
-                    }, 0);
-                };
+                node.getSum = function () { return (node.linksFrom
+                    .concat(node.linksTo)
+                    .reduce(function (acc, link) { return (acc + link.weight); }, 0)); };
                 /**
                  * Get the offset in weight values of a point/link.
                  * @private
                  */
                 node.offset = function (point) {
-                    var offset = 0, i, links = node.linksFrom.concat(node.linksTo), sliced;
-                    /**
-                     * @private
-                     */
-                    function otherNode(link) {
-                        if (link.fromNode === node) {
-                            return link.toNode;
-                        }
-                        return link.fromNode;
-                    }
+                    var otherNode = function (link) { return (link.fromNode === node ?
+                        link.toNode :
+                        link.fromNode); };
+                    var offset = 0, links = node.linksFrom.concat(node.linksTo), sliced;
                     // Sort and slice the links to avoid links going out of each
                     // node crossing each other.
-                    links.sort(function (a, b) {
-                        return otherNode(a).index - otherNode(b).index;
-                    });
-                    for (i = 0; i < links.length; i++) {
+                    links.sort(function (a, b) { return (otherNode(a).index - otherNode(b).index); });
+                    for (var i = 0; i < links.length; i++) {
                         if (otherNode(links[i]).index > node.index) {
                             links = links.slice(0, i).reverse().concat(links.slice(i).reverse());
                             sliced = true;
@@ -475,7 +428,7 @@
                     if (!sliced) {
                         links.reverse();
                     }
-                    for (i = 0; i < links.length; i++) {
+                    for (var i = 0; i < links.length; i++) {
                         if (links[i] === point) {
                             return offset;
                         }
@@ -489,11 +442,12 @@
              * @private
              */
             DependencyWheelSeries.prototype.createNodeColumns = function () {
-                var columns = [SankeyColumnComposition.compose([], this)];
-                this.nodes.forEach(function (node) {
+                var series = this, columns = [SankeyColumnComposition.compose([], series)];
+                for (var _i = 0, _a = series.nodes; _i < _a.length; _i++) {
+                    var node = _a[_i];
                     node.column = 0;
                     columns[0].push(node);
-                });
+                }
                 return columns;
             };
             /**
@@ -504,19 +458,20 @@
                 return this.options.nodePadding / Math.PI;
             };
             /**
-             * @private
+             * @ignore
              * @todo Override the refactored sankey translateLink and translateNode
              * functions instead of the whole translate function.
              */
             DependencyWheelSeries.prototype.translate = function () {
-                var options = this.options, factor = 2 * Math.PI /
-                    (this.chart.plotHeight + this.getNodePadding()), center = this.getCenter(), startAngle = (options.startAngle - 90) * deg2rad, brOption = options.borderRadius, borderRadius = typeof brOption === 'object' ?
+                var series = this, options = series.options, factor = 2 * Math.PI /
+                    (series.chart.plotHeight + series.getNodePadding()), center = series.getCenter(), startAngle = (options.startAngle - 90) * deg2rad, brOption = options.borderRadius, borderRadius = typeof brOption === 'object' ?
                     brOption.radius : brOption;
-                SankeySeries.prototype.translate.call(this);
-                this.nodeColumns[0].forEach(function (node) {
+                _super.prototype.translate.call(this);
+                var _loop_2 = function (node) {
                     // Don't render the nodes if sum is 0 #12453
                     if (node.sum) {
-                        var shapeArgs = node.shapeArgs, centerX_1 = center[0], centerY_1 = center[1], r = center[2] / 2, innerR_1 = r - options.nodeWidth, start = startAngle + factor * (shapeArgs.y || 0), end = startAngle +
+                        var shapeArgs = node.shapeArgs, centerX_1 = center[0], centerY_1 = center[1], r = center[2] / 2, nodeWidth = options.nodeWidth === 'auto' ?
+                            20 : options.nodeWidth, innerR_1 = r - relativeLength(nodeWidth || 0, r), start = startAngle + factor * (shapeArgs.y || 0), end = startAngle +
                             factor * ((shapeArgs.y || 0) + (shapeArgs.height || 0));
                         // Middle angle
                         node.angle = start + (end - start) / 2;
@@ -536,12 +491,12 @@
                             width: 1,
                             height: 1
                         };
-                        // Draw the links from this node
-                        node.linksFrom.forEach(function (point) {
+                        var _loop_3 = function (point) {
                             if (point.linkBase) {
-                                var distance_1;
+                                var curveFactor_1, distance_1;
                                 var corners = point.linkBase.map(function (top, i) {
-                                    var angle = factor * top, x = Math.cos(startAngle + angle) * (innerR_1 + 1), y = Math.sin(startAngle + angle) * (innerR_1 + 1), curveFactor = options.curveFactor || 0;
+                                    var angle = factor * top, x = Math.cos(startAngle + angle) * (innerR_1 + 1), y = Math.sin(startAngle + angle) * (innerR_1 + 1);
+                                    curveFactor_1 = options.curveFactor || 0;
                                     // The distance between the from and to node
                                     // along the perimeter. This affect how curved
                                     // the link is, so that links between neighbours
@@ -552,13 +507,13 @@
                                     }
                                     distance_1 = distance_1 * innerR_1;
                                     if (distance_1 < innerR_1) {
-                                        curveFactor *= (distance_1 / innerR_1);
+                                        curveFactor_1 *= (distance_1 / innerR_1);
                                     }
                                     return {
                                         x: centerX_1 + x,
                                         y: centerY_1 + y,
-                                        cpX: centerX_1 + (1 - curveFactor) * x,
-                                        cpY: centerY_1 + (1 - curveFactor) * y
+                                        cpX: centerX_1 + (1 - curveFactor_1) * x,
+                                        cpY: centerY_1 + (1 - curveFactor_1) * y
                                     };
                                 });
                                 point.shapeArgs = {
@@ -592,10 +547,24 @@
                                         ]]
                                 };
                             }
-                        });
+                        };
+                        // Draw the links from this node
+                        for (var _b = 0, _c = node.linksFrom; _b < _c.length; _b++) {
+                            var point = _c[_b];
+                            _loop_3(point);
+                        }
                     }
-                });
+                };
+                for (var _i = 0, _a = this.nodeColumns[0]; _i < _a.length; _i++) {
+                    var node = _a[_i];
+                    _loop_2(node);
+                }
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             DependencyWheelSeries.defaultOptions = merge(SankeySeries.defaultOptions, DependencyWheelSeriesDefaults);
             return DependencyWheelSeries;
         }(SankeySeries));
@@ -613,8 +582,9 @@
 
         return DependencyWheelSeries;
     });
-    _registerModule(_modules, 'masters/modules/dependency-wheel.src.js', [], function () {
+    _registerModule(_modules, 'masters/modules/dependency-wheel.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

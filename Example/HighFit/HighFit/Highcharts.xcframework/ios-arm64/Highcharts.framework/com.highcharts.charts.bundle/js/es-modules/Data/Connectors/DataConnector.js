@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2023 Highsoft AS
+ *  (c) 2009-2024 Highsoft AS
  *
  *  License: www.highcharts.com/license
  *
@@ -13,6 +13,7 @@
  *
  * */
 'use strict';
+import DataModifier from '../Modifiers/DataModifier.js';
 import DataTable from '../DataTable.js';
 import U from '../../Core/Utilities.js';
 const { addEvent, fireEvent, merge, pick } = U;
@@ -98,14 +99,16 @@ class DataConnector {
      * @return {Array<string>|undefined}
      * Order of columns.
      */
-    getColumnOrder(usePresentationState) {
+    getColumnOrder(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    usePresentationState) {
         const connector = this, columns = connector.metadata.columns, names = Object.keys(columns || {});
         if (names.length) {
             return names.sort((a, b) => (pick(columns[a].index, 0) - pick(columns[b].index, 0)));
         }
     }
     /**
-     * Retrieves the columns of the the dataTable,
+     * Retrieves the columns of the dataTable,
      * applies column order from meta.
      *
      * @param {boolean} [usePresentationOrder]
@@ -169,8 +172,17 @@ class DataConnector {
             connector.describeColumn(columnNames[i], { index: i });
         }
     }
+    setModifierOptions(modifierOptions) {
+        const ModifierClass = (modifierOptions &&
+            DataModifier.types[modifierOptions.type]);
+        return this.table
+            .setModifier(ModifierClass ?
+            new ModifierClass(modifierOptions) :
+            void 0)
+            .then(() => this);
+    }
     /**
-     * Starts polling new data after the specific timespan in milliseconds.
+     * Starts polling new data after the specific time span in milliseconds.
      *
      * @param {number} refreshTime
      * Refresh time in milliseconds between polls.

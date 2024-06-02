@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -31,6 +31,12 @@ Default stroke for the buttons.
 **Defaults to** `none`.
 */
 @property(nonatomic, readwrite) HIColor *stroke;
+/**
+Default stroke linecap for the buttons.
+
+**Defaults to** `round`.
+*/
+@property(nonatomic, readwrite) NSString *strokeLinecap;
 /**
 The default fill exists only to capture hover events.
 

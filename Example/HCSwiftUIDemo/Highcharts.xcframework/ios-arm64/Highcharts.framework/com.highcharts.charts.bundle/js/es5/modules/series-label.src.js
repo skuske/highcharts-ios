@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -26,19 +26,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Extensions/SeriesLabel/SeriesLabelDefaults.js', [], function () {
         /* *
          *
-         *  (c) 2009-2021 Torstein Honsi
+         *  (c) 2009-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -170,7 +168,7 @@
     _registerModule(_modules, 'Extensions/SeriesLabel/SeriesLabelUtilities.js', [], function () {
         /* *
          *
-         *  (c) 2009-2021 Torstein Honsi
+         *  (c) 2009-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -209,10 +207,10 @@
          * @function boxIntersectLine
          */
         function boxIntersectLine(x, y, w, h, x1, y1, x2, y2) {
-            return (intersectLine(x, y, x + w, y, x1, y1, x2, y2) || // top of label
-                intersectLine(x + w, y, x + w, y + h, x1, y1, x2, y2) || // right
-                intersectLine(x, y + h, x + w, y + h, x1, y1, x2, y2) || // bottom
-                intersectLine(x, y, x, y + h, x1, y1, x2, y2) // left of label
+            return (intersectLine(x, y, x + w, y, x1, y1, x2, y2) || // Top of label
+                intersectLine(x + w, y, x + w, y + h, x1, y1, x2, y2) || // Right
+                intersectLine(x, y + h, x + w, y + h, x1, y1, x2, y2) || // Bottom
+                intersectLine(x, y, x, y + h, x1, y1, x2, y2) // Left of label
             );
         }
         /**
@@ -236,10 +234,10 @@
 
         return SeriesLabelUtilities;
     });
-    _registerModule(_modules, 'Extensions/SeriesLabel/SeriesLabel.js', [_modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Chart/Chart.js'], _modules['Core/Templating.js'], _modules['Core/Defaults.js'], _modules['Extensions/SeriesLabel/SeriesLabelDefaults.js'], _modules['Extensions/SeriesLabel/SeriesLabelUtilities.js'], _modules['Core/Utilities.js']], function (A, Chart, T, D, SeriesLabelDefaults, SLU, U) {
+    _registerModule(_modules, 'Extensions/SeriesLabel/SeriesLabel.js', [_modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Templating.js'], _modules['Core/Defaults.js'], _modules['Core/Globals.js'], _modules['Extensions/SeriesLabel/SeriesLabelDefaults.js'], _modules['Extensions/SeriesLabel/SeriesLabelUtilities.js'], _modules['Core/Utilities.js']], function (A, T, D, H, SeriesLabelDefaults, SLU, U) {
         /* *
          *
-         *  (c) 2009-2021 Torstein Honsi
+         *  (c) 2009-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -270,14 +268,14 @@
         var animObject = A.animObject;
         var format = T.format;
         var setOptions = D.setOptions;
+        var composed = H.composed;
         var boxIntersectLine = SLU.boxIntersectLine, intersectRect = SLU.intersectRect;
-        var addEvent = U.addEvent, extend = U.extend, fireEvent = U.fireEvent, isNumber = U.isNumber, pick = U.pick, syncTimeout = U.syncTimeout;
+        var addEvent = U.addEvent, extend = U.extend, fireEvent = U.fireEvent, isNumber = U.isNumber, pick = U.pick, pushUnique = U.pushUnique, syncTimeout = U.syncTimeout;
         /* *
          *
          *  Constants
          *
          * */
-        var composedMembers = [];
         var labelDistance = 3;
         /* *
          *
@@ -290,7 +288,7 @@
          */
         function checkClearPoint(series, x, y, bBox, checkDistance) {
             var chart = series.chart, seriesLabelOptions = series.options.label || {}, onArea = pick(seriesLabelOptions.onArea, !!series.area), findDistanceToOthers = (onArea || seriesLabelOptions.connectorAllowed), leastDistance = 16, boxesToAvoid = chart.boxesToAvoid;
-            var distToOthersSquared = Number.MAX_VALUE, // distance to other graphs
+            var distToOthersSquared = Number.MAX_VALUE, // Distance to other graphs
             distToPointSquared = Number.MAX_VALUE, dist, connectorPoint, withinRange, xDist, yDist, i, j;
             /**
              * Get the weight in order to determine the ideal position. Larger distance
@@ -397,15 +395,11 @@
          * @private
          */
         function compose(ChartClass, SVGRendererClass) {
-            if (U.pushUnique(composedMembers, ChartClass)) {
+            if (pushUnique(composed, 'SeriesLabel')) {
                 // Leave both events, we handle animation differently (#9815)
-                addEvent(Chart, 'load', onChartRedraw);
-                addEvent(Chart, 'redraw', onChartRedraw);
-            }
-            if (U.pushUnique(composedMembers, SVGRendererClass)) {
+                addEvent(ChartClass, 'load', onChartRedraw);
+                addEvent(ChartClass, 'redraw', onChartRedraw);
                 SVGRendererClass.prototype.symbols.connector = symbolConnector;
-            }
-            if (U.pushUnique(composedMembers, setOptions)) {
                 setOptions({ plotOptions: { series: { label: SeriesLabelDefaults } } });
             }
         }
@@ -418,14 +412,14 @@
          * @function Highcharts.Chart#drawSeriesLabels
          */
         function drawSeriesLabels(chart) {
-            // console.time('drawSeriesLabels');
+            // Console.time('drawSeriesLabels');
             chart.boxesToAvoid = [];
             var labelSeries = chart.labelSeries || [], boxesToAvoid = chart.boxesToAvoid;
             // Avoid data labels
             chart.series.forEach(function (s) {
                 return (s.points || []).forEach(function (p) {
                     return (p.dataLabels || []).forEach(function (label) {
-                        var _a = label.getBBox(), width = _a.width, height = _a.height, left = label.translateX + (s.xAxis ? s.xAxis.pos : s.chart.plotLeft), top = label.translateY + (s.yAxis ? s.yAxis.pos : s.chart.plotTop);
+                        var _a = label.getBBox(), width = _a.width, height = _a.height, left = (label.translateX || 0) + (s.xAxis ? s.xAxis.pos : s.chart.plotLeft), top = (label.translateY || 0) + (s.yAxis ? s.yAxis.pos : s.chart.plotTop);
                         boxesToAvoid.push({
                             left: left,
                             top: top,
@@ -442,6 +436,7 @@
                 boxesToAvoid.push.apply(boxesToAvoid, (seriesLabelOptions.boxesToAvoid || []));
             });
             chart.series.forEach(function (series) {
+                var _a, _b;
                 var labelOptions = series.options.label;
                 if (!labelOptions || (!series.xAxis && !series.yAxis)) {
                     return;
@@ -524,8 +519,10 @@
                     for (i = points.length - 1; i > 0; i -= 1) {
                         if (onArea) {
                             // Centered
-                            x = points[i].chartX - bBox.width / 2;
-                            y = (points[i].chartCenterY || 0) - bBox.height / 2;
+                            x = ((_a = points[i].chartCenterX) !== null && _a !== void 0 ? _a : points[i].chartX) -
+                                bBox.width / 2;
+                            y = ((_b = points[i].chartCenterY) !== null && _b !== void 0 ? _b : points[i].chartY) -
+                                bBox.height / 2;
                             if (insidePane(x, y, bBox)) {
                                 best = checkClearPoint(series, x, y, bBox);
                             }
@@ -653,7 +650,7 @@
                 }
             });
             fireEvent(chart, 'afterDrawSeriesLabels');
-            // console.timeEnd('drawSeriesLabels');
+            // Console.timeEnd('drawSeriesLabels');
         }
         /**
          * Points to avoid. In addition to actual data points, the label should avoid
@@ -663,10 +660,11 @@
          * @function Highcharts.Series#getPointsOnGraph
          */
         function getPointsOnGraph(series) {
+            var _a;
             if (!series.xAxis && !series.yAxis) {
                 return;
             }
-            var distance = 16, points = series.points, interpolated = [], graph = series.graph || series.area, node = graph && graph.element, inverted = series.chart.inverted, xAxis = series.xAxis, yAxis = series.yAxis, paneLeft = inverted ? yAxis.pos : xAxis.pos, paneTop = inverted ? xAxis.pos : yAxis.pos, seriesLabelOptions = series.options.label || {}, onArea = pick(seriesLabelOptions.onArea, !!series.area), translatedThreshold = yAxis.getThreshold(series.options.threshold), grid = {};
+            var distance = 16, points = series.points, interpolated = [], graph = series.graph || series.area, node = graph && graph.element, inverted = series.chart.inverted, xAxis = series.xAxis, yAxis = series.yAxis, paneLeft = inverted ? yAxis.pos : xAxis.pos, paneTop = inverted ? xAxis.pos : yAxis.pos, paneHeight = inverted ? xAxis.len : yAxis.len, paneWidth = inverted ? yAxis.len : xAxis.len, seriesLabelOptions = series.options.label || {}, onArea = pick(seriesLabelOptions.onArea, !!series.area), translatedThreshold = yAxis.getThreshold(series.options.threshold), grid = {}, chartCenterKey = inverted ? 'chartCenterX' : 'chartCenterY';
             var i, deltaX, deltaY, delta, len, n, j;
             /**
              * Push the point to the interpolated points, but only if that position in
@@ -699,22 +697,22 @@
                 }
                 len = node.getTotalLength();
                 for (i = 0; i < len; i += distance) {
-                    var domPoint = node.getPointAtLength(i);
+                    var domPoint = node.getPointAtLength(i), plotX = inverted ? paneWidth - domPoint.y : domPoint.x, plotY = inverted ? paneHeight - domPoint.x : domPoint.y;
                     pushDiscrete({
-                        chartX: paneLeft + domPoint.x,
-                        chartY: paneTop + domPoint.y,
-                        plotX: domPoint.x,
-                        plotY: domPoint.y
+                        chartX: paneLeft + plotX,
+                        chartY: paneTop + plotY,
+                        plotX: plotX,
+                        plotY: plotY
                     });
                 }
                 if (d) {
                     graph.attr({ d: d });
                 }
                 // Last point
-                var point = points[points.length - 1];
+                var point = points[points.length - 1], pos = point.pos();
                 pushDiscrete({
-                    chartX: paneLeft + (point.plotX || 0),
-                    chartY: paneTop + (point.plotY || 0)
+                    chartX: paneLeft + ((pos === null || pos === void 0 ? void 0 : pos[0]) || 0),
+                    chartY: paneTop + ((pos === null || pos === void 0 ? void 0 : pos[1]) || 0)
                 });
                 // Interpolate
             }
@@ -722,7 +720,7 @@
                 len = points.length;
                 var last = void 0;
                 for (i = 0; i < len; i += 1) {
-                    var point = points[i], plotX = point.plotX, plotY = point.plotY, plotHigh = point.plotHigh;
+                    var point = points[i], _b = point.pos() || [], plotX = _b[0], plotY = _b[1], plotHigh = point.plotHigh;
                     if (isNumber(plotX) && isNumber(plotY)) {
                         var ctlPoint = {
                             plotX: plotX,
@@ -737,8 +735,14 @@
                                 ctlPoint.plotY = plotHigh;
                                 ctlPoint.chartY = paneTop + plotHigh;
                             }
-                            ctlPoint.chartCenterY = paneTop + ((plotHigh ? plotHigh : plotY) +
-                                pick(point.yBottom, translatedThreshold)) / 2;
+                            if (inverted) {
+                                ctlPoint.chartCenterX = paneLeft + paneWidth - ((plotHigh ? plotHigh : point.plotY || 0) +
+                                    pick(point.yBottom, translatedThreshold)) / 2;
+                            }
+                            else {
+                                ctlPoint.chartCenterY = paneTop + ((plotHigh ? plotHigh : plotY) +
+                                    pick(point.yBottom, translatedThreshold)) / 2;
+                            }
                         }
                         // Add interpolated points
                         if (last) {
@@ -748,19 +752,20 @@
                             if (delta > distance) {
                                 n = Math.ceil(delta / distance);
                                 for (j = 1; j < n; j += 1) {
-                                    pushDiscrete({
-                                        chartX: last.chartX +
-                                            (ctlPoint.chartX - last.chartX) * (j / n),
-                                        chartY: last.chartY +
-                                            (ctlPoint.chartY - last.chartY) * (j / n),
-                                        chartCenterY: (last.chartCenterY || 0) +
-                                            ((ctlPoint.chartCenterY || 0) -
-                                                (last.chartCenterY || 0)) * (j / n),
-                                        plotX: (last.plotX || 0) +
+                                    pushDiscrete((_a = {
+                                            chartX: last.chartX +
+                                                (ctlPoint.chartX - last.chartX) * (j / n),
+                                            chartY: last.chartY +
+                                                (ctlPoint.chartY - last.chartY) * (j / n)
+                                        },
+                                        _a[chartCenterKey] = (last[chartCenterKey] || 0) +
+                                            ((ctlPoint[chartCenterKey] || 0) -
+                                                (last[chartCenterKey] || 0)) * (j / n),
+                                        _a.plotX = (last.plotX || 0) +
                                             (plotX - (last.plotX || 0)) * (j / n),
-                                        plotY: (last.plotY || 0) +
-                                            (plotY - (last.plotY || 0)) * (j / n)
-                                    });
+                                        _a.plotY = (last.plotY || 0) +
+                                            (plotY - (last.plotY || 0)) * (j / n),
+                                        _a));
                                 }
                             }
                         }
@@ -910,7 +915,7 @@
         * @name Highcharts.LabelIntersectBoxObject#top
         * @type {number}
         */
-        (''); // keeps doclets above in JS file
+        (''); // Keeps doclets above in JS file
 
         return SeriesLabel;
     });
@@ -919,5 +924,6 @@
         var G = Highcharts;
         SeriesLabel.compose(G.Chart, G.SVGRenderer);
 
+        return Highcharts;
     });
 }));

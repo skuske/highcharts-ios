@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,12 +9,10 @@
  * */
 'use strict';
 import ColorMapComposition from '../ColorMapComposition.js';
-import MapUtilities from '../../Maps/MapUtilities.js';
-const { boundsFromPath } = MapUtilities;
+import MU from '../../Maps/MapUtilities.js';
+const { boundsFromPath } = MU;
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-const { 
-// indirect dependency to keep product size low
-seriesTypes: { scatter: ScatterSeries } } = SeriesRegistry;
+const ScatterPoint = SeriesRegistry.seriesTypes.scatter.prototype.pointClass;
 import U from '../../Core/Utilities.js';
 const { extend, isNumber, pick } = U;
 /* *
@@ -22,27 +20,17 @@ const { extend, isNumber, pick } = U;
  *  Class
  *
  * */
-class MapPoint extends ScatterSeries.prototype.pointClass {
-    constructor() {
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        super(...arguments);
-        this.options = void 0;
-        this.path = void 0;
-        this.series = void 0;
-        /* eslint-enable valid-jsdoc */
-    }
+class MapPoint extends ScatterPoint {
     /* *
      *
-     *  Functions
+     *  Static Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
-    // Get the projected path based on the geometry. May also be called on
-    // mapData options (not point instances), hence static.
+    /**
+     * Get the projected path based on the geometry. May also be called on
+     * mapData options (not point instances), hence static.
+     * @private
+     */
     static getProjectedPath(point, projection) {
         if (!point.projectedPath) {
             if (projection && point.geometry) {
@@ -57,17 +45,26 @@ class MapPoint extends ScatterSeries.prototype.pointClass {
         }
         return point.projectedPath || [];
     }
+    /* *
+     *
+     *  Functions
+     *
+     * */
     /**
      * Extend the Point object to split paths.
      * @private
      */
     applyOptions(options, x) {
-        const series = this.series, point = super.applyOptions.call(this, options, x), joinBy = series.joinBy;
+        const series = this.series, point = super.applyOptions(options, x), joinBy = series.joinBy;
         if (series.mapData && series.mapMap) {
-            const joinKey = joinBy[1], mapKey = super.getNestedProperty.call(point, joinKey), mapPoint = typeof mapKey !== 'undefined' &&
+            const joinKey = joinBy[1], mapKey = super.getNestedProperty(joinKey), mapPoint = typeof mapKey !== 'undefined' &&
                 series.mapMap[mapKey];
             if (mapPoint) {
-                extend(point, mapPoint); // copy over properties
+                // Copy over properties; #20231 prioritize point.name
+                extend(point, {
+                    ...mapPoint,
+                    name: point.name ?? mapPoint.name
+                });
             }
             else if (series.pointArrayMap.indexOf('value') !== -1) {
                 point.value = point.value || null;
@@ -75,10 +72,9 @@ class MapPoint extends ScatterSeries.prototype.pointClass {
         }
         return point;
     }
-    /*
+    /**
      * Get the bounds in terms of projected units
-     * @param projection
-     * @return MapBounds|undefined The computed bounds
+     * @private
      */
     getProjectedBounds(projection) {
         const path = MapPoint.getProjectedPath(this, projection), bounds = boundsFromPath(path), properties = this.properties, mapView = this.series.chart.mapView;
@@ -120,7 +116,7 @@ class MapPoint extends ScatterSeries.prototype.pointClass {
         }
         else {
             // #3401 Tooltip doesn't hide when hovering over null points
-            this.series.onMouseOut(e);
+            this.series.onMouseOut();
         }
     }
     setVisible(vis) {

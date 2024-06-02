@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Sebastian Bochan, Rafal Sebestjanski
+ *  (c) 2010-2024 Sebastian Bochan, Rafal Sebestjanski
  *
  *  License: www.highcharts.com/license
  *
@@ -11,7 +11,9 @@
 import LollipopPoint from './LollipopPoint.js';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
 import Series from '../../Core/Series/Series.js';
-const { seriesTypes: { column: { prototype: colProto }, dumbbell: { prototype: dumbbellProto }, scatter: ScatterSeries } } = SeriesRegistry;
+const { seriesTypes: { column: { prototype: colProto }, dumbbell: { prototype: dumbbellProto }, 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+scatter: ScatterSeries } } = SeriesRegistry;
 import U from '../../Core/Utilities.js';
 const { extend, merge } = U;
 /* *
@@ -30,31 +32,12 @@ const { extend, merge } = U;
  *
  */
 class LollipopSeries extends Series {
-    constructor() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        super(...arguments);
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        this.data = void 0;
-        this.options = void 0;
-        this.points = void 0;
-    }
     /**
      * Extend the series' drawPoints method by applying a connector
      * and coloring markers.
      * @private
      *
      * @function Highcharts.Series#drawPoints
-     *
-     * @param {Highcharts.Series} this The series of points.
-     *
      */
     drawPoints() {
         const series = this, pointLength = series.points.length;
@@ -67,7 +50,31 @@ class LollipopSeries extends Series {
             i++;
         }
     }
+    /**
+     * Extend the series' translate method to use grouping option.
+     * @private
+     *
+     * @function Highcharts.Series#translate
+     *
+     */
+    translate() {
+        const series = this;
+        colProto.translate.apply(series, arguments);
+        // Correct x position
+        for (const point of series.points) {
+            const { pointWidth, shapeArgs } = point;
+            if (shapeArgs?.x) {
+                shapeArgs.x += pointWidth / 2;
+                point.plotX = shapeArgs.x || 0;
+            }
+        }
+    }
 }
+/* *
+ *
+ *  Static Properties
+ *
+ * */
 /**
  * The lollipop series is a carteseian series with a line anchored from
  * the x axis and a dot at the end to mark the value.
@@ -93,6 +100,22 @@ LollipopSeries.defaultOptions = merge(Series.defaultOptions, {
     connectorWidth: 1,
     /** @ignore-option */
     groupPadding: 0.2,
+    /**
+     * Whether to group non-stacked lollipop points or to let them
+     * render independent of each other. Non-grouped lollipop points
+     * will be laid out individually and overlap each other.
+     *
+     * @sample highcharts/series-lollipop/enabled-grouping/
+     *         Multiple lollipop series with grouping
+     * @sample highcharts/series-lollipop/disabled-grouping/
+     *         Multiple lollipop series with disabled grouping
+     *
+     * @type      {boolean}
+     * @default   true
+     * @since     8.0.0
+     * @product   highcharts highstock
+     * @apioption plotOptions.lollipop.grouping
+     */
     /** @ignore-option */
     pointPadding: 0.1,
     /** @ignore-option */
@@ -121,8 +144,7 @@ extend(LollipopSeries.prototype, {
     drawDataLabels: colProto.drawDataLabels,
     getColumnMetrics: colProto.getColumnMetrics,
     getConnectorAttribs: dumbbellProto.getConnectorAttribs,
-    pointClass: LollipopPoint,
-    translate: colProto.translate
+    pointClass: LollipopPoint
 });
 SeriesRegistry.registerSeriesType('lollipop', LollipopSeries);
 /* *
@@ -212,4 +234,4 @@ export default LollipopSeries;
  * @product   highcharts highstock
  * @apioption series.line.data.y
  */
-(''); // adds doclets above to transpiled file
+(''); // Adds doclets above to transpiled file

@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Drag-panes module
  *
- * (c) 2010-2021 Highsoft AS
+ * (c) 2010-2024 Highsoft AS
  * Author: Kacper Madej
  *
  * License: www.highcharts.com/license
@@ -29,12 +29,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -43,7 +41,7 @@
          *
          *  Plugin for resizing axes / panes in a chart.
          *
-         *  (c) 2010-2023 Highsoft AS
+         *  (c) 2010-2024 Highsoft AS
          *
          *  Author: Kacper Madej
          *
@@ -214,12 +212,12 @@
 
         return AxisResizerDefaults;
     });
-    _registerModule(_modules, 'Extensions/DragPanes/AxisResizer.js', [_modules['Extensions/DragPanes/AxisResizerDefaults.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (AxisResizerDefaults, H, U) {
+    _registerModule(_modules, 'Extensions/DragPanes/AxisResizer.js', [_modules['Extensions/DragPanes/AxisResizerDefaults.js'], _modules['Core/Utilities.js']], function (AxisResizerDefaults, U) {
         /* *
          *
          *  Plugin for resizing axes / panes in a chart.
          *
-         *  (c) 2010-2023 Highsoft AS
+         *  (c) 2010-2024 Highsoft AS
          *
          *  Author: Kacper Madej
          *
@@ -228,8 +226,7 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var hasTouch = H.hasTouch;
-        var addEvent = U.addEvent, clamp = U.clamp, isNumber = U.isNumber, merge = U.merge, objectEach = U.objectEach, relativeLength = U.relativeLength, wrap = U.wrap;
+        var addEvent = U.addEvent, clamp = U.clamp, isNumber = U.isNumber, relativeLength = U.relativeLength;
         /* *
          *
          *  Class
@@ -252,15 +249,6 @@
              *
              * */
             function AxisResizer(axis) {
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                this.axis = void 0;
-                this.controlLine = void 0;
-                this.lastPos = void 0;
-                this.options = void 0;
                 this.init(axis);
             }
             /* *
@@ -278,7 +266,7 @@
              */
             AxisResizer.prototype.init = function (axis, update) {
                 this.axis = axis;
-                this.options = axis.options.resize;
+                this.options = axis.options.resize || {};
                 this.render();
                 if (!update) {
                     // Add mouse events.
@@ -331,22 +319,15 @@
                 var mouseMoveHandler, mouseUpHandler, mouseDownHandler;
                 // Create mouse events' handlers.
                 // Make them as separate functions to enable wrapping them:
-                resizer.mouseMoveHandler = mouseMoveHandler = function (e) {
-                    resizer.onMouseMove(e);
-                };
-                resizer.mouseUpHandler = mouseUpHandler = function (e) {
-                    resizer.onMouseUp(e);
-                };
-                resizer.mouseDownHandler = mouseDownHandler = function (e) {
-                    resizer.onMouseDown(e);
-                };
-                // Add mouse move and mouseup events. These are bind to doc/container,
+                resizer.mouseMoveHandler = mouseMoveHandler = function (e) { return (resizer.onMouseMove(e)); };
+                resizer.mouseUpHandler = mouseUpHandler = function (e) { return (resizer.onMouseUp(e)); };
+                resizer.mouseDownHandler = mouseDownHandler = function () { return (resizer.onMouseDown()); };
+                eventsToUnbind.push(
+                // Add mouse move and mouseup events. These are bind to doc/div,
                 // because resizer.grabbed flag is stored in mousedown events.
-                eventsToUnbind.push(addEvent(container, 'mousemove', mouseMoveHandler), addEvent(container.ownerDocument, 'mouseup', mouseUpHandler), addEvent(ctrlLineElem, 'mousedown', mouseDownHandler));
+                addEvent(container, 'mousemove', mouseMoveHandler), addEvent(container.ownerDocument, 'mouseup', mouseUpHandler), addEvent(ctrlLineElem, 'mousedown', mouseDownHandler), 
                 // Touch events.
-                if (hasTouch) {
-                    eventsToUnbind.push(addEvent(container, 'touchmove', mouseMoveHandler), addEvent(container.ownerDocument, 'touchend', mouseUpHandler), addEvent(ctrlLineElem, 'touchstart', mouseDownHandler));
-                }
+                addEvent(container, 'touchmove', mouseMoveHandler), addEvent(container.ownerDocument, 'touchend', mouseUpHandler), addEvent(ctrlLineElem, 'touchstart', mouseDownHandler));
                 resizer.eventsToUnbind = eventsToUnbind;
             };
             /**
@@ -364,11 +345,11 @@
                  * be ignored. Borrowed from Navigator.
                  */
                 if (!e.touches || e.touches[0].pageX !== 0) {
+                    var pointer = this.axis.chart.pointer;
                     // Drag the control line
-                    if (this.grabbed) {
+                    if (this.grabbed && pointer) {
                         this.hasDragged = true;
-                        this.updateAxes(this.axis.chart.pointer.normalize(e).chartY -
-                            this.options.y);
+                        this.updateAxes(pointer.normalize(e).chartY - (this.options.y || 0));
                     }
                 }
             };
@@ -381,13 +362,12 @@
              *        Mouse event.
              */
             AxisResizer.prototype.onMouseUp = function (e) {
-                if (this.hasDragged) {
-                    this.updateAxes(this.axis.chart.pointer.normalize(e).chartY -
-                        this.options.y);
+                var pointer = this.axis.chart.pointer;
+                if (this.hasDragged && pointer) {
+                    this.updateAxes(pointer.normalize(e).chartY - (this.options.y || 0));
                 }
                 // Restore runPointActions.
-                this.grabbed = this.hasDragged = this.axis.chart.activeResizer =
-                    null;
+                this.grabbed = this.hasDragged = this.axis.chart.activeResizer = void 0;
             };
             /**
              * Mousedown on a control line.
@@ -395,9 +375,10 @@
              *
              * @function Highcharts.AxisResizer#onMouseDown
              */
-            AxisResizer.prototype.onMouseDown = function (e) {
+            AxisResizer.prototype.onMouseDown = function () {
+                var _a;
                 // Clear all hover effects.
-                this.axis.chart.pointer.reset(false, 0);
+                (_a = this.axis.chart.pointer) === null || _a === void 0 ? void 0 : _a.reset(false, 0);
                 // Disable runPointActions.
                 this.grabbed = this.axis.chart.activeResizer = true;
             };
@@ -413,12 +394,8 @@
                     [chart.yAxis.indexOf(resizer.axis) + 1] : axes.next, 
                 // Main axis is included in the prev array by default
                 prevAxes = [resizer.axis].concat(axes.prev), 
-                // prev and next configs
-                axesConfigs = [], plotTop = chart.plotTop, plotHeight = chart.plotHeight, plotBottom = plotTop + plotHeight, calculatePercent = function (value) {
-                    return value * 100 / plotHeight + '%';
-                }, normalize = function (val, min, max) {
-                    return Math.round(clamp(val, min, max));
-                };
+                // Prev and next configs
+                axesConfigs = [], plotTop = chart.plotTop, plotHeight = chart.plotHeight, plotBottom = plotTop + plotHeight, calculatePercent = function (value) { return (value * 100 / plotHeight + '%'); }, normalize = function (val, min, max) { return (Math.round(clamp(val, min, max))); };
                 // Normalize chartY to plot area limits
                 chartY = clamp(chartY, plotTop, plotBottom);
                 var stopDrag = false, yDelta = chartY - resizer.lastPos;
@@ -426,46 +403,49 @@
                 if (yDelta * yDelta < 1) {
                     return;
                 }
+                var isFirst = true;
                 // First gather info how axes should behave
-                [prevAxes, nextAxes].forEach(function (axesGroup, isNext) {
-                    axesGroup.forEach(function (axisInfo, i) {
+                for (var _i = 0, _a = [prevAxes, nextAxes]; _i < _a.length; _i++) {
+                    var axesGroup = _a[_i];
+                    for (var _b = 0, axesGroup_1 = axesGroup; _b < axesGroup_1.length; _b++) {
+                        var axisInfo = axesGroup_1[_b];
                         // Axes given as array index, axis object or axis id
                         var axis = isNumber(axisInfo) ?
                             // If it's a number - it's an index
                             chart.yAxis[axisInfo] :
                             (
                             // If it's first elem. in first group
-                            (!isNext && !i) ?
-                                // then it's an Axis object
+                            isFirst ?
+                                // Then it's an Axis object
                                 axisInfo :
-                                // else it should be an id
+                                // Else it should be an id
                                 chart.get(axisInfo)), axisOptions = axis && axis.options, optionsToUpdate = {};
-                        var height, top;
+                        var height = void 0, top_1 = void 0;
                         // Skip if axis is not found
                         // or it is navigator's yAxis (#7732)
-                        if (!axisOptions ||
-                            axisOptions.id === 'navigator-y-axis') {
-                            return;
+                        if (!axisOptions || axisOptions.isInternal) {
+                            isFirst = false;
+                            continue;
                         }
-                        top = axis.top;
-                        var minLength = Math.round(relativeLength(axisOptions.minLength, plotHeight)), maxLength = Math.round(relativeLength(axisOptions.maxLength, plotHeight));
-                        if (isNext) {
+                        top_1 = axis.top;
+                        var minLength = Math.round(relativeLength(axisOptions.minLength || NaN, plotHeight)), maxLength = Math.round(relativeLength(axisOptions.maxLength || NaN, plotHeight));
+                        if (!isFirst) {
                             // Try to change height first. yDelta could had changed
                             yDelta = chartY - resizer.lastPos;
                             // Normalize height to option limits
                             height = normalize(axis.len - yDelta, minLength, maxLength);
                             // Adjust top, so the axis looks like shrinked from top
-                            top = axis.top + yDelta;
+                            top_1 = axis.top + yDelta;
                             // Check for plot area limits
-                            if (top + height > plotBottom) {
-                                var hDelta = plotBottom - height - top;
+                            if (top_1 + height > plotBottom) {
+                                var hDelta = plotBottom - height - top_1;
                                 chartY += hDelta;
-                                top += hDelta;
+                                top_1 += hDelta;
                             }
                             // Fit to plot - when overflowing on top
-                            if (top < plotTop) {
-                                top = plotTop;
-                                if (top + height > plotBottom) {
+                            if (top_1 < plotTop) {
+                                top_1 = plotTop;
+                                if (top_1 + height > plotBottom) {
                                     height = plotHeight;
                                 }
                             }
@@ -476,20 +456,20 @@
                             axesConfigs.push({
                                 axis: axis,
                                 options: {
-                                    top: calculatePercent(top - plotTop),
+                                    top: calculatePercent(top_1 - plotTop),
                                     height: calculatePercent(height)
                                 }
                             });
                         }
                         else {
                             // Normalize height to option limits
-                            height = normalize(chartY - top, minLength, maxLength);
+                            height = normalize(chartY - top_1, minLength, maxLength);
                             // If prev axis meets max length, stop dragging:
                             if (height === maxLength) {
                                 stopDrag = true;
                             }
                             // Check axis size limits
-                            chartY = top + height;
+                            chartY = top_1 + height;
                             axesConfigs.push({
                                 axis: axis,
                                 options: {
@@ -497,15 +477,17 @@
                                 }
                             });
                         }
+                        isFirst = false;
                         optionsToUpdate.height = height;
-                    });
-                });
+                    }
+                }
                 // If we hit the min/maxLength with dragging, don't do anything:
                 if (!stopDrag) {
                     // Now update axes:
-                    axesConfigs.forEach(function (config) {
+                    for (var _c = 0, axesConfigs_1 = axesConfigs; _c < axesConfigs_1.length; _c++) {
+                        var config = axesConfigs_1[_c];
                         config.axis.update(config.options, false);
-                    });
+                    }
                     chart.redraw(false);
                 }
             };
@@ -521,16 +503,15 @@
                 delete axis.resizer;
                 // Clear control line events
                 if (this.eventsToUnbind) {
-                    this.eventsToUnbind.forEach(function (unbind) {
-                        unbind();
-                    });
+                    this.eventsToUnbind.forEach(function (unbind) { return unbind(); });
                 }
                 // Destroy AxisResizer elements
                 resizer.controlLine.destroy();
                 // Nullify properties
-                objectEach(resizer, function (val, key) {
+                for (var _i = 0, _a = Object.keys(resizer); _i < _a.length; _i++) {
+                    var key = _a[_i];
                     resizer[key] = null;
-                });
+                }
             };
             /* *
              *
@@ -549,12 +530,12 @@
 
         return AxisResizer;
     });
-    _registerModule(_modules, 'Extensions/DragPanes/DragPanes.js', [_modules['Extensions/DragPanes/AxisResizer.js'], _modules['Core/Utilities.js']], function (AxisResizer, U) {
+    _registerModule(_modules, 'Extensions/DragPanes/DragPanes.js', [_modules['Extensions/DragPanes/AxisResizer.js'], _modules['Core/Defaults.js'], _modules['Core/Utilities.js']], function (AxisResizer, D, U) {
         /* *
          *
          *  Plugin for resizing axes / panes in a chart.
          *
-         *  (c) 2010-2021 Highsoft AS
+         *  (c) 2010-2024 Highsoft AS
          *
          *  Author: Kacper Madej
          *
@@ -563,13 +544,8 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
+        var defaultOptions = D.defaultOptions;
         var addEvent = U.addEvent, merge = U.merge, wrap = U.wrap;
-        /* *
-         *
-         *  Constants
-         *
-         * */
-        var composedMembers = [];
         /* *
          *
          *  Functions
@@ -579,14 +555,12 @@
          * @private
          */
         function compose(AxisClass, PointerClass) {
-            if (U.pushUnique(composedMembers, AxisClass)) {
-                merge(true, AxisClass.defaultOptions, AxisResizer.resizerOptions);
+            if (!AxisClass.keepProps.includes('resizer')) {
+                merge(true, defaultOptions.yAxis, AxisResizer.resizerOptions);
                 // Keep resizer reference on axis update
                 AxisClass.keepProps.push('resizer');
                 addEvent(AxisClass, 'afterRender', onAxisAfterRender);
                 addEvent(AxisClass, 'destroy', onAxisDestroy);
-            }
-            if (U.pushUnique(composedMembers, PointerClass)) {
                 wrap(PointerClass.prototype, 'runPointActions', wrapPointerRunPointActions);
                 wrap(PointerClass.prototype, 'drag', wrapPointerDrag);
             }
@@ -596,9 +570,9 @@
          * @private
          */
         function onAxisAfterRender() {
-            var axis = this, resizer = axis.resizer, resizerOptions = axis.options.resize, enabled;
+            var axis = this, resizer = axis.resizer, resizerOptions = axis.options.resize;
             if (resizerOptions) {
-                enabled = resizerOptions.enabled !== false;
+                var enabled = resizerOptions.enabled !== false;
                 if (resizer) {
                     // Resizer present and enabled
                     if (enabled) {
@@ -626,8 +600,9 @@
          * @private
          */
         function onAxisDestroy(e) {
-            if (!e.keepEvents && this.resizer) {
-                this.resizer.destroy();
+            var axis = this;
+            if (!e.keepEvents && axis.resizer) {
+                axis.resizer.destroy();
             }
         }
         /**
@@ -636,8 +611,9 @@
          * @private
          */
         function wrapPointerDrag(proceed) {
-            if (!this.chart.activeResizer) {
-                proceed.apply(this, Array.prototype.slice.call(arguments, 1));
+            var pointer = this;
+            if (!pointer.chart.activeResizer) {
+                proceed.apply(pointer, [].slice.call(arguments, 1));
             }
         }
         /**
@@ -645,8 +621,9 @@
          * @private
          */
         function wrapPointerRunPointActions(proceed) {
-            if (!this.chart.activeResizer) {
-                proceed.apply(this, Array.prototype.slice.call(arguments, 1));
+            var pointer = this;
+            if (!pointer.chart.activeResizer) {
+                proceed.apply(pointer, [].slice.call(arguments, 1));
             }
         }
         /* *
@@ -666,5 +643,6 @@
         G.AxisResizer = AxisResizer;
         DragPanes.compose(G.Axis, G.Pointer);
 
+        return Highcharts;
     });
 }));

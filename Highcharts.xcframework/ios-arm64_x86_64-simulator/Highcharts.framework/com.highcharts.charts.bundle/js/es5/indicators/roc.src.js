@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Kacper Madej
+ * (c) 2010-2024 Kacper Madej
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Stock/Indicators/ROC/ROCIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Kacper Madej
+         *  (c) 2010-2024 Kacper Madej
          *
          *  License: www.highcharts.com/license
          *
@@ -70,6 +68,9 @@
          *
          * */
         // Utils:
+        /**
+         *
+         */
         function populateAverage(xVal, yVal, i, period, index) {
             /* Calculated as:
 
@@ -79,14 +80,14 @@
                Return y as null when avoiding division by zero */
             var nDaysAgoY, rocY;
             if (index < 0) {
-                // y data given as an array of values
+                // Y data given as an array of values
                 nDaysAgoY = yVal[i - period];
                 rocY = nDaysAgoY ?
                     (yVal[i] - nDaysAgoY) / nDaysAgoY * 100 :
                     null;
             }
             else {
-                // y data given as an array of arrays and the index should be used
+                // Y data given as an array of arrays and the index should be used
                 nDaysAgoY = yVal[i - period][index];
                 rocY = nDaysAgoY ?
                     (yVal[i][index] - nDaysAgoY) / nDaysAgoY * 100 :
@@ -111,21 +112,7 @@
         var ROCIndicator = /** @class */ (function (_super) {
             __extends(ROCIndicator, _super);
             function ROCIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -144,7 +131,7 @@
                 if (isArray(yVal[0])) {
                     index = params.index;
                 }
-                // i = period <-- skip first N-points
+                // I = period <-- skip first N-points
                 // Calculate value one-by-one for each period in visible data
                 for (i = period; i < yValLen; i++) {
                     ROCPoint = populateAverage(xVal, yVal, i, period, index);
@@ -158,6 +145,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Rate of change indicator (ROC). The indicator value for each point
              * is defined as:
@@ -225,12 +217,13 @@
          * @requires  stock/indicators/roc
          * @apioption series.roc
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return ROCIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/roc.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/roc.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

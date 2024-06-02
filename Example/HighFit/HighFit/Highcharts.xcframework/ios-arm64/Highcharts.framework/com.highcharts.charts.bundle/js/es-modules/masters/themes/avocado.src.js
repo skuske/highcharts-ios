@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  * @module highcharts/themes/avocado
  * @requires highcharts
  *
- * (c) 2009-2021 Highsoft AS
+ * (c) 2009-2024 Highsoft AS
  *
  * License: www.highcharts.com/license
  */
@@ -12,3 +12,4 @@ import H from '../../Core/Globals.js';
 import AvocadoTheme from '../../Extensions/Themes/Avocado.js';
 H.theme = AvocadoTheme.options;
 AvocadoTheme.apply();
+export default H;

@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
- * (c) 2009-2021 Sebastian Bochan, Rafal Sebestjanski
+ * (c) 2009-2024 Sebastian Bochan, Rafal Sebestjanski
  *
  * License: www.highcharts.com/license
  */
@@ -26,19 +26,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Series/Lollipop/LollipopPoint.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -70,16 +68,7 @@
         var LollipopPoint = /** @class */ (function (_super) {
             __extends(LollipopPoint, _super);
             function LollipopPoint() {
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                _this.options = void 0;
-                _this.series = void 0;
-                _this.plotX = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             return LollipopPoint;
         }(Point));
@@ -99,7 +88,7 @@
     _registerModule(_modules, 'Series/Lollipop/LollipopSeries.js', [_modules['Series/Lollipop/LollipopPoint.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Series/Series.js'], _modules['Core/Utilities.js']], function (LollipopPoint, SeriesRegistry, Series, U) {
         /* *
          *
-         *  (c) 2010-2021 Sebastian Bochan, Rafal Sebestjanski
+         *  (c) 2010-2024 Sebastian Bochan, Rafal Sebestjanski
          *
          *  License: www.highcharts.com/license
          *
@@ -121,7 +110,9 @@
                 d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
             };
         })();
-        var _a = SeriesRegistry.seriesTypes, colProto = _a.column.prototype, dumbbellProto = _a.dumbbell.prototype, ScatterSeries = _a.scatter;
+        var _a = SeriesRegistry.seriesTypes, colProto = _a.column.prototype, dumbbellProto = _a.dumbbell.prototype, 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ScatterSeries = _a.scatter;
         var extend = U.extend, merge = U.merge;
         /* *
          *
@@ -141,21 +132,7 @@
         var LollipopSeries = /** @class */ (function (_super) {
             __extends(LollipopSeries, _super);
             function LollipopSeries() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /**
              * Extend the series' drawPoints method by applying a connector
@@ -163,9 +140,6 @@
              * @private
              *
              * @function Highcharts.Series#drawPoints
-             *
-             * @param {Highcharts.Series} this The series of points.
-             *
              */
             LollipopSeries.prototype.drawPoints = function () {
                 var series = this, pointLength = series.points.length;
@@ -178,6 +152,31 @@
                     i++;
                 }
             };
+            /**
+             * Extend the series' translate method to use grouping option.
+             * @private
+             *
+             * @function Highcharts.Series#translate
+             *
+             */
+            LollipopSeries.prototype.translate = function () {
+                var series = this;
+                colProto.translate.apply(series, arguments);
+                // Correct x position
+                for (var _i = 0, _a = series.points; _i < _a.length; _i++) {
+                    var point = _a[_i];
+                    var pointWidth = point.pointWidth, shapeArgs = point.shapeArgs;
+                    if (shapeArgs === null || shapeArgs === void 0 ? void 0 : shapeArgs.x) {
+                        shapeArgs.x += pointWidth / 2;
+                        point.plotX = shapeArgs.x || 0;
+                    }
+                }
+            };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * The lollipop series is a carteseian series with a line anchored from
              * the x axis and a dot at the end to mark the value.
@@ -203,6 +202,22 @@
                 connectorWidth: 1,
                 /** @ignore-option */
                 groupPadding: 0.2,
+                /**
+                 * Whether to group non-stacked lollipop points or to let them
+                 * render independent of each other. Non-grouped lollipop points
+                 * will be laid out individually and overlap each other.
+                 *
+                 * @sample highcharts/series-lollipop/enabled-grouping/
+                 *         Multiple lollipop series with grouping
+                 * @sample highcharts/series-lollipop/disabled-grouping/
+                 *         Multiple lollipop series with disabled grouping
+                 *
+                 * @type      {boolean}
+                 * @default   true
+                 * @since     8.0.0
+                 * @product   highcharts highstock
+                 * @apioption plotOptions.lollipop.grouping
+                 */
                 /** @ignore-option */
                 pointPadding: 0.1,
                 /** @ignore-option */
@@ -233,8 +248,7 @@
             drawDataLabels: colProto.drawDataLabels,
             getColumnMetrics: colProto.getColumnMetrics,
             getConnectorAttribs: dumbbellProto.getConnectorAttribs,
-            pointClass: LollipopPoint,
-            translate: colProto.translate
+            pointClass: LollipopPoint
         });
         SeriesRegistry.registerSeriesType('lollipop', LollipopSeries);
         /* *
@@ -323,12 +337,13 @@
          * @product   highcharts highstock
          * @apioption series.line.data.y
          */
-        (''); // adds doclets above to transpiled file
+        (''); // Adds doclets above to transpiled file
 
         return LollipopSeries;
     });
-    _registerModule(_modules, 'masters/modules/lollipop.src.js', [], function () {
+    _registerModule(_modules, 'masters/modules/lollipop.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

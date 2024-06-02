@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -16,14 +16,21 @@ const { defined, isNumber, pick } = U;
  *
  * */
 /* eslint-disable require-jsdoc, valid-jsdoc */
+/**
+ *
+ */
 function arc(cx, cy, w, h, options) {
     const arc = [];
     if (options) {
-        const start = options.start || 0, rx = pick(options.r, w), ry = pick(options.r, h || w), proximity = 0.001, fullCircle = (Math.abs((options.end || 0) - start - 2 * Math.PI) <
-            proximity), 
-        // Substract a small number to prevent cos and sin of start
-        // and end from becoming equal on 360 arcs (related: #1561)
-        end = (options.end || 0) - proximity, innerRadius = options.innerR, open = pick(options.open, fullCircle), cosStart = Math.cos(start), sinStart = Math.sin(start), cosEnd = Math.cos(end), sinEnd = Math.sin(end), 
+        const start = options.start || 0, rx = pick(options.r, w), ry = pick(options.r, h || w), 
+        // Subtract a small number to prevent cos and sin of start and end
+        // from becoming equal on 360 arcs (#1561). The size of the circle
+        // affects the constant, therefore the division by `rx`. If the
+        // proximity is too small, the arc disappears. If it is too great, a
+        // gap appears. This can be seen in the animation of the official
+        // bubble demo (#20586).
+        proximity = 0.0002 / Math.max(rx, 1), fullCircle = (Math.abs((options.end || 0) - start - 2 * Math.PI) <
+            proximity), end = (options.end || 0) - proximity, innerRadius = options.innerR, open = pick(options.open, fullCircle), cosStart = Math.cos(start), sinStart = Math.sin(start), cosEnd = Math.cos(end), sinEnd = Math.sin(end), 
         // Proximity takes care of rounding errors around PI (#6971)
         longArc = pick(options.longArc, end - start - Math.PI < proximity ? 0 : 1);
         let arcSegment = [
@@ -87,8 +94,12 @@ function callout(x, y, w, h, options) {
     if (!isNumber(anchorX)) {
         return path;
     }
+    // Do not render a connector, if anchor starts inside the label
+    if (anchorX < w && anchorX > 0 && anchorY < h && anchorY > 0) {
+        return path;
+    }
     // Anchor on right side
-    if (x + anchorX >= w) {
+    if (x + anchorX > w - safeDistance) {
         // Chevron
         if (anchorY > y + safeDistance &&
             anchorY < y + h - safeDistance) {
@@ -96,11 +107,17 @@ function callout(x, y, w, h, options) {
             // Simple connector
         }
         else {
-            path.splice(3, 1, ['L', x + w, h / 2], ['L', anchorX, anchorY], ['L', x + w, h / 2], ['L', x + w, y + h - r]);
+            if (anchorX < w) { // Corner connector
+                const isTopCorner = anchorY < y + safeDistance, cornerY = isTopCorner ? y : y + h, sliceStart = isTopCorner ? 2 : 5;
+                path.splice(sliceStart, 0, ['L', anchorX, anchorY], ['L', x + w - r, cornerY]);
+            }
+            else { // Side connector
+                path.splice(3, 1, ['L', x + w, h / 2], ['L', anchorX, anchorY], ['L', x + w, h / 2], ['L', x + w, y + h - r]);
+            }
         }
         // Anchor on left side
     }
-    else if (x + anchorX <= 0) {
+    else if (x + anchorX < safeDistance) {
         // Chevron
         if (anchorY > y + safeDistance &&
             anchorY < y + h - safeDistance) {
@@ -108,25 +125,30 @@ function callout(x, y, w, h, options) {
             // Simple connector
         }
         else {
-            path.splice(7, 1, ['L', x, h / 2], ['L', anchorX, anchorY], ['L', x, h / 2], ['L', x, y + r]);
+            if (anchorX > 0) { // Corner connector
+                const isTopCorner = anchorY < y + safeDistance, cornerY = isTopCorner ? y : y + h, sliceStart = isTopCorner ? 1 : 6;
+                path.splice(sliceStart, 0, ['L', anchorX, anchorY], ['L', x + r, cornerY]);
+            }
+            else { // Side connector
+                path.splice(7, 1, ['L', x, h / 2], ['L', anchorX, anchorY], ['L', x, h / 2], ['L', x, y + r]);
+            }
         }
     }
-    else if ( // replace bottom
-    anchorY &&
-        anchorY > h &&
-        anchorX > x + safeDistance &&
-        anchorX < x + w - safeDistance) {
+    else if ( // Replace bottom
+    anchorY > h &&
+        anchorX < w - safeDistance) {
         path.splice(5, 1, ['L', anchorX + halfDistance, y + h], ['L', anchorX, y + h + arrowLength], ['L', anchorX - halfDistance, y + h], ['L', x + r, y + h]);
     }
-    else if ( // replace top
-    anchorY &&
-        anchorY < 0 &&
-        anchorX > x + safeDistance &&
-        anchorX < x + w - safeDistance) {
+    else if ( // Replace top
+    anchorY < 0 &&
+        anchorX > safeDistance) {
         path.splice(1, 1, ['L', anchorX - halfDistance, y], ['L', anchorX, y - arrowLength], ['L', anchorX + halfDistance, y], ['L', w - r, y]);
     }
     return path;
 }
+/**
+ *
+ */
 function circle(x, y, w, h) {
     // Return a full arc
     return arc(x + w / 2, y + h / 2, w / 2, h / 2, {
@@ -135,6 +157,9 @@ function circle(x, y, w, h) {
         open: false
     });
 }
+/**
+ *
+ */
 function diamond(x, y, w, h) {
     return [
         ['M', x + w / 2, y],
@@ -145,6 +170,9 @@ function diamond(x, y, w, h) {
     ];
 }
 // #15291
+/**
+ *
+ */
 function rect(x, y, w, h, options) {
     if (options && options.r) {
         return roundedRect(x, y, w, h, options);
@@ -157,8 +185,11 @@ function rect(x, y, w, h, options) {
         ['Z']
     ];
 }
+/**
+ *
+ */
 function roundedRect(x, y, w, h, options) {
-    const r = (options === null || options === void 0 ? void 0 : options.r) || 0;
+    const r = options?.r || 0;
     return [
         ['M', x + r, y],
         ['L', x + w - r, y],
@@ -169,9 +200,12 @@ function roundedRect(x, y, w, h, options) {
         ['A', r, r, 0, 0, 1, x, y + h - r],
         ['L', x, y + r],
         ['A', r, r, 0, 0, 1, x + r, y],
-        ['Z'] // top-left corner
+        ['Z'] // Top-left corner
     ];
 }
+/**
+ *
+ */
 function triangle(x, y, w, h) {
     return [
         ['M', x + w / 2, y],
@@ -180,6 +214,9 @@ function triangle(x, y, w, h) {
         ['Z']
     ];
 }
+/**
+ *
+ */
 function triangleDown(x, y, w, h) {
     return [
         ['M', x, y],

@@ -1,7 +1,7 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
- * (c) 2010-2021 Highsoft AS
+ * (c) 2010-2024 Highsoft AS
  * Author: Sebastian Domas
  *
  * License: www.highcharts.com/license
@@ -27,19 +27,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Stock/Indicators/CMF/CMFIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Highsoft AS
+         *  (c) 2010-2024 Highsoft AS
          *
          *  Author: Sebastian Domas
          *
@@ -90,17 +88,6 @@
                  *
                  * */
                 var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.volumeSeries = void 0;
-                _this.linkedParent = void 0;
-                _this.yData = void 0;
                 _this.nameBase = 'Chaikin Money Flow';
                 return _this;
             }
@@ -268,7 +255,7 @@
                     index: void 0,
                     /**
                      * The id of another series to use its data as volume data for the
-                     * indiator calculation.
+                     * indicator calculation.
                      */
                     volumeSeriesID: 'volume'
                 }
@@ -298,12 +285,13 @@
          * @requires  stock/indicators/cmf
          * @apioption series.cmf
          */
-        ''; // adds doclet above to the transpiled file
+        ''; // Adds doclet above to the transpiled file
 
         return CMFIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/cmf.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/cmf.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

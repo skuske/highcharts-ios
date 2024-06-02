@@ -2,7 +2,7 @@
  *
  *  X-range series module
  *
- *  (c) 2010-2021 Torstein Honsi, Lars A. V. Cabrera
+ *  (c) 2010-2024 Torstein Honsi, Lars A. V. Cabrera
  *
  *  License: www.highcharts.com/license
  *
@@ -11,7 +11,7 @@
  * */
 'use strict';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-const { series: { prototype: { pointClass: { prototype: pointProto } } }, seriesTypes: { column: { prototype: { pointClass: ColumnPoint } } } } = SeriesRegistry;
+const { column: { prototype: { pointClass: ColumnPoint } } } = SeriesRegistry.seriesTypes;
 import U from '../../Core/Utilities.js';
 const { extend } = U;
 /* *
@@ -20,21 +20,11 @@ const { extend } = U;
  *
  * */
 class XRangePoint extends ColumnPoint {
-    constructor() {
-        /* *
-         *
-         *  Static Functions
-         *
-         * */
-        super(...arguments);
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        this.options = void 0;
-        this.series = void 0;
-    }
+    /* *
+     *
+     *  Static Functions
+     *
+     * */
     /**
      * Return color of a point based on its category.
      *
@@ -78,8 +68,8 @@ class XRangePoint extends ColumnPoint {
                 this.colorIndex = colorByPoint.colorIndex;
             }
         }
-        else if (!this.color) {
-            this.color = series.color;
+        else {
+            this.color = this.options.color || series.color;
         }
     }
     /**
@@ -87,18 +77,17 @@ class XRangePoint extends ColumnPoint {
      *
      * @private
      */
-    init() {
-        pointProto.init.apply(this, arguments);
+    constructor(series, options) {
+        super(series, options);
         if (!this.y) {
             this.y = 0;
         }
-        return this;
     }
     /**
      * @private
      */
     setState() {
-        pointProto.setState.apply(this, arguments);
+        super.setState.apply(this, arguments);
         this.series.drawPoint(this, this.series.getAnimationVerb());
     }
     /**
@@ -107,9 +96,12 @@ class XRangePoint extends ColumnPoint {
      * @private
      */
     getLabelConfig() {
-        const cfg = pointProto.getLabelConfig.call(this), yCats = this.series.yAxis.categories;
+        const cfg = super.getLabelConfig.call(this), yCats = this.series.yAxis.categories;
         cfg.x2 = this.x2;
         cfg.yCategory = this.yCategory = yCats && yCats[this.y];
+        // Use 'category' as 'key' to ensure tooltip datetime formatting.
+        // Use 'name' only when 'category' is undefined.
+        cfg.key = this.category || this.name;
         return cfg;
     }
     /**
@@ -158,4 +150,4 @@ export default XRangePoint;
 * @type {number|undefined}
 * @requires modules/xrange
 */
-(''); // keeps doclets above in JS file
+(''); // Keeps doclets above in JS file

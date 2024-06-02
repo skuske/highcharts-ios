@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  * @module highcharts/modules/series-label
  * @requires highcharts
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -12,3 +12,4 @@ import Highcharts from '../../Core/Globals.js';
 import SeriesLabel from '../../Extensions/SeriesLabel/SeriesLabel.js';
 const G = Highcharts;
 SeriesLabel.compose(G.Chart, G.SVGRenderer);
+export default Highcharts;

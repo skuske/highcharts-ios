@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Paweł Fus
+ * (c) 2010-2024 Paweł Fus
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Stock/Indicators/MultipleLinesComposition.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Wojciech Chmiel
+         *  (c) 2010-2024 Wojciech Chmiel
          *
          *  License: www.highcharts.com/license
          *
@@ -62,11 +60,10 @@
              *
              * */
             /* *
-            *
-            *  Constants
-            *
-            * */
-            var composedMembers = [];
+             *
+             *  Constants
+             *
+             * */
             /**
              * Additional lines DOCS names. Elements of linesApiNames array should
              * be consistent with DOCS line names defined in your implementation.
@@ -89,7 +86,7 @@
              */
             var pointArrayMap = ['top', 'bottom'];
             /**
-             * Names of the lines, bewteen which the area should be plotted.
+             * Names of the lines, between which the area should be plotted.
              * If the drawing of the area should
              * be disabled for some indicators, leave this option as an empty array.
              * Names should be the same as the names in the pointArrayMap.
@@ -106,10 +103,10 @@
              */
             var pointValKey = 'top';
             /* *
-            *
-            *  Functions
-            *
-            * */
+             *
+             *  Functions
+             *
+             * */
             /**
              * Composition useful for all indicators that have more than one line.
              * Compose it with your implementation where you will provide the
@@ -121,21 +118,19 @@
              * @private
              */
             function compose(IndicatorClass) {
-                if (U.pushUnique(composedMembers, IndicatorClass)) {
-                    var proto = IndicatorClass.prototype;
-                    proto.linesApiNames = (proto.linesApiNames ||
-                        linesApiNames.slice());
-                    proto.pointArrayMap = (proto.pointArrayMap ||
-                        pointArrayMap.slice());
-                    proto.pointValKey = (proto.pointValKey ||
-                        pointValKey);
-                    proto.areaLinesNames = (proto.areaLinesNames ||
-                        areaLinesNames.slice());
-                    proto.drawGraph = indicatorDrawGraph;
-                    proto.getGraphPath = indicatorGetGraphPath;
-                    proto.toYData = indicatorToYData;
-                    proto.translate = indicatorTranslate;
-                }
+                var proto = IndicatorClass.prototype;
+                proto.linesApiNames = (proto.linesApiNames ||
+                    linesApiNames.slice());
+                proto.pointArrayMap = (proto.pointArrayMap ||
+                    pointArrayMap.slice());
+                proto.pointValKey = (proto.pointValKey ||
+                    pointValKey);
+                proto.areaLinesNames = (proto.areaLinesNames ||
+                    areaLinesNames.slice());
+                proto.drawGraph = indicatorDrawGraph;
+                proto.getGraphPath = indicatorGetGraphPath;
+                proto.toYData = indicatorToYData;
+                proto.translate = indicatorTranslate;
                 return IndicatorClass;
             }
             MultipleLinesComposition.compose = compose;
@@ -179,12 +174,12 @@
                         gapSize: mainLineOptions.gapSize
                     }
                 }, 
-                // additional lines point place holders:
+                // Additional lines point place holders:
                 secondaryLines = [], secondaryLinesNames = getTranslatedLinesNames(indicator, pointValKey);
                 var pointsLength = mainLinePoints.length, point;
                 // Generate points for additional lines:
                 secondaryLinesNames.forEach(function (plotLine, index) {
-                    // create additional lines point place holders
+                    // Create additional lines point place holders
                     secondaryLines[index] = [];
                     while (pointsLength--) {
                         point = mainLinePoints[pointsLength];
@@ -362,21 +357,7 @@
         var PriceEnvelopesIndicator = /** @class */ (function (_super) {
             __extends(PriceEnvelopesIndicator, _super);
             function PriceEnvelopesIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -403,7 +384,7 @@
                 var period = params.period, topPercent = params.topBand, botPercent = params.bottomBand, xVal = series.xData, yVal = series.yData, yValLen = yVal ? yVal.length : 0, 
                 // 0- date, 1-top line, 2-middle line, 3-bottom line
                 PE = [], 
-                // middle line, top line and bottom line
+                // Middle line, top line and bottom line
                 xData = [], yData = [];
                 var ML, TL, BL, date, slicedX, slicedY, point, i;
                 // Price envelopes requires close value
@@ -433,6 +414,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Price envelopes indicator based on [SMA](#plotOptions.sma) calculations.
              * This series requires the `linkedTo` option to be set and should be loaded
@@ -547,12 +533,13 @@
          * @requires  stock/indicators/price-envelopes
          * @apioption series.priceenvelopes
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return PriceEnvelopesIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/price-envelopes.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/price-envelopes.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

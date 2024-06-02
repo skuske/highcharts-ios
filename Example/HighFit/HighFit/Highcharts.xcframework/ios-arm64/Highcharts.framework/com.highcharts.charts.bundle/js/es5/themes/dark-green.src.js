@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -26,19 +26,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Extensions/Themes/DarkGreen.js', [_modules['Core/Defaults.js']], function (D) {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -61,8 +59,10 @@
              *
              * */
             DarkGreenTheme.options = {
-                colors: ['#DDDF0D', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee',
-                    '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+                colors: [
+                    '#DDDF0D', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee',
+                    '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'
+                ],
                 chart: {
                     backgroundColor: {
                         linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
@@ -117,7 +117,6 @@
                         }
                     },
                     lineColor: '#A0A0A0',
-                    minorTickInterval: null,
                     tickColor: '#A0A0A0',
                     tickWidth: 1,
                     title: {
@@ -196,7 +195,7 @@
                         }
                     }
                 },
-                // scroll charts
+                // Scroll charts
                 rangeSelector: {
                     buttonTheme: {
                         fill: {
@@ -315,5 +314,6 @@
         H.theme = DarkGreenTheme.options;
         DarkGreenTheme.apply();
 
+        return H;
     });
 }));

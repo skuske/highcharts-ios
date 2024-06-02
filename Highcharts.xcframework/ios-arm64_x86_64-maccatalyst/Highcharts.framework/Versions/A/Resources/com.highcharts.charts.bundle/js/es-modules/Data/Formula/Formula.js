@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2023 Highsoft AS
+ *  (c) 2009-2024 Highsoft AS
  *
  *  License: www.highcharts.com/license
  *
@@ -46,5 +46,9 @@ import './Functions/XOR.js';
  * Formula engine to make use of spreadsheet formula strings.
  * @internal
  */
-const Formula = Object.assign(Object.assign(Object.assign({}, FormulaParser), FormulaProcessor), FormulaType);
+const Formula = {
+    ...FormulaParser,
+    ...FormulaProcessor,
+    ...FormulaType
+};
 export default Formula;

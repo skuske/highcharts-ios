@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
  * Exporting module
  *
- * (c) 2010-2021 Torstein Honsi
+ * (c) 2010-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -28,21 +28,148 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
+    _registerModule(_modules, 'Extensions/DownloadURL.js', [_modules['Core/Globals.js']], function (H) {
+        /* *
+         *
+         *  (c) 2015-2024 Oystein Moseng
+         *
+         *  License: www.highcharts.com/license
+         *
+         *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
+         *
+         *  Mixin for downloading content in the browser
+         *
+         * */
+        /* *
+         *
+         *  Imports
+         *
+         * */
+        var isSafari = H.isSafari, win = H.win, doc = H.win.document;
+        /* *
+         *
+         *  Constants
+         *
+         * */
+        var domurl = win.URL || win.webkitURL || win;
+        /* *
+         *
+         *  Functions
+         *
+         * */
+        /**
+         * Convert base64 dataURL to Blob if supported, otherwise returns undefined.
+         * @private
+         * @function Highcharts.dataURLtoBlob
+         * @param {string} dataURL
+         *        URL to convert
+         * @return {string|undefined}
+         *         Blob
+         */
+        function dataURLtoBlob(dataURL) {
+            var parts = dataURL
+                .replace(/filename=.*;/, '')
+                .match(/data:([^;]*)(;base64)?,([0-9A-Za-z+/]+)/);
+            if (parts &&
+                parts.length > 3 &&
+                (win.atob) &&
+                win.ArrayBuffer &&
+                win.Uint8Array &&
+                win.Blob &&
+                (domurl.createObjectURL)) {
+                // Try to convert data URL to Blob
+                var binStr = win.atob(parts[3]), buf = new win.ArrayBuffer(binStr.length), binary = new win.Uint8Array(buf);
+                for (var i = 0; i < binary.length; ++i) {
+                    binary[i] = binStr.charCodeAt(i);
+                }
+                return domurl
+                    .createObjectURL(new win.Blob([binary], { 'type': parts[1] }));
+            }
+        }
+        /**
+         * Download a data URL in the browser. Can also take a blob as first param.
+         *
+         * @private
+         * @function Highcharts.downloadURL
+         * @param {string|global.URL} dataURL
+         *        The dataURL/Blob to download
+         * @param {string} filename
+         *        The name of the resulting file (w/extension)
+         * @return {void}
+         */
+        function downloadURL(dataURL, filename) {
+            var nav = win.navigator, a = doc.createElement('a');
+            // IE specific blob implementation
+            // Don't use for normal dataURLs
+            if (typeof dataURL !== 'string' &&
+                !(dataURL instanceof String) &&
+                nav.msSaveOrOpenBlob) {
+                nav.msSaveOrOpenBlob(dataURL, filename);
+                return;
+            }
+            dataURL = '' + dataURL;
+            if (nav.userAgent.length > 1000 /* RegexLimits.shortLimit */) {
+                throw new Error('Input too long');
+            }
+            var // Some browsers have limitations for data URL lengths. Try to convert
+            // to Blob or fall back. Edge always needs that blob.
+            isOldEdgeBrowser = /Edge\/\d+/.test(nav.userAgent), 
+            // Safari on iOS needs Blob in order to download PDF
+            safariBlob = (isSafari &&
+                typeof dataURL === 'string' &&
+                dataURL.indexOf('data:application/pdf') === 0);
+            if (safariBlob || isOldEdgeBrowser || dataURL.length > 2000000) {
+                dataURL = dataURLtoBlob(dataURL) || '';
+                if (!dataURL) {
+                    throw new Error('Failed to convert to blob');
+                }
+            }
+            // Try HTML5 download attr if supported
+            if (typeof a.download !== 'undefined') {
+                a.href = dataURL;
+                a.download = filename; // HTML5 download attribute
+                doc.body.appendChild(a);
+                a.click();
+                doc.body.removeChild(a);
+            }
+            else {
+                // No download attr, just opening data URI
+                try {
+                    if (!win.open(dataURL, 'chart')) {
+                        throw new Error('Failed to open window');
+                    }
+                }
+                catch (_a) {
+                    // If window.open failed, try location.href
+                    win.location.href = dataURL;
+                }
+            }
+        }
+        /* *
+         *
+         *  Default Export
+         *
+         * */
+        var DownloadURL = {
+            dataURLtoBlob: dataURLtoBlob,
+            downloadURL: downloadURL
+        };
+
+        return DownloadURL;
+    });
     _registerModule(_modules, 'Extensions/ExportData/ExportDataDefaults.js', [], function () {
         /* *
          *
          *  Experimental data export module for Highcharts
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -216,7 +343,17 @@
              * @since    6.0.4
              * @requires modules/export-data
              */
-            useRowspanHeaders: true
+            useRowspanHeaders: true,
+            /**
+             * Display a message when export is in progress.
+             * Uses [Chart.setLoading()](/class-reference/Highcharts.Chart#setLoading)
+             *
+             * The message can be altered by changing [](#lang.exporting.exportInProgress)
+             *
+             * @since 11.3.0
+             * @requires modules/export-data
+             */
+            showExportInProgress: true
         };
         /**
          * @optionparent lang
@@ -270,7 +407,14 @@
              * @since 8.2.0
              * @requires modules/export-data
              */
-            hideData: 'Hide data table'
+            hideData: 'Hide data table',
+            /**
+             * Text to show when export is in progress.
+             *
+             * @since 11.3.0
+             * @requires modules/export-data
+             */
+            exportInProgress: 'Exporting...'
         };
         /* *
          *
@@ -307,123 +451,16 @@
          * @requires  modules/export-data
          * @apioption plotOptions.series.includeInDataExport
          */
-        (''); // keep doclets above in JS file
+        (''); // Keep doclets above in JS file
 
         return ExportDataDefaults;
     });
-    _registerModule(_modules, 'Extensions/DownloadURL.js', [_modules['Core/Globals.js']], function (Highcharts) {
-        /* *
-         *
-         *  (c) 2015-2021 Oystein Moseng
-         *
-         *  License: www.highcharts.com/license
-         *
-         *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
-         *
-         *  Mixin for downloading content in the browser
-         *
-         * */
-        var isSafari = Highcharts.isSafari;
-        var win = Highcharts.win, doc = win.document, domurl = win.URL || win.webkitURL || win;
-        /**
-         * Convert base64 dataURL to Blob if supported, otherwise returns undefined.
-         * @private
-         * @function Highcharts.dataURLtoBlob
-         * @param {string} dataURL
-         *        URL to convert
-         * @return {string|undefined}
-         *         Blob
-         */
-        var dataURLtoBlob = Highcharts.dataURLtoBlob = function (dataURL) {
-            var parts = dataURL
-                .replace(/filename=.*;/, '')
-                .match(/data:([^;]*)(;base64)?,([0-9A-Za-z+/]+)/);
-            if (parts &&
-                parts.length > 3 &&
-                (win.atob) &&
-                win.ArrayBuffer &&
-                win.Uint8Array &&
-                win.Blob &&
-                (domurl.createObjectURL)) {
-                // Try to convert data URL to Blob
-                var binStr = win.atob(parts[3]), buf = new win.ArrayBuffer(binStr.length), binary = new win.Uint8Array(buf);
-                for (var i = 0; i < binary.length; ++i) {
-                    binary[i] = binStr.charCodeAt(i);
-                }
-                var blob = new win.Blob([binary], { 'type': parts[1] });
-                return domurl.createObjectURL(blob);
-            }
-        };
-        /**
-         * Download a data URL in the browser. Can also take a blob as first param.
-         *
-         * @private
-         * @function Highcharts.downloadURL
-         * @param {string|global.URL} dataURL
-         *        The dataURL/Blob to download
-         * @param {string} filename
-         *        The name of the resulting file (w/extension)
-         * @return {void}
-         */
-        var downloadURL = Highcharts.downloadURL = function (dataURL, filename) {
-            var nav = win.navigator, a = doc.createElement('a');
-            // IE specific blob implementation
-            // Don't use for normal dataURLs
-            if (typeof dataURL !== 'string' &&
-                !(dataURL instanceof String) &&
-                nav.msSaveOrOpenBlob) {
-                nav.msSaveOrOpenBlob(dataURL, filename);
-                return;
-            }
-            dataURL = "".concat(dataURL);
-            // Some browsers have limitations for data URL lengths. Try to convert to
-            // Blob or fall back. Edge always needs that blob.
-            var isOldEdgeBrowser = /Edge\/\d+/.test(nav.userAgent);
-            // Safari on iOS needs Blob in order to download PDF
-            var safariBlob = (isSafari &&
-                typeof dataURL === 'string' &&
-                dataURL.indexOf('data:application/pdf') === 0);
-            if (safariBlob || isOldEdgeBrowser || dataURL.length > 2000000) {
-                dataURL = dataURLtoBlob(dataURL) || '';
-                if (!dataURL) {
-                    throw new Error('Failed to convert to blob');
-                }
-            }
-            // Try HTML5 download attr if supported
-            if (typeof a.download !== 'undefined') {
-                a.href = dataURL;
-                a.download = filename; // HTML5 download attribute
-                doc.body.appendChild(a);
-                a.click();
-                doc.body.removeChild(a);
-            }
-            else {
-                // No download attr, just opening data URI
-                try {
-                    var windowRef = win.open(dataURL, 'chart');
-                    if (typeof windowRef === 'undefined' || windowRef === null) {
-                        throw new Error('Failed to open window');
-                    }
-                }
-                catch (e) {
-                    // window.open failed, trying location.href
-                    win.location.href = dataURL;
-                }
-            }
-        };
-        var DownloadURL = {
-            dataURLtoBlob: dataURLtoBlob,
-            downloadURL: downloadURL
-        };
-
-        return DownloadURL;
-    });
-    _registerModule(_modules, 'Extensions/ExportData/ExportData.js', [_modules['Core/Renderer/HTML/AST.js'], _modules['Extensions/ExportData/ExportDataDefaults.js'], _modules['Core/Globals.js'], _modules['Core/Defaults.js'], _modules['Extensions/DownloadURL.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (AST, ExportDataDefaults, H, D, DownloadURL, SeriesRegistry, U) {
+    _registerModule(_modules, 'Extensions/ExportData/ExportData.js', [_modules['Core/Renderer/HTML/AST.js'], _modules['Core/Defaults.js'], _modules['Extensions/DownloadURL.js'], _modules['Extensions/ExportData/ExportDataDefaults.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (AST, D, DownloadURL, ExportDataDefaults, H, U) {
         /* *
          *
          *  Experimental data export module for Highcharts
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -442,22 +479,41 @@
             }
             return to.concat(ar || Array.prototype.slice.call(from));
         };
-        var doc = H.doc, win = H.win;
         var getOptions = D.getOptions, setOptions = D.setOptions;
         var downloadURL = DownloadURL.downloadURL;
-        var SeriesClass = SeriesRegistry.series, _a = SeriesRegistry.seriesTypes, AreaRangeSeries = _a.arearange, GanttSeries = _a.gantt, MapSeries = _a.map, MapBubbleSeries = _a.mapbubble, TreemapSeries = _a.treemap;
+        var doc = H.doc, win = H.win;
         var addEvent = U.addEvent, defined = U.defined, extend = U.extend, find = U.find, fireEvent = U.fireEvent, isNumber = U.isNumber, pick = U.pick;
-        /* *
-         *
-         *  Constants
-         *
-         * */
-        var composedMembers = [];
         /* *
          *
          *  Functions
          *
          * */
+        /**
+         * Wrapper function for the download functions, which handles showing and hiding
+         * the loading message
+         *
+         * @private
+         *
+         */
+        function wrapLoading(fn) {
+            var _this = this;
+            var _a;
+            var showMessage = Boolean((_a = this.options.exporting) === null || _a === void 0 ? void 0 : _a.showExportInProgress);
+            // Prefer requestAnimationFrame if available
+            var timeoutFn = win.requestAnimationFrame || setTimeout;
+            // Outer timeout avoids menu freezing on click
+            timeoutFn(function () {
+                showMessage && _this.showLoading(_this.options.lang.exportInProgress);
+                timeoutFn(function () {
+                    try {
+                        fn.call(_this);
+                    }
+                    finally {
+                        showMessage && _this.hideLoading();
+                    }
+                });
+            });
+        }
         /**
          * Generates a data URL of CSV for local download in the browser. This is the
          * default action for a click on the 'Download CSV' button.
@@ -469,9 +525,12 @@
          * @requires modules/exporting
          */
         function chartDownloadCSV() {
-            var csv = this.getCSV(true);
-            downloadURL(getBlobFromContent(csv, 'text/csv') ||
-                'data:text/csv,\uFEFF' + encodeURIComponent(csv), this.getFilename() + '.csv');
+            var _this = this;
+            wrapLoading.call(this, function () {
+                var csv = _this.getCSV(true);
+                downloadURL(getBlobFromContent(csv, 'text/csv') ||
+                    'data:text/csv,\uFEFF' + encodeURIComponent(csv), _this.getFilename() + '.csv');
+            });
         }
         /**
          * Generates a data URL of an XLS document for local download in the browser.
@@ -484,27 +543,30 @@
          * @requires modules/exporting
          */
         function chartDownloadXLS() {
-            var uri = 'data:application/vnd.ms-excel;base64,', template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
-                'xmlns:x="urn:schemas-microsoft-com:office:excel" ' +
-                'xmlns="http://www.w3.org/TR/REC-html40">' +
-                '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook>' +
-                '<x:ExcelWorksheets><x:ExcelWorksheet>' +
-                '<x:Name>Ark1</x:Name>' +
-                '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>' +
-                '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook>' +
-                '</xml><![endif]-->' +
-                '<style>td{border:none;font-family: Calibri, sans-serif;} ' +
-                '.number{mso-number-format:"0.00";} ' +
-                '.text{ mso-number-format:"\@";}</style>' +
-                '<meta name=ProgId content=Excel.Sheet>' +
-                '<meta charset=UTF-8>' +
-                '</head><body>' +
-                this.getTable(true) +
-                '</body></html>', base64 = function (s) {
-                return win.btoa(unescape(encodeURIComponent(s))); // #50
-            };
-            downloadURL(getBlobFromContent(template, 'application/vnd.ms-excel') ||
-                uri + base64(template), this.getFilename() + '.xls');
+            var _this = this;
+            wrapLoading.call(this, function () {
+                var uri = 'data:application/vnd.ms-excel;base64,', template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+                    'xmlns:x="urn:schemas-microsoft-com:office:excel" ' +
+                    'xmlns="http://www.w3.org/TR/REC-html40">' +
+                    '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook>' +
+                    '<x:ExcelWorksheets><x:ExcelWorksheet>' +
+                    '<x:Name>Ark1</x:Name>' +
+                    '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>' +
+                    '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook>' +
+                    '</xml><![endif]-->' +
+                    '<style>td{border:none;font-family: Calibri, sans-serif;} ' +
+                    '.number{mso-number-format:"0.00";} ' +
+                    '.text{ mso-number-format:"\@";}</style>' +
+                    '<meta name=ProgId content=Excel.Sheet>' +
+                    '<meta charset=UTF-8>' +
+                    '</head><body>' +
+                    _this.getTable(true) +
+                    '</body></html>', base64 = function (s) {
+                    return win.btoa(unescape(encodeURIComponent(s))); // #50
+                };
+                downloadURL(getBlobFromContent(template, 'application/vnd.ms-excel') ||
+                    uri + base64(template), _this.getFilename() + '.xls');
+            });
         }
         /**
          * Export-data module required. Returns the current chart data as a CSV string.
@@ -524,7 +586,7 @@
             var rows = this.getDataRows(), csvOptions = this.options.exporting.csv, decimalPoint = pick(csvOptions.decimalPoint, csvOptions.itemDelimiter !== ',' && useLocalDecimalPoint ?
                 (1.1).toLocaleString()[1] :
                 '.'), 
-            // use ';' for direct to Excel
+            // Use ';' for direct to Excel
             itemDelimiter = pick(csvOptions.itemDelimiter, decimalPoint === ',' ? ';' : ','), 
             // '\n' isn't working with the js csv data extraction
             lineDelimiter = csvOptions.lineDelimiter;
@@ -534,7 +596,7 @@
                 while (j--) {
                     val = row[j];
                     if (typeof val === 'string') {
-                        val = '"' + val + '"';
+                        val = "\"".concat(val, "\"");
                     }
                     if (typeof val === 'number') {
                         if (decimalPoint !== '.') {
@@ -587,9 +649,11 @@
                 if (!item) {
                     return categoryHeader;
                 }
-                if (!(item instanceof SeriesClass)) {
-                    return (item.options.title && item.options.title.text) ||
-                        (item.dateTime ? categoryDatetimeHeader : categoryHeader);
+                if (!item.bindAxes) {
+                    return (item.options.title &&
+                        item.options.title.text) || (item.dateTime ?
+                        categoryDatetimeHeader :
+                        categoryHeader);
                 }
                 if (multiLevelHeaders) {
                     return {
@@ -623,24 +687,18 @@
             // Create point array depends if xAxis is category
             // or point.name is defined #13293
             getPointArray = function (series, xAxis) {
-                var namedPoints = series.data.filter(function (d) {
+                var pointArrayMap = series.pointArrayMap || ['y'], namedPoints = series.data.some(function (d) {
                     return (typeof d.y !== 'undefined') && d.name;
                 });
-                if (namedPoints.length &&
+                // If there are points with a name, we also want the x value in the
+                // table
+                if (namedPoints &&
                     xAxis &&
                     !xAxis.categories &&
-                    !series.keyToAxis) {
-                    if (series.pointArrayMap) {
-                        var pointArrayMapCheck = series.pointArrayMap
-                            .filter(function (p) { return p === 'x'; });
-                        if (pointArrayMapCheck.length) {
-                            series.pointArrayMap.unshift('x');
-                            return series.pointArrayMap;
-                        }
-                    }
-                    return ['x', 'y'];
+                    series.exportKey !== 'name') {
+                    return __spreadArray(['x'], pointArrayMap, true);
                 }
-                return series.pointArrayMap || ['y'];
+                return pointArrayMap;
             }, xAxisIndices = [];
             var xAxis, dataRows, columnTitleObj, i = 0, // Loop the series and index values
             x, xTitle;
@@ -681,6 +739,7 @@
                     // Export directly from options.data because we need the uncropped
                     // data (#7913), and we need to support Boost (#7026).
                     series.options.data.forEach(function eachData(options, pIdx) {
+                        var _a;
                         var mockPoint = { series: mockSeries };
                         var key, prop, val;
                         // In parallel coordinates chart, each data point is connected
@@ -689,22 +748,8 @@
                             categoryAndDatetimeMap = getCategoryAndDateTimeMap(series, pointArrayMap, pIdx);
                         }
                         series.pointClass.prototype.applyOptions.apply(mockPoint, [options]);
-                        key = mockPoint.x;
-                        if (defined(rows[key]) &&
-                            rows[key].seriesIndices.includes(mockSeries.index)) {
-                            // find keys, which belong to actual series
-                            var keysFromActualSeries = Object.keys(rows).filter(function (i) {
-                                return rows[i].seriesIndices.includes(mockSeries.index) &&
-                                    key;
-                            }), 
-                            // find all properties, which start with actual key
-                            existingKeys = keysFromActualSeries
-                                .filter(function (propertyName) {
-                                return propertyName.indexOf(String(key)) === 0;
-                            });
-                            key = key.toString() + ',' + existingKeys.length;
-                        }
                         var name = series.data[pIdx] && series.data[pIdx].name;
+                        key = ((_a = mockPoint.x) !== null && _a !== void 0 ? _a : '') + ',' + name;
                         j = 0;
                         // Pies, funnels, geo maps etc. use point name in X row
                         if (!xAxis ||
@@ -719,31 +764,47 @@
                             xTaken[key] = true;
                         }
                         if (!rows[key]) {
-                            // Generate the row
                             rows[key] = [];
-                            // Contain the X values from one or more X axes
                             rows[key].xValues = [];
+                            // ES5 replacement for Array.from / fill.
+                            var arr = [];
+                            for (var i_1 = 0; i_1 < series.chart.series.length; i_1++) {
+                                arr[i_1] = 0;
+                            }
+                            // Create pointers array, holding information how many
+                            // duplicates of specific x occurs in each series.
+                            // Used for creating rows with duplicates.
+                            rows[key].pointers = arr;
+                            rows[key].pointers[series.index] = 1;
+                        }
+                        else {
+                            // Handle duplicates (points with the same x), by creating
+                            // extra rows based on pointers for better performance.
+                            var modifiedKey = "".concat(key, ",").concat(rows[key].pointers[series.index]), originalKey = key;
+                            if (rows[key].pointers[series.index]) {
+                                if (!rows[modifiedKey]) {
+                                    rows[modifiedKey] = [];
+                                    rows[modifiedKey].xValues = [];
+                                    rows[modifiedKey].pointers = [];
+                                }
+                                key = modifiedKey;
+                            }
+                            rows[originalKey].pointers[series.index] += 1;
                         }
                         rows[key].x = mockPoint.x;
                         rows[key].name = name;
                         rows[key].xValues[xAxisIndex] = mockPoint.x;
-                        if (!defined(rows[key].seriesIndices)) {
-                            rows[key].seriesIndices = [];
-                        }
-                        rows[key].seriesIndices = __spreadArray(__spreadArray([], rows[key].seriesIndices, true), [
-                            mockSeries.index
-                        ], false);
                         while (j < valueCount) {
-                            prop = pointArrayMap[j]; // y, z etc
+                            prop = pointArrayMap[j]; // `y`, `z` etc
                             val = mockPoint[prop];
                             rows[key][i + j] = pick(
                             // Y axis category if present
                             categoryAndDatetimeMap.categoryMap[prop][val], 
-                            // datetime yAxis
+                            // Datetime yAxis
                             categoryAndDatetimeMap.dateTimeValueAxisMap[prop] ?
                                 time.dateFormat(csvOptions.dateFormat, val) :
                                 null, 
-                            // linear/log yAxis
+                            // Linear/log yAxis
                             val);
                             j++;
                         }
@@ -1064,6 +1125,9 @@
                         wasHidden: createContainer || oldDisplay !== style.display
                     });
                 }
+                else {
+                    fireEvent(this, 'afterHideData');
+                }
             }
             // Set the flag
             this.isDataTableVisible = show;
@@ -1097,12 +1161,14 @@
         /**
          * @private
          */
-        function compose(ChartClass) {
-            if (U.pushUnique(composedMembers, ChartClass)) {
+        function compose(ChartClass, SeriesClass) {
+            var chartProto = ChartClass.prototype;
+            if (!chartProto.getCSV) {
+                var exportingOptions = getOptions().exporting;
                 // Add an event listener to handle the showTable option
                 addEvent(ChartClass, 'afterViewData', onChartAfterViewData);
                 addEvent(ChartClass, 'render', onChartRenderer);
-                var chartProto = ChartClass.prototype;
+                addEvent(ChartClass, 'destroy', onChartDestroy);
                 chartProto.downloadCSV = chartDownloadCSV;
                 chartProto.downloadXLS = chartDownloadXLS;
                 chartProto.getCSV = chartGetCSV;
@@ -1112,9 +1178,6 @@
                 chartProto.hideData = chartHideData;
                 chartProto.toggleDataTable = chartToggleDataTable;
                 chartProto.viewData = chartViewData;
-            }
-            if (U.pushUnique(composedMembers, setOptions)) {
-                var exportingOptions = getOptions().exporting;
                 // Add "Download CSV" to the exporting menu.
                 // @todo consider move to defaults
                 if (exportingOptions) {
@@ -1134,7 +1197,7 @@
                         viewData: {
                             textKey: 'viewData',
                             onclick: function () {
-                                this.toggleDataTable();
+                                wrapLoading.call(this, this.toggleDataTable);
                             }
                         }
                     });
@@ -1144,27 +1207,34 @@
                     }
                 }
                 setOptions(ExportDataDefaults);
-            }
-            if (AreaRangeSeries && U.pushUnique(composedMembers, AreaRangeSeries)) {
-                AreaRangeSeries.prototype.keyToAxis = {
-                    low: 'y',
-                    high: 'y'
-                };
-            }
-            if (GanttSeries && U.pushUnique(composedMembers, GanttSeries)) {
-                GanttSeries.prototype.keyToAxis = {
-                    start: 'x',
-                    end: 'x'
-                };
-            }
-            if (MapSeries && U.pushUnique(composedMembers, MapSeries)) {
-                MapSeries.prototype.exportKey = 'name';
-            }
-            if (MapBubbleSeries && U.pushUnique(composedMembers, MapBubbleSeries)) {
-                MapBubbleSeries.prototype.exportKey = 'name';
-            }
-            if (TreemapSeries && U.pushUnique(composedMembers, TreemapSeries)) {
-                TreemapSeries.prototype.exportKey = 'name';
+                var _a = SeriesClass.types, AreaRangeSeries = _a.arearange, GanttSeries = _a.gantt, MapSeries = _a.map, MapBubbleSeries = _a.mapbubble, TreemapSeries = _a.treemap, XRangeSeries = _a.xrange;
+                if (AreaRangeSeries) {
+                    AreaRangeSeries.prototype.keyToAxis = {
+                        low: 'y',
+                        high: 'y'
+                    };
+                }
+                if (GanttSeries) {
+                    GanttSeries.prototype.exportKey = 'name';
+                    GanttSeries.prototype.keyToAxis = {
+                        start: 'x',
+                        end: 'x'
+                    };
+                }
+                if (MapSeries) {
+                    MapSeries.prototype.exportKey = 'name';
+                }
+                if (MapBubbleSeries) {
+                    MapBubbleSeries.prototype.exportKey = 'name';
+                }
+                if (TreemapSeries) {
+                    TreemapSeries.prototype.exportKey = 'name';
+                }
+                if (XRangeSeries) {
+                    XRangeSeries.prototype.keyToAxis = {
+                        x2: 'x'
+                    };
+                }
             }
         }
         /**
@@ -1179,8 +1249,7 @@
          *         The blob object, or undefined if not supported.
          */
         function getBlobFromContent(content, type) {
-            var nav = win.navigator, webKit = (nav.userAgent.indexOf('WebKit') > -1 &&
-                nav.userAgent.indexOf('Chrome') < 0), domurl = win.URL || win.webkitURL || win;
+            var nav = win.navigator, domurl = win.URL || win.webkitURL || win;
             try {
                 // MS specific
                 if ((nav.msSaveOrOpenBlob) && win.MSBlobBuilder) {
@@ -1188,12 +1257,8 @@
                     blob.append(content);
                     return blob.getBlob('image/svg+xml');
                 }
-                // Safari requires data URI since it doesn't allow navigation to blob
-                // URLs.
-                if (!webKit) {
-                    return domurl.createObjectURL(new win.Blob(['\uFEFF' + content], // #7084
-                    { type: type }));
-                }
+                return domurl.createObjectURL(new win.Blob(['\uFEFF' + content], // #7084
+                { type: type }));
             }
             catch (e) {
                 // Ignore
@@ -1256,6 +1321,14 @@
                 this.viewData();
             }
         }
+        /**
+         * Clean up
+         * @private
+         */
+        function onChartDestroy() {
+            var _a;
+            (_a = this.dataTableDiv) === null || _a === void 0 ? void 0 : _a.remove();
+        }
         /* *
          *
          *  Default Export
@@ -1278,7 +1351,7 @@
          * @extends Highcharts.EventCallbackFunction<Highcharts.Chart>
          *
          * @param {Highcharts.Chart} this
-         * Chart context where the event occured.
+         * Chart context where the event occurred.
          *
          * @param {Highcharts.ExportDataEventObject} event
          * Event object with data rows that can be modified.
@@ -1292,14 +1365,19 @@
         * @name Highcharts.ExportDataEventObject#dataRows
         * @type {Array<Array<string>>}
         */
-        (''); // keeps doclets above in JS file
+        (''); // Keeps doclets above in JS file
 
         return ExportData;
     });
-    _registerModule(_modules, 'masters/modules/export-data.src.js', [_modules['Core/Globals.js'], _modules['Extensions/ExportData/ExportData.js']], function (Highcharts, ExportData) {
+    _registerModule(_modules, 'masters/modules/export-data.src.js', [_modules['Core/Globals.js'], _modules['Extensions/DownloadURL.js'], _modules['Extensions/ExportData/ExportData.js']], function (Highcharts, DownloadURL, ExportData) {
 
         var G = Highcharts;
-        ExportData.compose(G.Chart);
+        // Compatibility
+        G.dataURLtoBlob = G.dataURLtoBlob || DownloadURL.dataURLtoBlob;
+        G.downloadURL = G.downloadURL || DownloadURL.downloadURL;
+        // Compose
+        ExportData.compose(G.Chart, G.Series);
 
+        return Highcharts;
     });
 }));

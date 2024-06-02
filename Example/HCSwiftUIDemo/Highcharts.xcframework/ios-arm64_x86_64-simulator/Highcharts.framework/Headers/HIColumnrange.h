@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -7,6 +7,7 @@
 */
 
 #import "HISeries.h"
+#import "HIBorderRadius.h"
 #import "HIColor.h"
 
 
@@ -49,6 +50,17 @@ The X axis range that each point is valid for. This determines the width of the 
 */
 @property(nonatomic, readwrite) id pointRange;
 /**
+The corner radius of the border surrounding each column or bar. A number signifies pixels. A percentage string, like for example `50%`, signifies a relative size. For columns this is relative to the column width, for pies it is relative to the radius and the inner radius.
+
+**Defaults to** `3`.
+
+**Try it**
+
+* [Rounded columns](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/column-borderradius/)
+* [Column and pie with rounded border](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-border-radius)
+*/
+@property(nonatomic, readwrite) HIBorderRadius *borderRadius;
+/**
 Padding between each column or bar, in x axis units.
 
 **Defaults to** `0.1`.
@@ -60,14 +72,6 @@ Padding between each column or bar, in x axis units.
 * [0 for tightly packed columns](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/column-pointpadding-none/)
 */
 @property(nonatomic, readwrite) NSNumber *pointPadding;
-/**
-The corner radius of the border surrounding each column or bar.
-
-**Try it**
-
-* [Rounded columns](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/column-borderradius/)
-*/
-@property(nonatomic, readwrite) NSNumber *borderRadius;
 /**
 The minimal height for a column or width for a bar. By default, 0 values are not shown. To visualize a 0 (or close to zero) point, set the minimal point length to a pixel value like 3\. In stacked column charts, minPointLength might not be respected for tightly packed values.
 
@@ -118,7 +122,7 @@ The maximum allowed pixel width for a column, translated to the height of a bar 
 */
 @property(nonatomic, readwrite) NSNumber *maxPointWidth;
 /**
-A pixel value specifying a fixed width for each column or bar point. When set to `undefined`, the width is calculated from the `pointPadding` and `groupPadding`. The width effects the dimension that is not based on the point value. For column series it is the hoizontal length and for bar series it is the vertical length.
+A pixel value specifying a fixed width for each column or bar point. When set to `undefined`, the width is calculated from the `pointPadding` and `groupPadding`. The width effects the dimension that is not based on the point value. For column series it is the horizontal length and for bar series it is the vertical length.
 
 **Try it**
 

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,14 +8,15 @@
  *
  * */
 'use strict';
-import D from '../Core/Defaults.js';
-import U from '../Core/Utilities.js';
-const { extend } = U;
 /* *
  *
  *  Constants
  *
  * */
+const lang = {
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out'
+};
 /**
  * The `mapNavigation` option handles buttons for navigation in addition to
  * `mousewheel` and `doubleclick` handlers for map zooming.
@@ -23,7 +24,7 @@ const { extend } = U;
  * @product      highmaps
  * @optionparent mapNavigation
  */
-const MapNavigationDefaults = {
+const mapNavigation = {
     /**
      * General options for the map navigation buttons. Individual options
      * can be given from the [mapNavigation.buttons](#mapNavigation.buttons)
@@ -243,7 +244,7 @@ const MapNavigationDefaults = {
      * @since 4.2.4
      */
     mouseWheelSensitivity: 1.1
-    // enabled: false,
+    // Enabled: false,
     // enableButtons: null, // inherit from enabled
     // enableTouchZoom: null, // inherit from enabled
     // enableDoubleClickZoom: null, // inherit from enabled
@@ -252,19 +253,11 @@ const MapNavigationDefaults = {
 };
 /* *
  *
- *  Composition
- *
- * */
-// Add language
-extend(D.defaultOptions.lang, {
-    zoomIn: 'Zoom in',
-    zoomOut: 'Zoom out'
-});
-// Set the default map navigation options
-D.defaultOptions.mapNavigation = MapNavigationDefaults;
-/* *
- *
  *  Default Export
  *
  * */
-export default MapNavigationDefaults;
+const mapNavigationDefaults = {
+    lang,
+    mapNavigation
+};
+export default mapNavigationDefaults;

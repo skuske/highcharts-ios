@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
  * ColorAxis module
  *
- * (c) 2012-2021 Pawel Potaczek
+ * (c) 2012-2024 Pawel Potaczek
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Core/Axis/Color/ColorAxisComposition.js', [_modules['Core/Color/Color.js'], _modules['Core/Utilities.js']], function (Color, U) {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -63,54 +61,38 @@
              * */
             /* *
              *
-             *  Constants
-             *
-             * */
-            var composedMembers = [];
-            /* *
-             *
              *  Variables
              *
              * */
-            var ColorAxisClass;
+            var ColorAxisConstructor;
             /* *
              *
              *  Functions
              *
              * */
-            /* eslint-disable valid-jsdoc */
             /**
              * @private
              */
-            function compose(ColorAxisType, ChartClass, FxClass, LegendClass, SeriesClass) {
-                if (!ColorAxisClass) {
-                    ColorAxisClass = ColorAxisType;
-                }
-                if (U.pushUnique(composedMembers, ChartClass)) {
-                    var chartProto = ChartClass.prototype;
+            function compose(ColorAxisClass, ChartClass, FxClass, LegendClass, SeriesClass) {
+                var chartProto = ChartClass.prototype, fxProto = FxClass.prototype, seriesProto = SeriesClass.prototype;
+                if (!chartProto.collectionsWithUpdate.includes('colorAxis')) {
+                    ColorAxisConstructor = ColorAxisClass;
                     chartProto.collectionsWithUpdate.push('colorAxis');
                     chartProto.collectionsWithInit.colorAxis = [
                         chartProto.addColorAxis
                     ];
                     addEvent(ChartClass, 'afterGetAxes', onChartAfterGetAxes);
                     wrapChartCreateAxis(ChartClass);
-                }
-                if (U.pushUnique(composedMembers, FxClass)) {
-                    var fxProto = FxClass.prototype;
                     fxProto.fillSetter = wrapFxFillSetter;
                     fxProto.strokeSetter = wrapFxStrokeSetter;
-                }
-                if (U.pushUnique(composedMembers, LegendClass)) {
                     addEvent(LegendClass, 'afterGetAllItems', onLegendAfterGetAllItems);
                     addEvent(LegendClass, 'afterColorizeItem', onLegendAfterColorizeItem);
                     addEvent(LegendClass, 'afterUpdate', onLegendAfterUpdate);
-                }
-                if (U.pushUnique(composedMembers, SeriesClass)) {
-                    extend(SeriesClass.prototype, {
+                    extend(seriesProto, {
                         optionalAxis: 'colorAxis',
                         translateColors: seriesTranslateColors
                     });
-                    extend(SeriesClass.prototype.pointClass.prototype, {
+                    extend(seriesProto.pointClass.prototype, {
                         setVisible: pointSetVisible
                     });
                     addEvent(SeriesClass, 'afterTranslate', onSeriesAfterTranslate, { order: 1 });
@@ -124,13 +106,13 @@
              */
             function onChartAfterGetAxes() {
                 var _this = this;
-                var options = this.options;
+                var userOptions = this.userOptions;
                 this.colorAxis = [];
-                if (options.colorAxis) {
-                    options.colorAxis = splat(options.colorAxis);
-                    options.colorAxis.forEach(function (axisOptions) {
-                        new ColorAxisClass(_this, axisOptions); // eslint-disable-line no-new
-                    });
+                // If a `colorAxis` config is present in the user options (not in a
+                // theme), instanciate it.
+                if (userOptions.colorAxis) {
+                    userOptions.colorAxis = splat(userOptions.colorAxis);
+                    userOptions.colorAxis.map(function (axisOptions) { return (new ColorAxisConstructor(_this, axisOptions)); });
                 }
             }
             /**
@@ -196,13 +178,11 @@
              * Updates in the legend need to be reflected in the color axis. (#6888)
              * @private
              */
-            function onLegendAfterUpdate() {
-                var colorAxes = this.chart.colorAxis;
-                if (colorAxes) {
-                    colorAxes.forEach(function (colorAxis) {
-                        colorAxis.update({}, arguments[2]);
-                    });
-                }
+            function onLegendAfterUpdate(e) {
+                var _a;
+                (_a = this.chart.colorAxis) === null || _a === void 0 ? void 0 : _a.forEach(function (colorAxis) {
+                    colorAxis.update({}, e.redraw);
+                });
             }
             /**
              * Calculate and set colors for points.
@@ -243,7 +223,7 @@
                         point[key][method]();
                     }
                 });
-                this.series.buildKDTree(); // rebuild kdtree #13195
+                this.series.buildKDTree(); // Rebuild kdtree #13195
             }
             ColorAxisComposition.pointSetVisible = pointSetVisible;
             /**
@@ -276,24 +256,25 @@
             function wrapChartCreateAxis(ChartClass) {
                 var superCreateAxis = ChartClass.prototype.createAxis;
                 ChartClass.prototype.createAxis = function (type, options) {
+                    var chart = this;
                     if (type !== 'colorAxis') {
-                        return superCreateAxis.apply(this, arguments);
+                        return superCreateAxis.apply(chart, arguments);
                     }
-                    var axis = new ColorAxisClass(this, merge(options.axis, {
-                        index: this[type].length,
+                    var axis = new ColorAxisConstructor(chart, merge(options.axis, {
+                        index: chart[type].length,
                         isX: false
                     }));
-                    this.isDirtyLegend = true;
+                    chart.isDirtyLegend = true;
                     // Clear before 'bindAxes' (#11924)
-                    this.axes.forEach(function (axis) {
+                    chart.axes.forEach(function (axis) {
                         axis.series = [];
                     });
-                    this.series.forEach(function (series) {
+                    chart.series.forEach(function (series) {
                         series.bindAxes();
                         series.isDirtyData = true;
                     });
                     if (pick(options.redraw, true)) {
-                        this.redraw(options.animation);
+                        chart.redraw(options.animation);
                     }
                     return axis;
                 };
@@ -324,7 +305,7 @@
     _registerModule(_modules, 'Core/Axis/Color/ColorAxisDefaults.js', [], function () {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -381,10 +362,10 @@
          *
          * @extends      xAxis
          * @excluding    alignTicks, allowDecimals, alternateGridColor, breaks,
-         *               categories, crosshair, dateTimeLabelFormats, height, left,
+         *               categories, crosshair, dateTimeLabelFormats, left,
          *               lineWidth, linkedTo, maxZoom, minRange, minTickInterval,
          *               offset, opposite, pane, plotBands, plotLines,
-         *               reversedStacks, scrollbar, showEmpty, title, top, width,
+         *               reversedStacks, scrollbar, showEmpty, title, top,
          *               zoomEnabled
          * @product      highcharts highstock highmaps
          * @type         {*|Array<*>}
@@ -741,6 +722,36 @@
              * @apioption colorAxis.events.legendItemClick
              */
             /**
+             * The width of the color axis. If it's a number, it is interpreted as
+             * pixels.
+             *
+             * If it's a percentage string, it is interpreted as percentages of the
+             * total plot width.
+             *
+             * @sample    highcharts/coloraxis/width-and-height
+             *            Percentage width and pixel height for color axis
+             *
+             * @type      {number|string}
+             * @since     11.3.0
+             * @product   highcharts highstock highmaps
+             * @apioption colorAxis.width
+             */
+            /**
+             * The height of the color axis. If it's a number, it is interpreted as
+             * pixels.
+             *
+             * If it's a percentage string, it is interpreted as percentages of the
+             * total plot height.
+             *
+             * @sample    highcharts/coloraxis/width-and-height
+             *            Percentage width and pixel height for color axis
+             *
+             * @type      {number|string}
+             * @since     11.3.0
+             * @product   highcharts highstock highmaps
+             * @apioption colorAxis.height
+             */
+            /**
              * Whether to display the colorAxis in the legend.
              *
              * @sample highcharts/coloraxis/hidden-coloraxis-with-3d-chart/
@@ -761,247 +772,103 @@
 
         return colorAxisDefaults;
     });
-    _registerModule(_modules, 'Core/Axis/Color/ColorAxis.js', [_modules['Core/Axis/Axis.js'], _modules['Core/Color/Color.js'], _modules['Core/Axis/Color/ColorAxisComposition.js'], _modules['Core/Axis/Color/ColorAxisDefaults.js'], _modules['Core/Legend/LegendSymbol.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (Axis, Color, ColorAxisComposition, ColorAxisDefaults, LegendSymbol, SeriesRegistry, U) {
+    _registerModule(_modules, 'Core/Axis/Color/ColorAxisLike.js', [_modules['Core/Color/Color.js'], _modules['Core/Utilities.js']], function (Color, U) {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var __extends = (this && this.__extends) || (function () {
-            var extendStatics = function (d, b) {
-                extendStatics = Object.setPrototypeOf ||
-                    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-                    function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-                return extendStatics(d, b);
-            };
-            return function (d, b) {
-                if (typeof b !== "function" && b !== null)
-                    throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-                extendStatics(d, b);
-                function __() { this.constructor = d; }
-                d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-            };
-        })();
         var color = Color.parse;
-        var Series = SeriesRegistry.series;
-        var extend = U.extend, isArray = U.isArray, isNumber = U.isNumber, merge = U.merge, pick = U.pick;
+        var merge = U.merge;
         /* *
          *
-         *  Class
+         *  Namespace
          *
          * */
-        /**
-         * The ColorAxis object for inclusion in gradient legends.
-         *
-         * @class
-         * @name Highcharts.ColorAxis
-         * @augments Highcharts.Axis
-         *
-         * @param {Highcharts.Chart} chart
-         * The related chart of the color axis.
-         *
-         * @param {Highcharts.ColorAxisOptions} userOptions
-         * The color axis options for initialization.
-         */
-        var ColorAxis = /** @class */ (function (_super) {
-            __extends(ColorAxis, _super);
+        var ColorAxisLike;
+        (function (ColorAxisLike) {
             /* *
              *
-             *  Constructors
+             *  Declarations
              *
              * */
-            /**
-             * @private
-             */
-            function ColorAxis(chart, userOptions) {
-                var _this = _super.call(this, chart, userOptions) || this;
-                // Prevents unnecessary padding with `hc-more`
-                _this.beforePadding = false;
-                _this.chart = void 0;
-                _this.coll = 'colorAxis';
-                _this.dataClasses = void 0;
-                _this.options = void 0;
-                _this.stops = void 0;
-                _this.visible = true;
-                _this.init(chart, userOptions);
-                return _this;
-            }
-            /* *
-             *
-             *  Static Functions
-             *
-             * */
-            ColorAxis.compose = function (ChartClass, FxClass, LegendClass, SeriesClass) {
-                ColorAxisComposition.compose(ColorAxis, ChartClass, FxClass, LegendClass, SeriesClass);
-            };
             /* *
              *
              *  Functions
              *
              * */
             /**
-             * Initializes the color axis.
-             *
-             * @function Highcharts.ColorAxis#init
-             *
-             * @param {Highcharts.Chart} chart
-             * The related chart of the color axis.
-             *
-             * @param {Highcharts.ColorAxisOptions} userOptions
-             * The color axis options for initialization.
-             */
-            ColorAxis.prototype.init = function (chart, userOptions) {
-                var axis = this;
-                var legend = chart.options.legend || {}, horiz = userOptions.layout ?
-                    userOptions.layout !== 'vertical' :
-                    legend.layout !== 'vertical', visible = userOptions.visible;
-                var options = merge(ColorAxis.defaultColorAxisOptions, userOptions, {
-                    showEmpty: false,
-                    title: null,
-                    visible: legend.enabled && visible !== false
-                });
-                axis.side = userOptions.side || horiz ? 2 : 1;
-                axis.reversed = userOptions.reversed || !horiz;
-                axis.opposite = !horiz;
-                _super.prototype.init.call(this, chart, options, 'colorAxis');
-                // Super.init saves the extended user options, now replace it with the
-                // originals
-                this.userOptions = userOptions;
-                if (isArray(chart.userOptions.colorAxis)) {
-                    chart.userOptions.colorAxis[this.index] = userOptions;
-                }
-                // Prepare data classes
-                if (userOptions.dataClasses) {
-                    axis.initDataClasses(userOptions);
-                }
-                axis.initStops();
-                // Override original axis properties
-                axis.horiz = horiz;
-                axis.zoomEnabled = false;
-            };
-            /**
+             * Initialize defined data classes.
              * @private
              */
-            ColorAxis.prototype.initDataClasses = function (userOptions) {
-                var axis = this, chart = axis.chart, legendItem = axis.legendItem = axis.legendItem || {}, len = userOptions.dataClasses.length, options = axis.options;
-                var dataClasses, colorCounter = 0, colorCount = chart.options.chart.colorCount;
+            function initDataClasses(userOptions) {
+                var axis = this, chart = axis.chart, legendItem = axis.legendItem = axis.legendItem || {}, options = axis.options, userDataClasses = userOptions.dataClasses || [];
+                var dataClass, dataClasses, colorCount = chart.options.chart.colorCount, colorCounter = 0, colors;
                 axis.dataClasses = dataClasses = [];
                 legendItem.labels = [];
-                (userOptions.dataClasses || []).forEach(function (dataClass, i) {
-                    var colors;
+                for (var i = 0, iEnd = userDataClasses.length; i < iEnd; ++i) {
+                    dataClass = userDataClasses[i];
                     dataClass = merge(dataClass);
                     dataClasses.push(dataClass);
                     if (!chart.styledMode && dataClass.color) {
-                        return;
+                        continue;
                     }
                     if (options.dataClassColor === 'category') {
                         if (!chart.styledMode) {
-                            colors = chart.options.colors;
+                            colors = chart.options.colors || [];
                             colorCount = colors.length;
                             dataClass.color = colors[colorCounter];
                         }
                         dataClass.colorIndex = colorCounter;
-                        // increase and loop back to zero
+                        // Loop back to zero
                         colorCounter++;
                         if (colorCounter === colorCount) {
                             colorCounter = 0;
                         }
                     }
                     else {
-                        dataClass.color = color(options.minColor).tweenTo(color(options.maxColor), len < 2 ? 0.5 : i / (len - 1) // #3219
+                        dataClass.color = color(options.minColor).tweenTo(color(options.maxColor), iEnd < 2 ? 0.5 : i / (iEnd - 1) // #3219
                         );
                     }
-                });
-            };
-            /**
-             * Returns true if the series has points at all.
-             *
-             * @function Highcharts.ColorAxis#hasData
-             *
-             * @return {boolean}
-             * True, if the series has points, otherwise false.
-             */
-            ColorAxis.prototype.hasData = function () {
-                return !!(this.tickPositions || []).length;
-            };
-            /**
-             * Override so that ticks are not added in data class axes (#6914)
-             * @private
-             */
-            ColorAxis.prototype.setTickPositions = function () {
-                if (!this.dataClasses) {
-                    return _super.prototype.setTickPositions.call(this);
                 }
-            };
+            }
+            ColorAxisLike.initDataClasses = initDataClasses;
             /**
+             * Create initial color stops.
              * @private
              */
-            ColorAxis.prototype.initStops = function () {
-                var axis = this;
-                axis.stops = axis.options.stops || [
-                    [0, axis.options.minColor],
-                    [1, axis.options.maxColor]
+            function initStops() {
+                var axis = this, options = axis.options, stops = axis.stops = options.stops || [
+                    [0, options.minColor || ''],
+                    [1, options.maxColor || '']
                 ];
-                axis.stops.forEach(function (stop) {
-                    stop.color = color(stop[1]);
-                });
-            };
-            /**
-             * Extend the setOptions method to process extreme colors and color stops.
-             * @private
-             */
-            ColorAxis.prototype.setOptions = function (userOptions) {
-                var axis = this;
-                _super.prototype.setOptions.call(this, userOptions);
-                axis.options.crosshair = axis.options.marker;
-            };
-            /**
-             * @private
-             */
-            ColorAxis.prototype.setAxisSize = function () {
-                var axis = this;
-                var symbol = axis.legendItem && axis.legendItem.symbol;
-                var chart = axis.chart;
-                var legendOptions = chart.options.legend || {};
-                var x, y, width, height;
-                if (symbol) {
-                    this.left = x = symbol.attr('x');
-                    this.top = y = symbol.attr('y');
-                    this.width = width = symbol.attr('width');
-                    this.height = height = symbol.attr('height');
-                    this.right = chart.chartWidth - x - width;
-                    this.bottom = chart.chartHeight - y - height;
-                    this.len = this.horiz ? width : height;
-                    this.pos = this.horiz ? x : y;
+                for (var i = 0, iEnd = stops.length; i < iEnd; ++i) {
+                    stops[i].color = color(stops[i][1]);
                 }
-                else {
-                    // Fake length for disabled legend to avoid tick issues
-                    // and such (#5205)
-                    this.len = (this.horiz ?
-                        legendOptions.symbolWidth :
-                        legendOptions.symbolHeight) || ColorAxis.defaultLegendLength;
-                }
-            };
+            }
+            ColorAxisLike.initStops = initStops;
             /**
+             * Normalize logarithmic values.
              * @private
              */
-            ColorAxis.prototype.normalizedValue = function (value) {
-                var axis = this;
+            function normalizedValue(value) {
+                var axis = this, max = axis.max || 0, min = axis.min || 0;
                 if (axis.logarithmic) {
                     value = axis.logarithmic.log2lin(value);
                 }
-                return 1 - ((axis.max - value) /
-                    ((axis.max - axis.min) || 1));
-            };
+                return 1 - ((max - value) /
+                    ((max - min) || 1));
+            }
+            ColorAxisLike.normalizedValue = normalizedValue;
             /**
              * Translate from a value to a color.
              * @private
              */
-            ColorAxis.prototype.toColor = function (value, point) {
+            function toColor(value, point) {
                 var axis = this;
                 var dataClasses = axis.dataClasses;
                 var stops = axis.stops;
@@ -1038,6 +905,185 @@
                     color = from.color.tweenTo(to.color, pos);
                 }
                 return color;
+            }
+            ColorAxisLike.toColor = toColor;
+        })(ColorAxisLike || (ColorAxisLike = {}));
+        /* *
+         *
+         *  Default Export
+         *
+         * */
+
+        return ColorAxisLike;
+    });
+    _registerModule(_modules, 'Core/Axis/Color/ColorAxis.js', [_modules['Core/Axis/Axis.js'], _modules['Core/Axis/Color/ColorAxisComposition.js'], _modules['Core/Axis/Color/ColorAxisDefaults.js'], _modules['Core/Axis/Color/ColorAxisLike.js'], _modules['Core/Defaults.js'], _modules['Core/Legend/LegendSymbol.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (Axis, ColorAxisComposition, ColorAxisDefaults, ColorAxisLike, D, LegendSymbol, SeriesRegistry, U) {
+        /* *
+         *
+         *  (c) 2010-2024 Torstein Honsi
+         *
+         *  License: www.highcharts.com/license
+         *
+         *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
+         *
+         * */
+        var __extends = (this && this.__extends) || (function () {
+            var extendStatics = function (d, b) {
+                extendStatics = Object.setPrototypeOf ||
+                    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                    function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+                return extendStatics(d, b);
+            };
+            return function (d, b) {
+                if (typeof b !== "function" && b !== null)
+                    throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+                extendStatics(d, b);
+                function __() { this.constructor = d; }
+                d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+            };
+        })();
+        var defaultOptions = D.defaultOptions;
+        var Series = SeriesRegistry.series;
+        var defined = U.defined, extend = U.extend, fireEvent = U.fireEvent, isArray = U.isArray, isNumber = U.isNumber, merge = U.merge, pick = U.pick, relativeLength = U.relativeLength;
+        defaultOptions.colorAxis = merge(defaultOptions.xAxis, ColorAxisDefaults);
+        /* *
+         *
+         *  Class
+         *
+         * */
+        /**
+         * The ColorAxis object for inclusion in gradient legends.
+         *
+         * @class
+         * @name Highcharts.ColorAxis
+         * @augments Highcharts.Axis
+         *
+         * @param {Highcharts.Chart} chart
+         * The related chart of the color axis.
+         *
+         * @param {Highcharts.ColorAxisOptions} userOptions
+         * The color axis options for initialization.
+         */
+        var ColorAxis = /** @class */ (function (_super) {
+            __extends(ColorAxis, _super);
+            /* *
+             *
+             *  Constructors
+             *
+             * */
+            /**
+             * @private
+             */
+            function ColorAxis(chart, userOptions) {
+                var _this = _super.call(this, chart, userOptions) || this;
+                _this.coll = 'colorAxis';
+                _this.visible = true;
+                _this.init(chart, userOptions);
+                return _this;
+            }
+            /* *
+             *
+             *  Static Functions
+             *
+             * */
+            ColorAxis.compose = function (ChartClass, FxClass, LegendClass, SeriesClass) {
+                ColorAxisComposition.compose(ColorAxis, ChartClass, FxClass, LegendClass, SeriesClass);
+            };
+            /* *
+             *
+             *  Functions
+             *
+             * */
+            /**
+             * Initializes the color axis.
+             *
+             * @function Highcharts.ColorAxis#init
+             *
+             * @param {Highcharts.Chart} chart
+             * The related chart of the color axis.
+             *
+             * @param {Highcharts.ColorAxisOptions} userOptions
+             * The color axis options for initialization.
+             */
+            ColorAxis.prototype.init = function (chart, userOptions) {
+                var axis = this;
+                var legend = chart.options.legend || {}, horiz = userOptions.layout ?
+                    userOptions.layout !== 'vertical' :
+                    legend.layout !== 'vertical';
+                axis.side = userOptions.side || horiz ? 2 : 1;
+                axis.reversed = userOptions.reversed || !horiz;
+                axis.opposite = !horiz;
+                _super.prototype.init.call(this, chart, userOptions, 'colorAxis');
+                // `super.init` saves the extended user options, now replace it with the
+                // originals
+                this.userOptions = userOptions;
+                if (isArray(chart.userOptions.colorAxis)) {
+                    chart.userOptions.colorAxis[this.index] = userOptions;
+                }
+                // Prepare data classes
+                if (userOptions.dataClasses) {
+                    axis.initDataClasses(userOptions);
+                }
+                axis.initStops();
+                // Override original axis properties
+                axis.horiz = horiz;
+                axis.zoomEnabled = false;
+            };
+            /**
+             * Returns true if the series has points at all.
+             *
+             * @function Highcharts.ColorAxis#hasData
+             *
+             * @return {boolean}
+             * True, if the series has points, otherwise false.
+             */
+            ColorAxis.prototype.hasData = function () {
+                return !!(this.tickPositions || []).length;
+            };
+            /**
+             * Override so that ticks are not added in data class axes (#6914)
+             * @private
+             */
+            ColorAxis.prototype.setTickPositions = function () {
+                if (!this.dataClasses) {
+                    return _super.prototype.setTickPositions.call(this);
+                }
+            };
+            /**
+             * Extend the setOptions method to process extreme colors and color stops.
+             * @private
+             */
+            ColorAxis.prototype.setOptions = function (userOptions) {
+                var options = merge(defaultOptions.colorAxis, userOptions, 
+                // Forced options
+                {
+                    showEmpty: false,
+                    title: null,
+                    visible: this.chart.options.legend.enabled &&
+                        userOptions.visible !== false
+                });
+                _super.prototype.setOptions.call(this, options);
+                this.options.crosshair = this.options.marker;
+            };
+            /**
+             * @private
+             */
+            ColorAxis.prototype.setAxisSize = function () {
+                var _a;
+                var axis = this, chart = axis.chart, symbol = (_a = axis.legendItem) === null || _a === void 0 ? void 0 : _a.symbol;
+                var _b = axis.getSize(), width = _b.width, height = _b.height;
+                if (symbol) {
+                    this.left = +symbol.attr('x');
+                    this.top = +symbol.attr('y');
+                    this.width = width = +symbol.attr('width');
+                    this.height = height = +symbol.attr('height');
+                    this.right = chart.chartWidth - this.left - width;
+                    this.bottom = chart.chartHeight - this.top - height;
+                    this.pos = this.horiz ? this.left : this.top;
+                }
+                // Fake length for disabled legend to avoid tick issues
+                // and such (#5205)
+                this.len = (this.horiz ? width : height) ||
+                    ColorAxis.defaultLegendLength;
             };
             /**
              * Override the getOffset method to add the whole axis groups inside the
@@ -1045,8 +1091,9 @@
              * @private
              */
             ColorAxis.prototype.getOffset = function () {
+                var _a;
                 var axis = this;
-                var group = axis.legendItem && axis.legendItem.group;
+                var group = (_a = axis.legendItem) === null || _a === void 0 ? void 0 : _a.group;
                 var sideOffset = axis.chart.axisOffset[axis.side];
                 if (group) {
                     // Hook for the getOffset method to add groups to this parent
@@ -1064,6 +1111,12 @@
                     });
                     legend_1.render();
                     this.chart.getMargins(true);
+                    // If not drilling down/up
+                    if (!this.chart.series.some(function (series) {
+                        return series.isDrilling;
+                    })) {
+                        axis.isDirty = true; // Flag to fire drawChartBox
+                    }
                     // First time only
                     if (!axis.added) {
                         axis.added = true;
@@ -1101,24 +1154,32 @@
              */
             ColorAxis.prototype.drawLegendSymbol = function (legend, item) {
                 var _a;
-                var axis = this, legendItem = item.legendItem || {}, padding = legend.padding, legendOptions = legend.options, labelOptions = axis.options.labels, itemDistance = pick(legendOptions.itemDistance, 10), horiz = axis.horiz, width = pick(legendOptions.symbolWidth, horiz ? ColorAxis.defaultLegendLength : 12), height = pick(legendOptions.symbolHeight, horiz ? 12 : ColorAxis.defaultLegendLength), labelPadding = pick(
+                var axis = this, legendItem = item.legendItem || {}, padding = legend.padding, legendOptions = legend.options, labelOptions = axis.options.labels, itemDistance = pick(legendOptions.itemDistance, 10), horiz = axis.horiz, _b = axis.getSize(), width = _b.width, height = _b.height, labelPadding = pick(
                 // @todo: This option is not documented, nor implemented when
                 // vertical
                 legendOptions.labelPadding, horiz ? 16 : 30);
                 this.setLegendColor();
                 // Create the gradient
                 if (!legendItem.symbol) {
-                    legendItem.symbol = this.chart.renderer.symbol('roundedRect', 0, legend.baseline - 11, width, height, { r: (_a = legendOptions.symbolRadius) !== null && _a !== void 0 ? _a : 3 }).attr({
+                    legendItem.symbol = this.chart.renderer.symbol('roundedRect')
+                        .attr({
+                        r: (_a = legendOptions.symbolRadius) !== null && _a !== void 0 ? _a : 3,
                         zIndex: 1
                     }).add(legendItem.group);
                 }
+                legendItem.symbol.attr({
+                    x: 0,
+                    y: (legend.baseline || 0) - 11,
+                    width: width,
+                    height: height
+                });
                 // Set how much space this legend item takes up
                 legendItem.labelWidth = (width +
                     padding +
                     (horiz ?
                         itemDistance :
                         pick(labelOptions.x, labelOptions.distance) +
-                            this.maxLabelLength));
+                            (this.maxLabelLength || 0)));
                 legendItem.labelHeight = height + padding + (horiz ? labelPadding : 0);
             };
             /**
@@ -1144,7 +1205,7 @@
                 var colorValArray, colorKey, colorValIndex, pointArrayMap, calculatedExtremes, cSeries, i = series.length, yData, j;
                 this.dataMin = Infinity;
                 this.dataMax = -Infinity;
-                while (i--) { // x, y, value, other
+                while (i--) { // X, y, value, other
                     cSeries = series[i];
                     colorKey = cSeries.colorKey = pick(cSeries.options.colorKey, cSeries.colorKey, cSeries.pointValKey, cSeries.zoneAxis, 'y');
                     pointArrayMap = cSeries.pointArrayMap;
@@ -1178,7 +1239,8 @@
                         cSeries.minColorValue = cExtremes.dataMin;
                         cSeries.maxColorValue = cExtremes.dataMax;
                     }
-                    if (typeof cSeries.minColorValue !== 'undefined') {
+                    if (defined(cSeries.minColorValue) &&
+                        defined(cSeries.maxColorValue)) {
                         this.dataMin =
                             Math.min(this.dataMin, cSeries.minColorValue);
                         this.dataMax =
@@ -1241,8 +1303,8 @@
              */
             ColorAxis.prototype.getPlotLinePath = function (options) {
                 var axis = this, left = axis.left, pos = options.translatedValue, top = axis.top;
-                // crosshairs only
-                return isNumber(pos) ? // pos can be 0 (#3969)
+                // Crosshairs only
+                return isNumber(pos) ? // `pos` can be 0 (#3969)
                     (axis.horiz ? [
                         ['M', pos - 4, top - 6],
                         ['L', pos + 4, top - 6],
@@ -1383,23 +1445,43 @@
                             // data class
                             setVisible: function () {
                                 this.visible = vis = axis.visible = !vis;
+                                var affectedSeries = [];
                                 for (var _i = 0, _a = getPointsInDataClass(i); _i < _a.length; _i++) {
                                     var point = _a[_i];
                                     point.setVisible(vis);
+                                    point.hiddenInDataClass = !vis; // #20441
+                                    if (affectedSeries.indexOf(point.series) === -1) {
+                                        affectedSeries.push(point.series);
+                                    }
                                 }
                                 chart.legend.colorizeItem(this, vis);
+                                affectedSeries.forEach(function (series) {
+                                    fireEvent(series, 'afterDataClassLegendClick');
+                                });
                             }
                         }, dataClass));
                     });
                 }
                 return legendItems;
             };
+            /**
+             * Get size of color axis symbol.
+             * @private
+             */
+            ColorAxis.prototype.getSize = function () {
+                var axis = this, chart = axis.chart, horiz = axis.horiz, _a = axis.options, colorAxisHeight = _a.height, colorAxisWidth = _a.width, legendOptions = chart.options.legend, width = pick(defined(colorAxisWidth) ?
+                    relativeLength(colorAxisWidth, chart.chartWidth) : void 0, legendOptions === null || legendOptions === void 0 ? void 0 : legendOptions.symbolWidth, horiz ? ColorAxis.defaultLegendLength : 12), height = pick(defined(colorAxisHeight) ?
+                    relativeLength(colorAxisHeight, chart.chartHeight) : void 0, legendOptions === null || legendOptions === void 0 ? void 0 : legendOptions.symbolHeight, horiz ? 12 : ColorAxis.defaultLegendLength);
+                return {
+                    width: width,
+                    height: height
+                };
+            };
             /* *
              *
              *  Static Properties
              *
              * */
-            ColorAxis.defaultColorAxisOptions = ColorAxisDefaults;
             ColorAxis.defaultLegendLength = 200;
             /**
              * @private
@@ -1409,6 +1491,7 @@
             ];
             return ColorAxis;
         }(Axis));
+        extend(ColorAxis.prototype, ColorAxisLike);
         /* *
          *
          *  Registry
@@ -1431,15 +1514,16 @@
          *
          * @typedef {"linear"|"logarithmic"} Highcharts.ColorAxisTypeValue
          */
-        ''; // detach doclet above
+        ''; // Detach doclet above
 
         return ColorAxis;
     });
     _registerModule(_modules, 'masters/modules/coloraxis.src.js', [_modules['Core/Globals.js'], _modules['Core/Axis/Color/ColorAxis.js']], function (Highcharts, ColorAxis) {
 
         var G = Highcharts;
-        G.ColorAxis = ColorAxis;
-        ColorAxis.compose(G.Chart, G.Fx, G.Legend, G.Series);
+        G.ColorAxis = G.ColorAxis || ColorAxis;
+        G.ColorAxis.compose(G.Chart, G.Fx, G.Legend, G.Series);
 
+        return Highcharts;
     });
 }));

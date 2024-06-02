@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2024 Øystein Moseng
  *
  *  Accessibility component for exporting menu.
  *
@@ -10,7 +10,6 @@
  *
  * */
 'use strict';
-import Chart from '../../Core/Chart/Chart.js';
 import U from '../../Core/Utilities.js';
 const { attr } = U;
 import AccessibilityComponent from '../AccessibilityComponent.js';
@@ -24,7 +23,6 @@ const { getFakeMouseEvent } = HTMLUtilities;
  *  Functions
  *
  * */
-/* eslint-disable valid-jsdoc */
 /**
  * Get the wrapped export button element of a chart.
  * @private
@@ -103,7 +101,7 @@ class MenuComponent extends AccessibilityComponent {
      */
     setExportButtonExpandedState(stateStr) {
         if (this.exportButtonProxy) {
-            this.exportButtonProxy.buttonElement.setAttribute('aria-expanded', stateStr);
+            this.exportButtonProxy.innerElement.setAttribute('aria-expanded', stateStr);
         }
     }
     /**
@@ -118,7 +116,7 @@ class MenuComponent extends AccessibilityComponent {
             focusEl &&
             focusEl === chart.exportingGroup) {
             if (focusEl.focusBorder) {
-                chart.setFocusToElement(focusEl, this.exportButtonProxy.buttonElement);
+                chart.setFocusToElement(focusEl, this.exportButtonProxy.innerElement);
             }
             else if (a11y) {
                 a11y.keyboardNavigation.tabindexContainer.focus();
@@ -133,7 +131,7 @@ class MenuComponent extends AccessibilityComponent {
         const proxyProvider = this.proxyProvider;
         const buttonEl = getExportMenuButtonElement(chart);
         if (exportingShouldHaveA11y(chart) && buttonEl) {
-            this.exportButtonProxy = proxyProvider.addProxyElement('chartMenu', { click: buttonEl }, {
+            this.exportButtonProxy = proxyProvider.addProxyElement('chartMenu', { click: buttonEl }, 'button', {
                 'aria-label': chart.langFormat('accessibility.exporting.menuButtonLabel', {
                     chart: chart,
                     chartTitle: getChartTitle(chart)
@@ -149,7 +147,7 @@ class MenuComponent extends AccessibilityComponent {
     createProxyGroup() {
         const chart = this.chart;
         if (chart && this.proxyProvider) {
-            this.proxyProvider.addGroup('chartMenu', 'div');
+            this.proxyProvider.addGroup('chartMenu');
         }
     }
     /**
@@ -225,7 +223,7 @@ class MenuComponent extends AccessibilityComponent {
                 const proxy = component.exportButtonProxy;
                 const svgEl = component.chart.exportingGroup;
                 if (proxy && svgEl) {
-                    chart.setFocusToElement(svgEl, proxy.buttonElement);
+                    chart.setFocusToElement(svgEl, proxy.innerElement);
                 }
             },
             // Hide the menu
@@ -313,22 +311,15 @@ class MenuComponent extends AccessibilityComponent {
      * */
     /* *
      *
-     *  Constants
-     *
-     * */
-    const composedMembers = [];
-    /* *
-     *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     /**
      * @private
      */
     function compose(ChartClass) {
-        if (U.pushUnique(composedMembers, ChartClass)) {
-            const chartProto = Chart.prototype;
+        const chartProto = ChartClass.prototype;
+        if (!chartProto.hideExportMenu) {
             chartProto.hideExportMenu = chartHideExportMenu;
             chartProto.highlightExportItem = chartHighlightExportItem;
             chartProto.highlightLastExportItem = chartHighlightLastExportItem;

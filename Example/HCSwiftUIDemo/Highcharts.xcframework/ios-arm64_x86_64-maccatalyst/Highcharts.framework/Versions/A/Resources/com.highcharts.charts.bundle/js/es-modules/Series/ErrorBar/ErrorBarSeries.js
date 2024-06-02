@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -28,60 +28,48 @@ const { addEvent, merge, extend } = U;
  * @name Highcharts.seriesTypes.errorbar
  *
  * @augments Highcharts.Series
- *
  */
 class ErrorBarSeries extends BoxPlotSeries {
-    constructor() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        super(...arguments);
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        this.data = void 0;
-        this.options = void 0;
-        this.points = void 0;
-    }
     /* *
      *
      *  Functions
      *
      * */
     getColumnMetrics() {
+        const series = this;
         // Get the width and X offset, either on top of the linked series
         // column or standalone
-        return ((this.linkedParent && this.linkedParent.columnMetrics) ||
-            ColumnSeries.prototype.getColumnMetrics.call(this));
+        return ((series.linkedParent && series.linkedParent.columnMetrics) ||
+            ColumnSeries.prototype.getColumnMetrics.call(series));
     }
     drawDataLabels() {
-        const valKey = this.pointValKey;
+        const series = this, valKey = series.pointValKey;
         if (AreaRangeSeries) {
-            AreaRangeSeries.prototype.drawDataLabels.call(this);
+            AreaRangeSeries.prototype.drawDataLabels.call(series);
             // Arearange drawDataLabels does not reset point.y to high,
             // but to low after drawing (#4133)
-            this.data.forEach(function (point) {
+            for (const point of series.points) {
                 point.y = point[valKey];
-            });
+            }
         }
     }
     toYData(point) {
-        // return a plain array for speedy calculation
+        // Return a plain array for speedy calculation
         return [point.low, point.high];
     }
 }
+/* *
+ *
+ *  Static Properties
+ *
+ * */
 ErrorBarSeries.defaultOptions = merge(BoxPlotSeries.defaultOptions, ErrorBarSeriesDefaults);
 addEvent(ErrorBarSeries, 'afterTranslate', function () {
-    this.points.forEach((point) => {
+    for (const point of this.points) {
         point.plotLow = point.plotY;
-    });
+    }
 }, { order: 0 });
 extend(ErrorBarSeries.prototype, {
-    // pointClass: ErrorBarPoint, // just a declaration
     pointArrayMap: ['low', 'high'],
     pointValKey: 'high',
     doQuartiles: false

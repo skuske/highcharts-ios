@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highstock
  *
- * (c) 2010-2021 Rafal Sebestjanski
+ * (c) 2010-2024 Rafal Sebestjanski
  *
  * License: www.highcharts.com/license
  */
@@ -28,18 +28,16 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Stock/Indicators/DisparityIndex/DisparityIndexIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
-         *  (c) 2010-2021 Rafal Sebestjanski
+         *  (c) 2010-2024 Rafal Sebestjanski
          *
          *  Disparity Index technical indicator for Highcharts Stock
          *
@@ -82,22 +80,7 @@
         var DisparityIndexIndicator = /** @class */ (function (_super) {
             __extends(DisparityIndexIndicator, _super);
             function DisparityIndexIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.averageIndicator = void 0;
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -106,7 +89,7 @@
              * */
             DisparityIndexIndicator.prototype.init = function () {
                 var args = arguments, ctx = this, // Disparity Index indicator
-                params = args[1].params, // options.params
+                params = args[1].params, // Options.params
                 averageType = params && params.average ? params.average : void 0;
                 ctx.averageIndicator = SeriesRegistry
                     .seriesTypes[averageType] || SMAIndicator;
@@ -143,6 +126,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Disparity Index.
              * This series requires the `linkedTo` option to be set and should
@@ -214,12 +202,13 @@
          * @requires  stock/indicators/disparity-index
          * @apioption series.disparityindex
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return DisparityIndexIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/disparity-index.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/disparity-index.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

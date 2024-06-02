@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -8,6 +8,7 @@
 
 #import "HISeries.h"
 #import "HIColor.h"
+#import "HIBorderRadiusOptionsObject.h"
 
 
 /**
@@ -102,6 +103,16 @@ Equivalent to `chart.ignoreHiddenSeries`, this option tells whether the series s
 * [True, the hiddden point is ignored](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/pie-ignorehiddenpoint/)
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *ignoreHiddenPoint;
+/**
+The corner radius of the border surrounding each slice. A number signifies pixels. A percentage string, like for example `50%`, signifies a size relative to the radius and the inner radius.
+
+**Defaults to** `3`.
+
+**Try it**
+
+* [Column and pie with rounded border](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-border-radius)
+*/
+@property(nonatomic, readwrite) HIBorderRadiusOptionsObject *borderRadius;
 /**
 A series specific or series type specific color set to use instead of the global `colors`.
 

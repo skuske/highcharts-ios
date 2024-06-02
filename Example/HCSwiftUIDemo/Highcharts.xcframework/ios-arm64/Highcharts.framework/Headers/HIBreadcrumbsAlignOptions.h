@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -17,11 +17,11 @@ Options for aligning breadcrumbs group.
 /**
 Align of a Breadcrumb group.
 */
-@property(nonatomic, readwrite) NSString *align;
+@property(nonatomic, readwrite) id align;
 /**
 Vertical align of a Breadcrumb group.
 */
-@property(nonatomic, readwrite) NSString *verticalAlign;
+@property(nonatomic, readwrite) id verticalAlign;
 /**
 X offset of a Breadcrumbs group.
 */

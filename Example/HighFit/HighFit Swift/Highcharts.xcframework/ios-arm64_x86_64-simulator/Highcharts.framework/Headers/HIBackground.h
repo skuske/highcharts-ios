@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -31,6 +31,14 @@ The outer radius of the circular pane background. Can be either numeric (pixels)
 **Defaults to** `105%`.
 */
 @property(nonatomic, readwrite) id /* NSNumber, NSString */ outerRadius;
+/**
+The border radius of the pane background when the shape is `arc`. Can be a number (pixels) or a percentage string.
+
+**Try it**
+
+* [Circular gauge and pane with equal border radius](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-solidgauge/pane-borderradius)
+*/
+@property(nonatomic, readwrite) id /* NSNumber, NSString */ borderRadius;
 /**
 The inner radius of the pane background. Can be either numeric (pixels) or a percentage string.
 */

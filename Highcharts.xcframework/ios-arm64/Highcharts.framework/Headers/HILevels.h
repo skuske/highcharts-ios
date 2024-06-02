@@ -1,11 +1,12 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
 * In case of questions, please contact sales@highsoft.com
 */
 
+#import "HIMarker.h"
 #import "HIColorVariation.h"
 #import "HIDataLabels.h"
 #import "HIStates.h"
@@ -21,6 +22,10 @@ Set options on specific levels. Takes precedence over series options, but not po
 */
 @interface HILevels: HIChartsJSONSerializable
 
+/**
+Set marker options for nodes at the level.
+*/
+@property(nonatomic, readwrite) HIMarker *marker;
 /**
 Set collapsed status for nodes level-wise.
 */
@@ -67,14 +72,10 @@ Can set a `borderWidth` on all points which lies on the same level.
 @property(nonatomic, readwrite) NSNumber *borderWidth;
 /**
 Can set the layoutAlgorithm option on a specific level.
-
-**Accepted values:** `["sliceAndDice", "stripes", "squarified", "strip"]`.
 */
 @property(nonatomic, readwrite) NSString *layoutAlgorithm;
 /**
 Can set the layoutStartingDirection option on a specific level.
-
-**Accepted values:** `["vertical", "horizontal"]`.
 */
 @property(nonatomic, readwrite) NSString *layoutStartingDirection;
 /**

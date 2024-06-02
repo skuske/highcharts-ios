@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -96,7 +96,7 @@ An array with an SVG path for the custom dial.
 
 * [Dial options demonstrated](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/gauge-path/)
 */
-@property(nonatomic, readwrite) NSArray<NSString *> *path;
+@property(nonatomic, readwrite) NSArray *path;
 /**
 The pixel width of the base of the gauge dial. The base is the part closest to the pivot, defined by baseLength.
 

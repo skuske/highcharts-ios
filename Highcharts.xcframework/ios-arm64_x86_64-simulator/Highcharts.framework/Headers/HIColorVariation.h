@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -25,8 +25,6 @@ The ending value of a color variation. The last sibling will receive this value.
 @property(nonatomic, readwrite) NSNumber *to;
 /**
 The key of a color variation. Currently supports `brightness` only.
-
-**Accepted values:** `["brightness"]`.
 */
 @property(nonatomic, readwrite) NSString *key;
 

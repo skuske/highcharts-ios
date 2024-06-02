@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2024 Øystein Moseng
  *
  *  Accessibility component for chart container.
  *
@@ -101,7 +101,9 @@ class ContainerComponent extends AccessibilityComponent {
         const chart = this.chart, credits = chart.credits;
         if (credits) {
             if (credits.textStr) {
-                credits.element.setAttribute('aria-label', chart.langFormat('accessibility.credits', { creditsStr: stripHTMLTags(credits.textStr) }));
+                credits.element.setAttribute('aria-label', chart.langFormat('accessibility.credits', {
+                    creditsStr: stripHTMLTags(credits.textStr, chart.renderer.forExport)
+                }));
             }
             unhideChartElementFromAT(chart, credits.element);
         }

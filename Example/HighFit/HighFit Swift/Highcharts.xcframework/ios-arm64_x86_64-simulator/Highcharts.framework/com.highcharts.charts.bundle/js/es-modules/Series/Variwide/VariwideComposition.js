@@ -2,7 +2,7 @@
  *
  *  Highcharts variwide module
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -10,14 +10,10 @@
  *
  * */
 'use strict';
+import H from '../../Core/Globals.js';
+const { composed } = H;
 import U from '../../Core/Utilities.js';
-const { addEvent, wrap } = U;
-/* *
- *
- *  Constants
- *
- * */
-const composedMembers = [];
+const { addEvent, pushUnique, wrap } = U;
 /* *
  *
  *  Functions
@@ -27,13 +23,11 @@ const composedMembers = [];
  * @private
  */
 function compose(AxisClass, TickClass) {
-    if (U.pushUnique(composedMembers, AxisClass)) {
+    if (pushUnique(composed, 'Variwide')) {
+        const tickProto = TickClass.prototype;
         addEvent(AxisClass, 'afterDrawCrosshair', onAxisAfterDrawCrosshair);
         addEvent(AxisClass, 'afterRender', onAxisAfterRender);
-    }
-    if (U.pushUnique(composedMembers, TickClass)) {
         addEvent(TickClass, 'afterGetPosition', onTickAfterGetPosition);
-        const tickProto = TickClass.prototype;
         tickProto.postTranslate = tickPostTranslate;
         wrap(tickProto, 'getLabelPosition', wrapTickGetLabelPosition);
     }
@@ -56,10 +50,8 @@ function onAxisAfterRender() {
     if (!this.horiz && this.variwide) {
         this.chart.labelCollectors.push(function () {
             return axis.tickPositions
-                .filter(function (pos) {
-                return axis.ticks[pos].label;
-            })
-                .map(function (pos, i) {
+                .filter((pos) => !!axis.ticks[pos].label)
+                .map((pos, i) => {
                 const label = axis.ticks[pos].label;
                 label.labelrank = axis.zData[i];
                 return label;
@@ -95,7 +87,11 @@ function tickPostTranslate(xy, xOrY, index) {
 /**
  * @private
  */
-function wrapTickGetLabelPosition(proceed, x, y, label, horiz, labelOptions, tickmarkOffset, index) {
+function wrapTickGetLabelPosition(proceed, _x, _y, _label, horiz, 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+_labelOptions, _tickmarkOffset, _index
+/* eslint-enable @typescript-eslint/no-unused-vars */
+) {
     const args = Array.prototype.slice.call(arguments, 1), xOrY = horiz ? 'x' : 'y';
     // Replace the x with the original x
     if (this.axis.variwide &&

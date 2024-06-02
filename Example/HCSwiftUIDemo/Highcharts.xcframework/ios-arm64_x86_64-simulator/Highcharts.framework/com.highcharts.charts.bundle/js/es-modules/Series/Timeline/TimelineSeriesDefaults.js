@@ -2,7 +2,7 @@
  *
  *  Timeline Series.
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2024 Highsoft AS
  *
  *  Author: Daniel Studencki
  *
@@ -107,10 +107,12 @@ const TimelineSeriesDefaults = {
         connectorWidth: 1,
         /**
          * A pixel value defining the distance between the data label and
-         * the point. Negative numbers puts the label on top of the point.
+         * the point. Negative numbers puts the label on top of the point in a
+         * non-inverted chart. Defaults to 100 for horizontal and 20 for
+         * vertical timeline (`chart.inverted: true`).
          */
-        distance: 100,
-        // eslint-disable-next-line valid-jsdoc
+        distance: void 0,
+        // eslint-disable-next-line jsdoc/require-description
         /**
          * @type    {Highcharts.TimelineDataLabelsFormatterCallbackFunction}
          * @default function () {
@@ -242,7 +244,7 @@ const TimelineSeriesDefaults = {
  * @product   highcharts
  * @apioption series.timeline.data.description
  */
-''; // adds doclets above to transpiled file
+''; // Adds doclets above to transpiled file
 /* *
  *
  *  Default Export

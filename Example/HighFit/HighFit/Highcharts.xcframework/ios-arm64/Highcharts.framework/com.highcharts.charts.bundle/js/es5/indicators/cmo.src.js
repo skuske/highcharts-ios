@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Pawel Lysy
+ * (c) 2010-2024 Pawel Lysy
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -79,21 +77,7 @@
         var CMOIndicator = /** @class */ (function (_super) {
             __extends(CMOIndicator, _super);
             function CMOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -127,7 +111,7 @@
                         sumOfLowerValues += values[j - 1] - values[j];
                     }
                 }
-                // You might devide by 0 if all values are equal,
+                // You might divide by 0 if all values are equal,
                 // so return 0 in this case.
                 y =
                     sumOfHigherValues + sumOfLowerValues > 0 ?
@@ -146,7 +130,7 @@
                         sumOfLowerValues += values[i - 1] - values[i];
                     }
                     // Check, to which sum was the first value added to,
-                    // and substract this value from given sum.
+                    // and subtract this value from given sum.
                     if (values[i - period] > values[i - period - 1]) {
                         sumOfHigherValues -= firstAddedSum;
                     }
@@ -169,6 +153,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Chande Momentum Oscilator (CMO) technical indicator. This series
              * requires the `linkedTo` option to be set and should be loaded after
@@ -215,12 +204,13 @@
          * @requires  stock/indicators/cmo
          * @apioption series.cmo
          */
-        (''); // to include the above in the js output
+        (''); // To include the above in the js output
 
         return CMOIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/cmo.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/cmo.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

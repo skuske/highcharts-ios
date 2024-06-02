@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Wojciech Chmiel
+ * (c) 2010-2024 Wojciech Chmiel
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -79,21 +77,7 @@
         var PPOIndicator = /** @class */ (function (_super) {
             __extends(PPOIndicator, _super);
             function PPOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -141,6 +125,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Percentage Price Oscillator. This series requires the
              * `linkedTo` option to be set and should be loaded after the
@@ -161,7 +150,7 @@
              */
             PPOIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Percentage Price Oscillator series
+                 * Parameters used in calculation of Percentage Price Oscillator series
                  * points.
                  *
                  * @excluding period
@@ -208,12 +197,13 @@
          * @requires  stock/indicators/ppo
          * @apioption series.ppo
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return PPOIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/ppo.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/ppo.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

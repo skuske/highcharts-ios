@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,34 +8,52 @@
  *
  * */
 'use strict';
-import SVGRenderer from '../Core/Renderer/SVG/SVGRenderer.js';
-const { prototype: { symbols } } = SVGRenderer;
+/* *
+ *
+ *  Variables
+ *
+ * */
+let symbols;
 /* *
  *
  *  Functions
  *
  * */
-/* eslint-disable require-jsdoc, valid-jsdoc */
+/**
+ *
+ */
 function bottomButton(x, y, w, h, options) {
     if (options) {
-        const r = (options === null || options === void 0 ? void 0 : options.r) || 0;
+        const r = options?.r || 0;
         options.brBoxY = y - r;
         options.brBoxHeight = h + r;
     }
     return symbols.roundedRect(x, y, w, h, options);
 }
+/**
+ *
+ */
+function compose(SVGRendererClass) {
+    symbols = SVGRendererClass.prototype.symbols;
+    symbols.bottombutton = bottomButton;
+    symbols.topbutton = topButton;
+}
+/**
+ *
+ */
 function topButton(x, y, w, h, options) {
     if (options) {
-        const r = (options === null || options === void 0 ? void 0 : options.r) || 0;
+        const r = options?.r || 0;
         options.brBoxHeight = h + r;
     }
     return symbols.roundedRect(x, y, w, h, options);
 }
-symbols.bottombutton = bottomButton;
-symbols.topbutton = topButton;
 /* *
  *
  *  Default Export
  *
  * */
-export default symbols;
+const MapSymbols = {
+    compose
+};
+export default MapSymbols;

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2023 Highsoft AS
+ *  (c) 2009-2024 Highsoft AS
  *
  *  License: www.highcharts.com/license
  *
@@ -34,7 +34,7 @@ class InvertModifier extends DataModifier {
     /**
      * Constructs an instance of the invert modifier.
      *
-     * @param {InvertModifier.Options} [options]
+     * @param {Partial<InvertModifier.Options>} [options]
      * Options to configure the invert modifier.
      */
     constructor(options) {
@@ -185,7 +185,7 @@ class InvertModifier extends DataModifier {
         const modifier = this;
         modifier.emit({ type: 'modify', detail: eventDetail, table });
         const modified = table.modified;
-        if (table.hasColumns(['columnNames'])) { // inverted table
+        if (table.hasColumns(['columnNames'])) { // Inverted table
             const columnNames = ((table.deleteColumns(['columnNames']) || {})
                 .columnNames || []).map((column) => `${column}`), columns = {};
             for (let i = 0, iEnd = table.getRowCount(), row; i < iEnd; ++i) {
@@ -197,7 +197,7 @@ class InvertModifier extends DataModifier {
             modified.deleteColumns();
             modified.setColumns(columns);
         }
-        else { // regular table
+        else { // Regular table
             const columns = {};
             for (let i = 0, iEnd = table.getRowCount(), row; i < iEnd; ++i) {
                 row = table.getRow(i);
@@ -222,7 +222,7 @@ class InvertModifier extends DataModifier {
  * Default options for the invert modifier.
  */
 InvertModifier.defaultOptions = {
-    modifier: 'Invert'
+    type: 'Invert'
 };
 DataModifier.registerType('Invert', InvertModifier);
 /* *

@@ -2,38 +2,25 @@
  *
  *  Wind barb series module
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
  *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
  *
  * */
+import ColumnSeries from '../Column/ColumnSeries.js';
 import U from '../../Core/Utilities.js';
 const { isNumber } = U;
-import ColumnSeries from '../Column/ColumnSeries.js';
 /* *
  *
- * Class
+ *  Class
  *
  * */
 class WindbarbPoint extends ColumnSeries.prototype.pointClass {
-    constructor() {
-        super(...arguments);
-        /* *
-         *
-         * Properties
-         *
-         * */
-        this.beaufort = void 0;
-        this.beaufortLevel = void 0;
-        this.direction = void 0;
-        this.options = void 0;
-        this.series = void 0;
-    }
     /* *
      *
-     * Functions
+     *  Functions
      *
      * */
     isValid() {
@@ -42,7 +29,7 @@ class WindbarbPoint extends ColumnSeries.prototype.pointClass {
 }
 /* *
  *
- * Default export
+ *  Default Export
  *
  * */
 export default WindbarbPoint;

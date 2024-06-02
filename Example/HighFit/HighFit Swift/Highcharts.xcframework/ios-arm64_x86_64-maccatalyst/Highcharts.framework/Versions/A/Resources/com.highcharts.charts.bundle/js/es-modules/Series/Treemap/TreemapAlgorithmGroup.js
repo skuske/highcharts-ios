@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2014-2021 Highsoft AS
+ *  (c) 2014-2024 Highsoft AS
  *
  *  Authors: Jon Arild Nygard / Oystein Moseng
  *
@@ -51,7 +51,6 @@ class TreemapAlgorithmGroup {
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     addElement(el) {
         this.lP.total = this.elArr[this.elArr.length - 1];
         this.total = this.total + el;

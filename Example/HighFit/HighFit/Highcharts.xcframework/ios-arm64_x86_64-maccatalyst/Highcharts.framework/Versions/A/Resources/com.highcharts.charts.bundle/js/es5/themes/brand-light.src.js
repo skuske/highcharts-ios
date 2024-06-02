@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -26,19 +26,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Extensions/Themes/BrandLight.js', [_modules['Core/Defaults.js'], _modules['Core/Utilities.js']], function (D, U) {
         /* *
          *
-         *   (c) 2010-2021 Highsoft AS
+         *   (c) 2010-2024 Highsoft AS
          *
          *  Author: Nancy Dillon
          *
@@ -64,8 +62,10 @@
              *
              * */
             BrandLightTheme.options = {
-                colors: ['#8087E8', '#A3EDBA', '#F19E53', '#6699A1',
-                    '#E1D369', '#87B4E7', '#DA6D85', '#BBBAC5'],
+                colors: [
+                    '#8087E8', '#A3EDBA', '#F19E53', '#6699A1',
+                    '#E1D369', '#87B4E7', '#DA6D85', '#BBBAC5'
+                ],
                 chart: {
                     backgroundColor: '#f0f0f0',
                     style: {
@@ -184,7 +184,7 @@
                         }
                     }
                 },
-                // scroll charts
+                // Scroll charts
                 rangeSelector: {
                     buttonTheme: {
                         fill: '#fff',
@@ -272,7 +272,7 @@
             function apply() {
                 // Load the fonts
                 createElement('link', {
-                    href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:200,300,400,600,700',
+                    href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300;400;600;700',
                     rel: 'stylesheet',
                     type: 'text/css'
                 }, null, document.getElementsByTagName('head')[0]);
@@ -294,5 +294,6 @@
         H.theme = BrandLight.options;
         BrandLight.apply();
 
+        return H;
     });
 }));

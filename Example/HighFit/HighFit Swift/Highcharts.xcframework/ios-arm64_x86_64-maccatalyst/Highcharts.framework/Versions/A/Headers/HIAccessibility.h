@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -11,15 +11,16 @@
 #import "HIKeyboardNavigation.h"
 #import "HIScreenReaderSection.h"
 #import "HIAnnounceNewData.h"
-#import "HIChartTypes.h"
-#import "HISeriesTypeDescriptions.h"
 #import "HITable.h"
-#import "HIZoom.h"
 #import "HIAccessibilityExporting.h"
-#import "HIRangeSelector.h"
 #import "HIAccessibilityLegend.h"
-#import "HISonification.h"
+#import "HINavigator.h"
 #import "HIAxis.h"
+#import "HISonification.h"
+#import "HIChartTypes.h"
+#import "HIRangeSelector.h"
+#import "HIZoom.h"
+#import "HISeriesTypeDescriptions.h"
 
 
 /**
@@ -27,6 +28,10 @@ Options for configuring accessibility for the chart. Requires the [accessibility
 */
 @interface HIAccessibility: HIChartsJSONSerializable
 
+/**
+Options for descriptions of individual data points.
+*/
+@property(nonatomic, readwrite) HIPoint *point;
 /**
 Amount of landmarks/regions to create for screen reader users. More landmarks can make navigation with screen readers easier, but can be distracting if there are lots of charts on the page. Three modes are available: - `all`: Adds regions for all series, legend, information   region. - `one`: Adds a single landmark per chart. - `disabled`: No landmarks are added.
 
@@ -54,9 +59,11 @@ Link the chart to an HTML element describing the contents of the chart. It is al
 */
 @property(nonatomic, readwrite) NSString *linkedDescription;
 /**
-Options for descriptions of individual data points.
+Controls how `highContrastTheme` is applied. The default option is `auto`, which applies the high contrast theme the user's system has a high contrast theme active.
+
+**Defaults to** `auto`.
 */
-@property(nonatomic, readwrite) HIPoint *point;
+@property(nonatomic, readwrite) NSString *highContrastMode;
 /**
 Accessibility options global to all data series. Individual series can also have specific `accessibility options` set.
 */
@@ -84,7 +91,7 @@ A text description of the chart type. If the Accessibility module is loaded, thi
 */
 @property(nonatomic, readwrite) NSString *typeDescription;
 /**
-Theme to apply to the chart when Windows High Contrast Mode is detected. By default, a high contrast theme matching the high contrast system system colors is used.
+Theme to apply to the chart when Windows High Contrast Mode is detected. By default, a high contrast theme matching the high contrast system colors is used.
 */
 @property(nonatomic, readwrite) id highContrastTheme;
 /**
@@ -104,75 +111,23 @@ Range description for an axis. Overrides the default range description. Set to e
 */
 @property(nonatomic, readwrite) NSString *rangeDescription;
 /**
-Default title of the chart for assistive technology, for charts without a chart title.
-
-**Defaults to** `Chart`.
-*/
-@property(nonatomic, readwrite) NSString *defaultChartTitle;
-/**
-Accessible label for the chart SVG element. `{chartTitle}` refers to the chart title.
-
-**Defaults to** `Interactive chart`.
-*/
-@property(nonatomic, readwrite) NSString *svgContainerLabel;
-/**
-Thousands separator to use when formatting numbers for screen readers. Note that many screen readers will not handle space as a thousands separator, and will consider "11 700" as two numbers. Set to `null` to use the separator defined in `lang.thousandsSep`.
-
-**Defaults to** `,`.
-*/
-@property(nonatomic, readwrite) NSString *thousandsSep;
-/**
-Chart type description strings. This is added to the chart information region. If there is only a single series type used in the chart, we use the format string for the series type, or default if missing. There is one format string for cases where there is only a single series in the chart, and one for multiple series of the same type.
-*/
-@property(nonatomic, readwrite) HIChartTypes *chartTypes;
-/**
-Descriptions of lesser known series types. The relevant description is added to the screen reader information region when these series types are used.
-*/
-@property(nonatomic, readwrite) HISeriesTypeDescriptions *seriesTypeDescriptions;
-/**
-Accessibility language options for the data table.
-*/
-@property(nonatomic, readwrite) HITable *table;
-/**
-Chart and map zoom accessibility language options.
-*/
-@property(nonatomic, readwrite) HIZoom *zoom;
-/**
-Accessible label for the chart credits. `{creditsStr}` refers to the visual text in the credits.
-
-**Defaults to** `Chart credits: {creditsStr}`.
-*/
-@property(nonatomic, readwrite) NSString *credits;
-/**
 Accessible label for the drill-up button. `{buttonText}` refers to the visual text on the button.
 
 **Defaults to** `{buttonText}`.
 */
 @property(nonatomic, readwrite) NSString *drillUpButton;
 /**
-Exporting menu format strings for accessibility module.
+Accessibility language options for the data table.
 */
-@property(nonatomic, readwrite) HIAccessibilityExporting *exporting;
+@property(nonatomic, readwrite) HITable *table;
 /**
-Range selector language options for accessibility.
+Navigator language options for accessibility.
 */
-@property(nonatomic, readwrite) HIRangeSelector *rangeSelector;
-/**
-Title element text for the chart SVG element. Leave this empty to disable adding the title element. Browsers will display this content when hovering over elements in the chart. Assistive technology may use this element to label the chart.
-*/
-@property(nonatomic, readwrite) NSString *svgContainerTitle;
-/**
-Language options for sonification.
-*/
-@property(nonatomic, readwrite) HISonification *sonification;
+@property(nonatomic, readwrite) HINavigator *navigator;
 /**
 Set a label on the container wrapping the SVG.
 */
 @property(nonatomic, readwrite) NSString *graphicContainerLabel;
-/**
-Language options for accessibility of the legend.
-*/
-@property(nonatomic, readwrite) HIAccessibilityLegend *legend;
 /**
 Accessible label for the chart container HTML element. `{title}` refers to the chart title.
 
@@ -183,6 +138,62 @@ Accessible label for the chart container HTML element. `{title}` refers to the c
 Axis description format strings.
 */
 @property(nonatomic, readwrite) HIAxis *axis;
+/**
+Language options for sonification.
+*/
+@property(nonatomic, readwrite) HISonification *sonification;
+/**
+Chart type description strings. This is added to the chart information region. If there is only a single series type used in the chart, we use the format string for the series type, or default if missing. There is one format string for cases where there is only a single series in the chart, and one for multiple series of the same type.
+*/
+@property(nonatomic, readwrite) HIChartTypes *chartTypes;
+/**
+Accessible label for the chart SVG element. `{chartTitle}` refers to the chart title.
+
+**Defaults to** `Interactive chart`.
+*/
+@property(nonatomic, readwrite) NSString *svgContainerLabel;
+/**
+Exporting menu format strings for accessibility module.
+*/
+@property(nonatomic, readwrite) HIAccessibilityExporting *exporting;
+/**
+Accessible label for the chart credits. `{creditsStr}` refers to the visual text in the credits.
+
+**Defaults to** `Chart credits: {creditsStr}`.
+*/
+@property(nonatomic, readwrite) NSString *credits;
+/**
+Range selector language options for accessibility.
+*/
+@property(nonatomic, readwrite) HIRangeSelector *rangeSelector;
+/**
+Language options for accessibility of the legend.
+*/
+@property(nonatomic, readwrite) HIAccessibilityLegend *legend;
+/**
+Default title of the chart for assistive technology, for charts without a chart title.
+
+**Defaults to** `Chart`.
+*/
+@property(nonatomic, readwrite) NSString *defaultChartTitle;
+/**
+Chart and map zoom accessibility language options.
+*/
+@property(nonatomic, readwrite) HIZoom *zoom;
+/**
+Title element text for the chart SVG element. Leave this empty to disable adding the title element. Browsers will display this content when hovering over elements in the chart. Assistive technology may use this element to label the chart.
+*/
+@property(nonatomic, readwrite) NSString *svgContainerTitle;
+/**
+Descriptions of lesser known series types. The relevant description is added to the screen reader information region when these series types are used.
+*/
+@property(nonatomic, readwrite) HISeriesTypeDescriptions *seriesTypeDescriptions;
+/**
+Thousands separator to use when formatting numbers for screen readers. Note that many screen readers will not handle space as a thousands separator, and will consider "11 700" as two numbers. Set to `null` to use the separator defined in `lang.thousandsSep`.
+
+**Defaults to** `,`.
+*/
+@property(nonatomic, readwrite) NSString *thousandsSep;
 
 -(NSDictionary *)getParams;
 

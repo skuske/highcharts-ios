@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -20,8 +20,6 @@ Allow panning in a chart. Best used with `panKey` to combine zooming and panning
 
 /**
 Decides in what dimensions the user can pan the chart. Can be one of `x`, `y`, or `xy`. When this option is set to `y` or `xy`, `yAxis.startOnTick` and `yAxis.endOnTick` are overwritten to `false`.
-
-**Accepted values:** `["x", "y", "xy"]`.
 
 **Defaults to** `x`.
 

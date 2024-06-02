@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -8,7 +8,7 @@
 
 #import "HIPointGrouping.h"
 #import "HIMapping.h"
-#import "HIActiveWhen.h"
+#import "HIFunction.h"
 
 
 /**
@@ -68,7 +68,7 @@ Define a condition for when a track should be active and not. Can either be a fu
 
 * [Mapping zones](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/sonification/mapping-zones)
 */
-@property(nonatomic, readwrite) HIActiveWhen *activeWhen;
+@property(nonatomic, readwrite) HIFunction *activeWhen;
 
 -(NSDictionary *)getParams;
 

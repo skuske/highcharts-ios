@@ -1,12 +1,12 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  * @module highcharts/modules/heikinashi
  * @requires highcharts
  * @requires highcharts/modules/stock
  *
  * HeikinAshi series type for Highcharts Stock
  *
- * (c) 2010-2021 Karol Kolodziej
+ * (c) 2010-2024 Karol Kolodziej
  *
  * License: www.highcharts.com/license
  */
@@ -15,3 +15,4 @@ import Highcharts from '../../Core/Globals.js';
 import HeikinAshiSeries from '../../Series/HeikinAshi/HeikinAshiSeries.js';
 const G = Highcharts;
 HeikinAshiSeries.compose(G.Series, G.Axis);
+export default Highcharts;

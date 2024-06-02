@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2022 Øystein Moseng
+ *  (c) 2009-2024 Øystein Moseng
  *
  *  Build a timeline from a chart.
  *
@@ -165,7 +165,10 @@ function getPropMetrics(chart) {
             }
         }
     });
-    return Object.assign({ seriesTimeProps }, getChartExtremesForProps(chart, Object.keys(props), Object.keys(perSeriesProps)));
+    return {
+        seriesTimeProps,
+        ...getChartExtremesForProps(chart, Object.keys(props), Object.keys(perSeriesProps))
+    };
 }
 /**
  * Map a relative value onto a virtual axis.

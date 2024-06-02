@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2024 Øystein Moseng
  *
  *  Utility functions for accessibility module.
  *
@@ -176,8 +176,8 @@ function getFakeMouseEvent(type, position, relatedTarget) {
             // Coords
             pos.x, pos.y, pos.x, pos.y, 
             // Pressed keys
-            false, false, false, false, 0, // button
-            null // related target
+            false, false, false, false, 0, // Button
+            null // Related target
             );
             return evt;
         }
@@ -270,9 +270,11 @@ function reverseChildNodes(node) {
  * text contains tags.
  * @private
  */
-function stripHTMLTagsFromString(str) {
-    return typeof str === 'string' ?
-        str.replace(/<\/?[^>]+(>|$)/g, '') : str;
+function stripHTMLTagsFromString(str, isForExport = false) {
+    return (typeof str === 'string') ?
+        (isForExport ?
+            str.replace(/<\/?[^>]+(>|$)/g, '') :
+            str.replace(/<\/?(?!\s)[^>]+(>|$)/g, '')) : str;
 }
 /**
  * Utility function for hiding an element visually, but still keeping it

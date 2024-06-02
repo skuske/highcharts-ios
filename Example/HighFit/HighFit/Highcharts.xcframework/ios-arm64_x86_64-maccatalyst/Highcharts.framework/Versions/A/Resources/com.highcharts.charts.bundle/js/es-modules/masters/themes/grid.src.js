@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  * @module highcharts/themes/grid
  * @requires highcharts
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -12,3 +12,4 @@ import H from '../../Core/Globals.js';
 import GridTheme from '../../Extensions/Themes/Grid.js';
 H.theme = GridTheme.options;
 GridTheme.apply();
+export default H;

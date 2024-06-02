@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2024 Øystein Moseng
  *
  *  Proxy elements are used to shadow SVG elements in HTML for assistive
  *  technology, such as screen readers or voice input software.
@@ -41,26 +41,22 @@ class ProxyElement {
      *  Constructor
      *
      * */
-    constructor(chart, target, groupType, attributes) {
+    constructor(chart, target, proxyElementType = 'button', wrapperElementType, attributes) {
         this.chart = chart;
         this.target = target;
-        this.groupType = groupType;
-        const isListItem = groupType === 'ul';
         this.eventProvider = new EventProvider();
-        const wrapperEl = isListItem ? doc.createElement('li') : null;
-        const btnEl = this.buttonElement = doc.createElement('button');
+        const innerEl = this.innerElement =
+            doc.createElement(proxyElementType), wrapperEl = this.element = wrapperElementType ?
+            doc.createElement(wrapperElementType) : innerEl;
         if (!chart.styledMode) {
-            this.hideButtonVisually(btnEl);
+            this.hideElementVisually(innerEl);
         }
-        if (wrapperEl) {
-            if (isListItem && !chart.styledMode) {
+        if (wrapperElementType) {
+            if (wrapperElementType === 'li' && !chart.styledMode) {
                 wrapperEl.style.listStyle = 'none';
             }
-            wrapperEl.appendChild(btnEl);
+            wrapperEl.appendChild(innerEl);
             this.element = wrapperEl;
-        }
-        else {
-            this.element = btnEl;
         }
         this.updateTarget(target, attributes);
     }
@@ -69,7 +65,6 @@ class ProxyElement {
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     /**
      * Fake a click event on the target.
      */
@@ -84,7 +79,7 @@ class ProxyElement {
      * Update the target to be proxied. The position and events are updated to
      * match the new target.
      * @param target The new target definition
-     * @param attributes New HTML attributes to apply to the button. Set an
+     * @param attributes New HTML attributes to apply to the proxy. Set an
      * attribute to null to remove.
      */
     updateTarget(target, attributes) {
@@ -96,11 +91,12 @@ class ProxyElement {
                 delete attrs[a];
             }
         });
-        attr(this.buttonElement, merge({
-            'aria-label': this.getTargetAttr(target.click, 'aria-label')
-        }, attrs));
+        const targetAriaLabel = this.getTargetAttr(target.click, 'aria-label');
+        attr(this.innerElement, merge(targetAriaLabel ? {
+            'aria-label': targetAriaLabel
+        } : {}, attrs));
         this.eventProvider.removeAddedEvents();
-        this.addProxyEventsToButton(this.buttonElement, target.click);
+        this.addProxyEventsToElement(this.innerElement, target.click);
         this.refreshPosition();
     }
     /**
@@ -108,7 +104,7 @@ class ProxyElement {
      */
     refreshPosition() {
         const bBox = this.getTargetPosition();
-        css(this.buttonElement, {
+        css(this.innerElement, {
             width: (bBox.width || 1) + 'px',
             height: (bBox.height || 1) + 'px',
             left: (Math.round(bBox.x) || 0) + 'px',
@@ -133,20 +129,20 @@ class ProxyElement {
         const noTooltipOnGroup = stringHasNoTooltip(groupDiv && groupDiv.className || '');
         const targetClassName = this.getTargetAttr(this.target.click, 'class') || '';
         const noTooltipOnTarget = stringHasNoTooltip(targetClassName);
-        this.buttonElement.className = noTooltipOnGroup || noTooltipOnTarget ?
-            'highcharts-a11y-proxy-button highcharts-no-tooltip' :
-            'highcharts-a11y-proxy-button';
+        this.innerElement.className = noTooltipOnGroup || noTooltipOnTarget ?
+            'highcharts-a11y-proxy-element highcharts-no-tooltip' :
+            'highcharts-a11y-proxy-element';
     }
     /**
-     * Mirror events for a proxy button to a target
+     * Mirror events for a proxy element to a target
      */
-    addProxyEventsToButton(button, target) {
+    addProxyEventsToElement(element, target) {
         [
             'click', 'touchstart', 'touchend', 'touchcancel', 'touchmove',
             'mouseover', 'mouseenter', 'mouseleave', 'mouseout'
         ].forEach((evtType) => {
             const isTouchEvent = evtType.indexOf('touch') === 0;
-            this.eventProvider.addEvent(button, evtType, (e) => {
+            this.eventProvider.addEvent(element, evtType, (e) => {
                 const clonedEvent = isTouchEvent ?
                     cloneTouchEvent(e) :
                     cloneMouseEvent(e);
@@ -154,7 +150,7 @@ class ProxyElement {
                     fireEventOnWrappedOrUnwrappedElement(target, clonedEvent);
                 }
                 e.stopPropagation();
-                // #9682, #15318: Touch scrolling didnt work when touching
+                // #9682, #15318: Touch scrolling didn't work when touching
                 // proxy
                 if (!isTouchEvent) {
                     e.preventDefault();
@@ -163,10 +159,10 @@ class ProxyElement {
         });
     }
     /**
-     * Set visually hidden style on a proxy button
+     * Set visually hidden style on a proxy element
      */
-    hideButtonVisually(button) {
-        css(button, {
+    hideElementVisually(el) {
+        css(el, {
             borderWidth: 0,
             backgroundColor: 'transparent',
             cursor: 'pointer',
@@ -192,9 +188,9 @@ class ProxyElement {
             clickTarget.element :
             clickTarget;
         const posElement = this.target.visual || clickTargetElement;
-        const chartDiv = this.chart.renderTo;
-        if (chartDiv && posElement && posElement.getBoundingClientRect) {
-            const rectEl = posElement.getBoundingClientRect(), chartPos = this.chart.pointer.getChartPosition();
+        const chartDiv = this.chart.renderTo, pointer = this.chart.pointer;
+        if (chartDiv && posElement?.getBoundingClientRect && pointer) {
+            const rectEl = posElement.getBoundingClientRect(), chartPos = pointer.getChartPosition();
             return {
                 x: (rectEl.left - chartPos.left) / chartPos.scaleX,
                 y: (rectEl.top - chartPos.top) / chartPos.scaleY,

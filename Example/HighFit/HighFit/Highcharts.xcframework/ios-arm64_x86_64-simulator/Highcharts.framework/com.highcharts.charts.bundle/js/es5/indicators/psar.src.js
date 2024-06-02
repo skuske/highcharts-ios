@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Parabolic SAR Indicator for Highcharts Stock
  *
- * (c) 2010-2021 Grzegorz Blachliński
+ * (c) 2010-2024 Grzegorz Blachliński
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -42,7 +40,7 @@
          *
          *  Parabolic SAR indicator for Highcharts Stock
          *
-         *  (c) 2010-2021 Grzegorz Blachliński
+         *  (c) 2010-2024 Grzegorz Blachliński
          *
          *  License: www.highcharts.com/license
          *
@@ -72,9 +70,15 @@
          *
          * */
         // Utils:
+        /**
+         *
+         */
         function toFixed(a, n) {
             return parseFloat(a.toFixed(n));
         }
+        /**
+         *
+         */
         function calculateDirection(previousDirection, low, high, PSAR) {
             if ((previousDirection === 1 && low > PSAR) ||
                 (previousDirection === -1 && high > PSAR)) {
@@ -92,6 +96,9 @@
          * maxAcc - maximum acceleration factor
          * initAcc - initial acceleration factor
          */
+        /**
+         *
+         */
         function getAccelerationFactor(dir, pDir, eP, pEP, pAcc, inc, maxAcc, initAcc) {
             if (dir === pDir) {
                 if (dir === 1 && (eP > pEP)) {
@@ -104,15 +111,24 @@
             }
             return initAcc;
         }
+        /**
+         *
+         */
         function getExtremePoint(high, low, previousDirection, previousExtremePoint) {
             if (previousDirection === 1) {
                 return (high > previousExtremePoint) ? high : previousExtremePoint;
             }
             return (low < previousExtremePoint) ? low : previousExtremePoint;
         }
+        /**
+         *
+         */
         function getEPMinusPSAR(EP, PSAR) {
             return EP - PSAR;
         }
+        /**
+         *
+         */
         function getAccelerationFactorMultiply(accelerationFactor, EPMinusSAR) {
             return accelerationFactor * EPMinusSAR;
         }
@@ -127,6 +143,9 @@
          * sHigh - second previous high
          * pHigh - previous high
          * pEP - previous extreme point
+         */
+        /**
+         *
          */
         function getPSAR(pdir, sDir, PSAR, pACCMulti, sLow, pLow, pHigh, sHigh, pEP) {
             if (pdir === sDir) {
@@ -164,15 +183,7 @@
                  *
                  * */
                 var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
                 _this.nameComponents = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
                 return _this;
             }
             /* *
@@ -327,12 +338,13 @@
          * @requires  stock/indicators/psar
          * @apioption series.psar
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return PSARIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/psar.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/psar.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

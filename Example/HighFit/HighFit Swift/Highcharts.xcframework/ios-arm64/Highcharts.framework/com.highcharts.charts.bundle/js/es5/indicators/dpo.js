@@ -1,14 +1,9 @@
-/*
- Highstock JS v11.1.0 (2023-06-05)
-
- Indicator series type for Highcharts Stock
-
- (c) 2010-2021 Wojciech Chmiel
-
- License: www.highcharts.com/license
-*/
-'use strict';(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/indicators/dpo",["highcharts","highcharts/modules/stock"],function(e){a(e);a.Highcharts=e;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function e(a,d,e,g){a.hasOwnProperty(d)||(a[d]=g.apply(null,e),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:d,
-module:a[d]}})))}a=a?a._modules:{};e(a,"Stock/Indicators/DPO/DPOIndicator.js",[a["Core/Series/SeriesRegistry.js"],a["Core/Utilities.js"]],function(a,d){function e(a,c,b,t,d){c=p(c[b][t],c[b]);return d?n(a-c):n(a+c)}var g=this&&this.__extends||function(){var a=function(c,b){a=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(a,b){a.__proto__=b}||function(a,b){for(var c in b)Object.prototype.hasOwnProperty.call(b,c)&&(a[c]=b[c])};return a(c,b)};return function(c,b){function d(){this.constructor=
-c}if("function"!==typeof b&&null!==b)throw new TypeError("Class extends value "+String(b)+" is not a constructor or null");a(c,b);c.prototype=null===b?Object.create(b):(d.prototype=b.prototype,new d)}}(),l=a.seriesTypes.sma,u=d.extend,v=d.merge,n=d.correctFloat,p=d.pick;d=function(a){function c(){var b=null!==a&&a.apply(this,arguments)||this;b.options=void 0;b.data=void 0;b.points=void 0;return b}g(c,a);c.prototype.getValues=function(a,c){var b=c.period;c=c.index;var d=b+Math.floor(b/2+1),g=a.xData||
-[];a=a.yData||[];var n=a.length,l=[],q=[],r=[],f,k,h=0;if(!(g.length<=d)){for(f=0;f<b-1;f++)h=e(h,a,f,c);for(k=0;k<=n-d;k++){var m=k+b-1;f=k+d-1;h=e(h,a,m,c);m=p(a[f][c],a[f]);m-=h/b;h=e(h,a,k,c,!0);l.push([g[f],m]);q.push(g[f]);r.push(m)}return{values:l,xData:q,yData:r}}};c.defaultOptions=v(l.defaultOptions,{params:{index:0,period:21}});return c}(l);u(d.prototype,{nameBase:"DPO"});a.registerSeriesType("dpo",d);"";return d});e(a,"masters/indicators/dpo.src.js",[],function(){})});
-//# sourceMappingURL=dpo.js.map
+!/**
+ * Highstock JS v11.4.3 (2024-05-22)
+ *
+ * Indicator series type for Highcharts Stock
+ *
+ * (c) 2010-2024 Wojciech Chmiel
+ *
+ * License: www.highcharts.com/license
+ */function(t){"object"==typeof module&&module.exports?(t.default=t,module.exports=t):"function"==typeof define&&define.amd?define("highcharts/indicators/dpo",["highcharts","highcharts/modules/stock"],function(e){return t(e),t.Highcharts=e,t}):t("undefined"!=typeof Highcharts?Highcharts:void 0)}(function(t){"use strict";var e=t?t._modules:{};function o(t,e,o,r){t.hasOwnProperty(e)||(t[e]=r.apply(null,o),"function"==typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:e,module:t[e]}})))}o(e,"Stock/Indicators/DPO/DPOIndicator.js",[e["Core/Series/SeriesRegistry.js"],e["Core/Utilities.js"]],function(t,e){var o,r=this&&this.__extends||(o=function(t,e){return(o=Object.setPrototypeOf||({__proto__:[]})instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var o in e)Object.prototype.hasOwnProperty.call(e,o)&&(t[o]=e[o])})(t,e)},function(t,e){if("function"!=typeof e&&null!==e)throw TypeError("Class extends value "+String(e)+" is not a constructor or null");function r(){this.constructor=t}o(t,e),t.prototype=null===e?Object.create(e):(r.prototype=e.prototype,new r)}),n=t.seriesTypes.sma,i=e.extend,s=e.merge,a=e.correctFloat,u=e.pick;function c(t,e,o,r,n){var i=u(e[o][r],e[o]);return n?a(t-i):a(t+i)}var p=function(t){function e(){return null!==t&&t.apply(this,arguments)||this}return r(e,t),e.prototype.getValues=function(t,e){var o,r,n,i,s,a=e.period,p=e.index,f=a+Math.floor(a/2+1),d=t.xData||[],l=t.yData||[],h=l.length,y=[],g=[],m=[],v=0;if(!(d.length<=f)){for(i=0;i<a-1;i++)v=c(v,l,i,p);for(s=0;s<=h-f;s++)r=s+a-1,n=s+f-1,v=c(v,l,r,p),o=u(l[n][p],l[n])-v/a,v=c(v,l,s,p,!0),y.push([d[n],o]),g.push(d[n]),m.push(o);return{values:y,xData:g,yData:m}}},e.defaultOptions=s(n.defaultOptions,{params:{index:0,period:21}}),e}(n);return i(p.prototype,{nameBase:"DPO"}),t.registerSeriesType("dpo",p),p}),o(e,"masters/indicators/dpo.src.js",[e["Core/Globals.js"]],function(t){return t})});

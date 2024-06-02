@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -41,14 +41,6 @@
 @interface HIErrorbar: HISeries
 
 /**
-The line width of the whiskers, the horizontal lines marking low and high values. When `null`, the general `lineWidth` applies.
-
-**Try it**
-
-* [Error bar styling](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/error-bar-styling/)
-*/
-@property(nonatomic, readwrite) NSNumber *whiskerWidth;
-/**
 Whether to group non-stacked columns or to let them render independent of each other. Non-grouped columns will be laid out individually and overlap each other.
 
 **Try it**
@@ -56,6 +48,16 @@ Whether to group non-stacked columns or to let them render independent of each o
 * [Grouping disabled](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/column-grouping-false/)
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *grouping;
+/**
+The line width of the whiskers, the horizontal lines marking low and high values. When `null`, the general `lineWidth` applies.
+
+**Defaults to** `2`.
+
+**Try it**
+
+* [Error bar styling](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/error-bar-styling/)
+*/
+@property(nonatomic, readwrite) NSNumber *whiskerWidth;
 /**
 The color of the stem, the vertical line extending from the box to the whiskers. If `undefined`, the series color is used. In styled mode, the stem stroke can be set with the `.highcharts-boxplot-stem` class.
 
@@ -225,7 +227,7 @@ The maximum allowed pixel width for a column, translated to the height of a bar 
 */
 @property(nonatomic, readwrite) NSNumber *maxPointWidth;
 /**
-A pixel value specifying a fixed width for each column or bar point. When set to `undefined`, the width is calculated from the `pointPadding` and `groupPadding`. The width effects the dimension that is not based on the point value. For column series it is the hoizontal length and for bar series it is the vertical length.
+A pixel value specifying a fixed width for each column or bar point. When set to `undefined`, the width is calculated from the `pointPadding` and `groupPadding`. The width effects the dimension that is not based on the point value. For column series it is the horizontal length and for bar series it is the vertical length.
 
 **Try it**
 

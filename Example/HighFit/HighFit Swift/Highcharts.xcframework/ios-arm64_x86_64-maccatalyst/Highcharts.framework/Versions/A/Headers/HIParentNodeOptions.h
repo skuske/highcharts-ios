@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -68,9 +68,7 @@ Friction applied on forces to prevent nodes rushing to fast to the desired posit
 */
 @property(nonatomic, readwrite) NSNumber *friction;
 /**
-Integration type. Available options are `'euler'` and `'verlet'`. Integration determines how forces are applied on particles. In Euler integration, force is applied direct as `newPosition += velocity;`. In Verlet integration, new position is based on a previous posittion without velocity: `newPosition += previousPosition - newPosition`. Note that different integrations give different results as forces are different. In Highcharts v7.0.x only `'euler'` integration was supported.
-
-**Accepted values:** `["euler", "verlet"]`.
+Integration type. Available options are `'euler'` and `'verlet'`. Integration determines how forces are applied on particles. In Euler integration, force is applied direct as `newPosition += velocity;`. In Verlet integration, new position is based on a previous position without velocity: `newPosition += previousPosition - newPosition`. Note that different integrations give different results as forces are different. In Highcharts v7.0.x only `'euler'` integration was supported.
 
 **Defaults to** `euler`.
 
@@ -89,8 +87,6 @@ Ideal length (px) of the link between two nodes. When not defined, length is cal
 @property(nonatomic, readwrite) NSNumber *linkLength;
 /**
 Type of the algorithm used when positioning nodes.
-
-**Accepted values:** `["reingold-fruchterman"]`.
 
 **Defaults to** `reingold-fruchterman`.
 */

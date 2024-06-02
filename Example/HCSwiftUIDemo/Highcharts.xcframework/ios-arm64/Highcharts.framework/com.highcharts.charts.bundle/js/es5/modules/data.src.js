@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
  * Data module
  *
- * (c) 2012-2021 Torstein Honsi
+ * (c) 2012-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -28,27 +28,36 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Core/HttpUtilities.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (G, U) {
         /* *
          *
-         *  (c) 2010-2021 Christer Vasseng, Torstein Honsi
+         *  (c) 2010-2024 Christer Vasseng, Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var doc = G.doc;
-        var createElement = U.createElement, discardElement = U.discardElement, merge = U.merge, objectEach = U.objectEach;
+        var __assign = (this && this.__assign) || function () {
+            __assign = Object.assign || function(t) {
+                for (var s, i = 1, n = arguments.length; i < n; i++) {
+                    s = arguments[i];
+                    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                        t[p] = s[p];
+                }
+                return t;
+            };
+            return __assign.apply(this, arguments);
+        };
+        var win = G.win;
+        var discardElement = U.discardElement, objectEach = U.objectEach;
         /* *
          *
          *  Functions
@@ -63,7 +72,7 @@
          *        The Ajax settings to use.
          *
          * @return {false|undefined}
-         *         Returns false, if error occured.
+         *         Returns false, if error occurred.
          */
         function ajax(settings) {
             var headers = {
@@ -78,7 +87,7 @@
              * @param {XMLHttpRequest} xhr
              * Internal request object.
              * @param {string|Error} err
-             * Occured error.
+             * Occurred error.
              */
             function handleError(xhr, err) {
                 if (settings.error) {
@@ -163,30 +172,31 @@
          * @param {Object} data
          * Post data
          *
-         * @param {Highcharts.Dictionary<string>} [formAttributes]
+         * @param {RequestInit} [fetchOptions]
          * Additional attributes for the post request
          */
-        function post(url, data, formAttributes) {
-            // create the form
-            var form = createElement('form', merge({
-                method: 'post',
-                action: url,
-                enctype: 'multipart/form-data'
-            }, formAttributes), {
-                display: 'none'
-            }, doc.body);
-            // add the data
+        /**
+         *
+         */
+        function post(url, data, fetchOptions) {
+            var formData = new win.FormData();
+            // Add the data
             objectEach(data, function (val, name) {
-                createElement('input', {
-                    type: 'hidden',
-                    name: name,
-                    value: val
-                }, void 0, form);
+                formData.append(name, val);
             });
-            // submit
-            form.submit();
-            // clean up
-            discardElement(form);
+            formData.append('b64', 'true');
+            var filename = data.filename, type = data.type;
+            return win.fetch(url, __assign({ method: 'POST', body: formData }, fetchOptions)).then(function (res) {
+                if (res.ok) {
+                    res.text().then(function (text) {
+                        var link = document.createElement('a');
+                        link.href = "data:".concat(type, ";base64,").concat(text);
+                        link.download = filename;
+                        link.click();
+                        discardElement(link);
+                    });
+                }
+            });
         }
         /* *
          *
@@ -235,7 +245,7 @@
         * @name Highcharts.AjaxSettingsObject#url
         * @type {string}
         */
-        (''); // keeps doclets above in JS file
+        (''); // Keeps doclets above in JS file
 
         return HttpUtilities;
     });
@@ -244,7 +254,7 @@
          *
          *  Data module
          *
-         *  (c) 2012-2021 Torstein Honsi
+         *  (c) 2012-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -286,6 +296,9 @@
             }
             return freeIndexValues;
         }
+        /**
+         *
+         */
         function hasURLOption(options) {
             return Boolean(options &&
                 (options.rowsURL || options.csvURL || options.columnsURL));
@@ -317,7 +330,7 @@
              * */
             function Data(dataOptions, chartOptions, chart) {
                 if (chartOptions === void 0) { chartOptions = {}; }
-                this.rowsToColumns = Data.rowsToColumns; // backwards compatibility
+                this.rowsToColumns = Data.rowsToColumns; // Backwards compatibility
                 /**
                  * A collection of available date formats, extendable from the outside to
                  * support custom date formats.
@@ -341,7 +354,7 @@
                                 Date.UTC(+match[3], match[2] - 1, +match[1]) :
                                 NaN);
                         },
-                        alternative: 'mm/dd/YYYY' // different format with the same regex
+                        alternative: 'mm/dd/YYYY' // Different format with the same regex
                     },
                     'mm/dd/YYYY': {
                         regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/,
@@ -367,7 +380,7 @@
                             }
                             return Date.UTC(year, match[2] - 1, +match[1]);
                         },
-                        alternative: 'mm/dd/YY' // different format with the same regex
+                        alternative: 'mm/dd/YY' // Different format with the same regex
                     },
                     'mm/dd/YY': {
                         regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/,
@@ -605,15 +618,13 @@
                 };
                 var csv = options.csv, startRow = (typeof options.startRow !== 'undefined' && options.startRow ?
                     options.startRow :
-                    0), endRow = options.endRow || Number.MAX_VALUE, itemDelimiter, lines, 
-                // activeRowNo = 0,
-                rowIt = 0;
+                    0), endRow = options.endRow || Number.MAX_VALUE, itemDelimiter, lines, rowIt = 0;
                 /*
                     This implementation is quite verbose. It will be shortened once
                     it's stable and passes all the test.
 
                     It's also not written with speed in mind, instead everything is
-                    very seggregated, and there a several redundant loops.
+                    very segregated, and there a several redundant loops.
                     This is to make it easier to stabilize the code initially.
 
                     We do a pre-pass on the first 4 rows to make some intelligent
@@ -635,7 +646,7 @@
                     General rules:
                         - Quoting is allowed, e.g: "Col 1",123,321
                         - Quoting is optional, e.g.: Col1,123,321
-                        - Doubble quoting is escaping, e.g. "Col ""Hello world""",123
+                        - Double quoting is escaping, e.g. "Col ""Hello world""",123
                         - Spaces are considered part of the data: Col1 ,123
                         - New line is always the row delimiter
                         - Potential column delimiters are , ; \t
@@ -680,22 +691,24 @@
                             token = '';
                             return;
                         }
-                        if (!isNaN(parseFloat(token)) && isFinite(token)) {
-                            token = parseFloat(token);
-                            pushType('number');
-                        }
-                        else if (!isNaN(Date.parse(token))) {
-                            token = token.replace(/\//g, '-');
-                            pushType('date');
-                        }
-                        else {
-                            pushType('string');
+                        if (!options.columnTypes) {
+                            if (!isNaN(parseFloat(token)) && isFinite(token)) {
+                                token = parseFloat(token);
+                                pushType('number');
+                            }
+                            else if (!isNaN(Date.parse(token))) {
+                                token = token.replace(/\//g, '-');
+                                pushType('date');
+                            }
+                            else {
+                                pushType('string');
+                            }
                         }
                         if (columns.length < column + 1) {
                             columns.push([]);
                         }
                         if (!noAdd) {
-                            // Don't push - if there's a varrying amount of columns
+                            // Don't push - if there's a varying amount of columns
                             // for each row, pushing will skew everything down n slots
                             columns[column][rowNumber] = token;
                         }
@@ -843,9 +856,7 @@
                  */
                 function deduceDateFormat(data, limit) {
                     var format = 'YYYY/mm/dd', stable = [], max = [];
-                    var thing, guessedFormat = [], calculatedFormat, i = 0, madeDeduction = false, 
-                    // candidates = {},
-                    j;
+                    var thing, guessedFormat = [], calculatedFormat, i = 0, madeDeduction = false, j;
                     if (!limit || limit > data.length) {
                         limit = data.length;
                     }
@@ -885,7 +896,6 @@
                                             else {
                                                 guessedFormat[j] = 'YYYY';
                                             }
-                                            // madeDeduction = true;
                                         }
                                         else if (thing[j] > 12 &&
                                             thing[j] <= 31) {
@@ -922,7 +932,7 @@
                             guessedFormat[2] = 'YY';
                         }
                         calculatedFormat = guessedFormat.join('/');
-                        // If the caculated format is not valid, we need to present an
+                        // If the calculated format is not valid, we need to present an
                         // error.
                         if (!(options.dateFormats || self.dateFormats)[calculatedFormat]) {
                             // This should emit an event instead
@@ -973,7 +983,7 @@
                             parseRow(lines[rowIt], rowIt - startRow - offset);
                         }
                     }
-                    // //Make sure that there's header columns for everything
+                    // Make sure that there's header columns for everything
                     // columns.forEach(function (col) {
                     // });
                     deduceAxisTypes();
@@ -984,7 +994,7 @@
                         !options.dateFormat) {
                         options.dateFormat = deduceDateFormat(columns[0]);
                     }
-                    // lines.forEach(function (line, rowNo) {
+                    /// lines.forEach(function (line, rowNo) {
                     //    let trimmed = self.trim(line),
                     //        isComment = trimmed.indexOf('#') === 0,
                     //        isBlank = trimmed === '',
@@ -1047,7 +1057,7 @@
                             });
                         }
                     });
-                    this.dataFound(); // continue
+                    this.dataFound(); // Continue
                 }
                 return columns;
             };
@@ -1210,7 +1220,7 @@
                 if (googleSpreadsheetKey) {
                     delete options.googleSpreadsheetKey;
                     fetchSheet(function (json) {
-                        // Prepare the data from the spreadsheat
+                        // Prepare the data from the spreadsheet
                         var columns = json.values;
                         if (!columns || columns.length === 0) {
                             return false;
@@ -1258,7 +1268,7 @@
             Data.prototype.trim = function (str, inside) {
                 if (typeof str === 'string') {
                     str = str.replace(/^\s+|\s+$/g, '');
-                    // Clear white space insdie the string, like thousands separators
+                    // Clear white space inside the string, like thousands separators
                     if (inside && /^-?[0-9\s]+$/.test(str)) {
                         str = str.replace(/\s/g, '');
                     }
@@ -1292,9 +1302,10 @@
              *        Column index
              */
             Data.prototype.parseColumn = function (column, col) {
-                var rawColumns = this.rawColumns, columns = this.columns, firstRowAsNames = this.firstRowAsNames, isXColumn = this.valueCount.xColumns.indexOf(col) !== -1, backup = [], chartOptions = this.chartOptions, columnTypes = this.options.columnTypes || [], columnType = columnTypes[col], forceCategory = isXColumn && ((chartOptions &&
-                    chartOptions.xAxis &&
-                    splat(chartOptions.xAxis)[0].type === 'category') || columnType === 'string'), columnHasName = defined(column.name);
+                var rawColumns = this.rawColumns, columns = this.columns, firstRowAsNames = this.firstRowAsNames, isXColumn = this.valueCount.xColumns.indexOf(col) !== -1, backup = [], chartOptions = this.chartOptions, columnTypes = this.options.columnTypes || [], columnType = columnTypes[col], forceCategory = (isXColumn &&
+                    (chartOptions &&
+                        chartOptions.xAxis &&
+                        splat(chartOptions.xAxis)[0].type === 'category')) || columnType === 'string', columnHasName = defined(column.name);
                 var row = column.length, val, floatVal, trimVal, trimInsideVal, dateVal, diff, descending;
                 if (!rawColumns[col]) {
                     rawColumns[col] = [];
@@ -1314,7 +1325,7 @@
                         (row === 0 && firstRowAsNames && !columnHasName)) {
                         column[row] = '' + trimVal;
                     }
-                    else if (+trimInsideVal === floatVal) { // is numeric
+                    else if (+trimInsideVal === floatVal) { // Is numeric
                         column[row] = floatVal;
                         // If the number is greater than milliseconds in a year, assume
                         // datetime
@@ -1361,7 +1372,7 @@
                                 descending = diff;
                             }
                         }
-                        else { // string
+                        else { // String
                             column[row] = trimVal === '' ? null : trimVal;
                             if (row !== 0 &&
                                 (column.isDatetime ||
@@ -1772,15 +1783,15 @@
                         }
                     });
                     if (columnIndexes_1.length >= 2) {
-                        // remove the first one (x col)
+                        // Remove the first one (x col)
                         columnIndexes_1.shift();
                         // Sort the remaining
                         columnIndexes_1.sort(function (a, b) {
                             return a - b;
                         });
-                        // Now use the lowest index as name column
-                        this.name = columns[columnIndexes_1.shift()].name;
                     }
+                    // Now use the lowest index as name column
+                    this.name = columns[pick(columnIndexes_1.shift(), 0)].name;
                 }
                 return point;
             };
@@ -1822,7 +1833,7 @@
             /**
              * Returns true if the builder has a reader for the given configName.
              *
-             * @function SeriesBuider#hasReader
+             * @function SeriesBuilder#hasReader
              */
             SeriesBuilder.prototype.hasReader = function (configName) {
                 var i, columnReader;
@@ -1866,7 +1877,7 @@
          *        The chart options that were used.
          */
         /**
-         * Callback function that returns the correspondig Date object to a match.
+         * Callback function that returns the corresponding Date object to a match.
          *
          * @callback Highcharts.DataDateFormatCallbackFunction
          *
@@ -1905,7 +1916,7 @@
          *         Timestamp (milliseconds since 1.1.1970) as integer for Date class.
          */
         /**
-         * Callback function to access the parsed columns, the two-dimentional
+         * Callback function to access the parsed columns, the two-dimensional
          * input data array directly, before they are interpreted into series
          * data and categories.
          *
@@ -1970,6 +1981,22 @@
          * @type      {Array<Array<Highcharts.DataValueType>>}
          * @since     4.0
          * @apioption data.columns
+         */
+        /**
+         * An array option that specifies the data type for each column in the series
+         * loaded within the data module.
+         *
+         * Possible values: `"string"`, `"number"`, `"float"`, `"date"`.
+         *
+         * @sample {highcharts|highstock} highcharts/data/column-types/
+         *         X-axis categories based on CSV data
+         * @sample {highmaps} highcharts/data/column-types-map/
+         *         Map chart created with fips from CSV
+         *
+         * @type       {Array<'string'|'number'|'float'|'date'>}
+         * @since      11.3.0
+         * @validvalue ["string", "number", "float", "date"]
+         * @apioption  data.columnTypes
          */
         /**
          * The callback that is evaluated when the data is finished loading,
@@ -2160,7 +2187,7 @@
          * @apioption data.lineDelimiter
          */
         /**
-         * A callback function to access the parsed columns, the two-dimentional
+         * A callback function to access the parsed columns, the two-dimensional
          * input data array directly, before they are interpreted into series
          * data and categories. Return `false` to stop completion, or call
          * `this.complete()` to continue async.
@@ -2185,7 +2212,7 @@
          * @apioption data.parseDate
          */
         /**
-         * The same as the columns input option, but defining rows intead of
+         * The same as the columns input option, but defining rows instead of
          * columns.
          *
          * @see [data.columns](#data.columns)
@@ -2323,21 +2350,22 @@
          * @default   false
          * @apioption data.enablePolling
          */
-        (''); // keeps doclets above in JS file
+        (''); // Keeps doclets above in JS file
 
         return Data;
     });
     _registerModule(_modules, 'masters/modules/data.src.js', [_modules['Core/Globals.js'], _modules['Core/HttpUtilities.js'], _modules['Extensions/Data.js']], function (Highcharts, HttpUtilities, Data) {
 
         var G = Highcharts;
-        // Functions
-        G.ajax = HttpUtilities.ajax;
-        G.data = Data.data;
-        G.getJSON = HttpUtilities.getJSON;
-        G.post = HttpUtilities.post;
         // Classes
-        G.Data = Data;
-        G.HttpUtilities = HttpUtilities;
+        G.Data = G.Data || Data;
+        G.HttpUtilities = G.HttpUtilities || HttpUtilities;
+        // Functions
+        G.ajax = G.HttpUtilities.ajax;
+        G.data = G.Data.data;
+        G.getJSON = G.HttpUtilities.getJSON;
+        G.post = G.HttpUtilities.post;
 
+        return Highcharts;
     });
 }));

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -13,17 +13,11 @@ import BubblePoint from './BubblePoint.js';
 import Color from '../../Core/Color/Color.js';
 const { parse: color } = Color;
 import H from '../../Core/Globals.js';
-const { noop } = H;
+const { composed, noop } = H;
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
 const { series: Series, seriesTypes: { column: { prototype: columnProto }, scatter: ScatterSeries } } = SeriesRegistry;
 import U from '../../Core/Utilities.js';
-const { addEvent, arrayMax, arrayMin, clamp, extend, isNumber, merge, pick } = U;
-/* *
- *
- *  Constants
- *
- * */
-const composedMembers = [];
+const { addEvent, arrayMax, arrayMin, clamp, extend, isNumber, merge, pick, pushUnique } = U;
 /* *
  *
  *  Functions
@@ -33,13 +27,15 @@ const composedMembers = [];
  * Add logic to pad each axis with the amount of pixels necessary to avoid the
  * bubbles to overflow.
  */
-function axisBeforePadding() {
-    const axisLength = this.len, chart = this.chart, isXAxis = this.isXAxis, dataKey = isXAxis ? 'xData' : 'yData', min = this.min, range = this.max - min;
+function onAxisFoundExtremes() {
+    const axisLength = this.len, { coll, isXAxis, min } = this, dataKey = isXAxis ? 'xData' : 'yData', range = (this.max || 0) - (min || 0);
     let pxMin = 0, pxMax = axisLength, transA = axisLength / range, hasActiveSeries;
+    if (coll !== 'xAxis' && coll !== 'yAxis') {
+        return;
+    }
     // Handle padding on the second pass, or on redraw
     this.series.forEach((series) => {
-        if (series.bubblePadding &&
-            (series.visible || !chart.options.chart.ignoreHiddenSeries)) {
+        if (series.bubblePadding && series.reserveSpace()) {
             // Correction for #1673
             this.allowZoomOutside = true;
             hasActiveSeries = true;
@@ -86,27 +82,6 @@ function axisBeforePadding() {
  *
  * */
 class BubbleSeries extends ScatterSeries {
-    constructor() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        super(...arguments);
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        this.data = void 0;
-        this.maxPxSize = void 0;
-        this.minPxSize = void 0;
-        this.options = void 0;
-        this.points = void 0;
-        this.radii = void 0;
-        this.yData = void 0;
-        this.zData = void 0;
-    }
     /* *
      *
      *  Static Functions
@@ -114,8 +89,8 @@ class BubbleSeries extends ScatterSeries {
      * */
     static compose(AxisClass, ChartClass, LegendClass, SeriesClass) {
         BubbleLegendComposition.compose(ChartClass, LegendClass, SeriesClass);
-        if (U.pushUnique(composedMembers, AxisClass)) {
-            AxisClass.prototype.beforePadding = axisBeforePadding;
+        if (pushUnique(composed, 'Series.Bubble')) {
+            addEvent(AxisClass, 'foundExtremes', onAxisFoundExtremes);
         }
     }
     /* *
@@ -132,18 +107,17 @@ class BubbleSeries extends ScatterSeries {
             this.points.length < this.options.animationLimit // #8099
         ) {
             this.points.forEach(function (point) {
-                const { graphic } = point;
+                const { graphic, plotX = 0, plotY = 0 } = point;
                 if (graphic && graphic.width) { // URL symbols don't have width
                     // Start values
                     if (!this.hasRendered) {
                         graphic.attr({
-                            x: point.plotX,
-                            y: point.plotY,
+                            x: plotX,
+                            y: plotY,
                             width: 1,
                             height: 1
                         });
                     }
-                    // Run animation
                     graphic.animate(this.markerAttribs(point), this.options.animation);
                 }
             }, this);
@@ -167,8 +141,7 @@ class BubbleSeries extends ScatterSeries {
             let zMax = -Number.MAX_VALUE;
             let valid;
             this.chart.series.forEach((otherSeries) => {
-                if (otherSeries.bubblePadding && (otherSeries.visible ||
-                    !this.chart.options.chart.ignoreHiddenSeries)) {
+                if (otherSeries.bubblePadding && otherSeries.reserveSpace()) {
                     const zExtremes = (otherSeries.onPoint || otherSeries).getZExtremes();
                     if (zExtremes) {
                         // Changed '||' to 'pick' because min or max can be 0.
@@ -240,6 +213,19 @@ class BubbleSeries extends ScatterSeries {
     /**
      * @private
      */
+    markerAttribs(point, state) {
+        const attr = super.markerAttribs(point, state), { height = 0, width = 0 } = attr;
+        // Bubble needs a specific `markerAttribs` override because the markers
+        // are rendered into the potentially inverted `series.group`. Unlike
+        // regular markers, which are rendered into the `markerGroup` (#21125).
+        return this.chart.inverted ? extend(attr, {
+            x: (point.plotX || 0) - width / 2,
+            y: (point.plotY || 0) - height / 2
+        }) : attr;
+    }
+    /**
+     * @private
+     */
     pointAttribs(point, state) {
         const markerOptions = this.options.marker, fillOpacity = markerOptions.fillOpacity, attr = Series.prototype.pointAttribs.call(this, point, state);
         if (fillOpacity !== 1) {
@@ -264,8 +250,7 @@ class BubbleSeries extends ScatterSeries {
         // Set the shape type and arguments to be picked up in drawPoints
         let i = data.length;
         while (i--) {
-            const point = data[i];
-            const radius = radii ? radii[i] : 0; // #1737
+            const point = data[i], radius = radii ? radii[i] : 0; // #1737
             // Negative points means negative z values (#9728)
             if (this.zoneAxis === 'z') {
                 point.negative = (point.z || 0) < (options.zThreshold || 0);
@@ -285,7 +270,7 @@ class BubbleSeries extends ScatterSeries {
                     height: 2 * radius
                 };
             }
-            else { // below zThreshold
+            else { // Below zThreshold
                 // #1691
                 point.shapeArgs = point.plotY = point.dlBox = void 0;
                 point.isInside = false; // #17281
@@ -321,6 +306,11 @@ class BubbleSeries extends ScatterSeries {
         }
     }
 }
+/* *
+ *
+ *  Static Properties
+ *
+ * */
 /**
  * A bubble series is a three dimensional series type where each point
  * renders an X, Y and Z value. Each points is drawn as a bubble where the
@@ -560,8 +550,6 @@ extend(BubbleSeries.prototype, {
     alignDataLabel: columnProto.alignDataLabel,
     applyZones: noop,
     bubblePadding: true,
-    buildKDTree: noop,
-    directTouch: true,
     isBubble: true,
     pointArrayMap: ['y', 'z'],
     pointClass: BubblePoint,
@@ -593,7 +581,7 @@ export default BubbleSeries;
 /**
  * @typedef {"area"|"width"} Highcharts.BubbleSizeByValue
  */
-''; // detach doclets above
+''; // Detach doclets above
 /* *
  *
  *  API Options
@@ -682,4 +670,4 @@ export default BubbleSeries;
  * @excluding enabled, enabledThreshold, height, radius, width
  * @apioption series.bubble.marker
  */
-''; // adds doclets above to transpiled file
+''; // Adds doclets above to transpiled file

@@ -3,7 +3,7 @@
  *  Experimental Highcharts module which enables visualization of a Venn
  *  diagram.
  *
- *  (c) 2016-2021 Highsoft AS
+ *  (c) 2016-2024 Highsoft AS
  *  Authors: Jon Arild Nygard
  *
  *  Layout algorithm by Ben Frederickson:
@@ -26,7 +26,6 @@ const { extend, isArray, isNumber, isObject, isString } = U;
  *  Functions
  *
  * */
-/* eslint-disable valid-jsdoc */
 /**
  * Takes an array of relations and adds the properties `totalOverlap` and
  * `overlapping` to each set. The property `totalOverlap` is the sum of
@@ -58,7 +57,10 @@ function addOverlapToSets(relations) {
             mapOfIdToProps[set] = {
                 totalOverlap: (mapOfIdToProps[set].totalOverlap || 0) +
                     relation.value,
-                overlapping: Object.assign(Object.assign({}, (mapOfIdToProps[set].overlapping || {})), { [arr[1 - i]]: relation.value })
+                overlapping: {
+                    ...(mapOfIdToProps[set].overlapping || {}),
+                    [arr[1 - i]]: relation.value
+                }
             };
         });
     });
@@ -95,7 +97,8 @@ function addOverlapToSets(relations) {
  * Root number.
  */
 function bisect(f, a, b, tolerance, maxIterations) {
-    let fA = f(a), fB = f(b), nMax = maxIterations || 100, tol = tolerance || 1e-10, delta = b - a, n = 1, x, fX;
+    const fA = f(a), fB = f(b), nMax = maxIterations || 100, tol = tolerance || 1e-10;
+    let delta = b - a, x, fX, n = 1;
     if (a >= b) {
         throw new Error('a must be smaller than b.');
     }
@@ -128,7 +131,7 @@ function bisect(f, a, b, tolerance, maxIterations) {
  * @private
  */
 function getCentroid(simplex) {
-    const arr = simplex.slice(0, -1), length = arr.length, result = [], sum = function (data, point) {
+    const arr = simplex.slice(0, -1), length = arr.length, result = [], sum = (data, point) => {
         data.sum += point[data.i];
         return data;
     };
@@ -146,7 +149,7 @@ function getCentroid(simplex) {
  * @param {number} r1
  * Radius of the first circle.
  * @param {number} r2
- * Radiues of the second circle.
+ * Radius of the second circle.
  * @param {number} overlap
  * The wanted overlap between the two circles.
  * @return {number}
@@ -154,7 +157,8 @@ function getCentroid(simplex) {
  * circles.
  */
 function getDistanceBetweenCirclesByOverlap(r1, r2, overlap) {
-    let maxDistance = r1 + r2, distance;
+    const maxDistance = r1 + r2;
+    let distance;
     if (overlap <= 0) {
         // If overlap is below or equal to zero, then there is no overlap.
         distance = maxDistance;
@@ -167,7 +171,7 @@ function getDistanceBetweenCirclesByOverlap(r1, r2, overlap) {
     else {
         distance = bisect((x) => {
             const actualOverlap = getOverlapBetweenCirclesByDistance(r1, r2, x);
-            // Return the differance between wanted and actual overlap.
+            // Return the difference between wanted and actual overlap.
             return overlap - actualOverlap;
         }, 0, maxDistance);
     }
@@ -191,19 +195,16 @@ function getDistanceBetweenCirclesByOverlap(r1, r2, overlap) {
 function getLabelWidth(pos, internal, external) {
     const radius = internal.reduce((min, circle) => Math.min(circle.r, min), Infinity), 
     // Filter out external circles that are completely overlapping.
-    filteredExternals = external.filter(function (circle) {
-        return !isPointInsideCircle(pos, circle);
-    });
+    filteredExternals = external.filter((circle) => !isPointInsideCircle(pos, circle));
     const findDistance = function (maxDistance, direction) {
-        return bisect(function (x) {
+        return bisect((x) => {
             const testPos = {
                 x: pos.x + (direction * x),
                 y: pos.y
             }, isValid = (isPointInsideAllCircles(testPos, internal) &&
                 isPointOutsideAllCircles(testPos, filteredExternals));
             // If the position is valid, then we want to move towards the
-            // max distance. If not, then we want to  away from the max
-            // distance.
+            // max distance. If not, then we want to away from the max distance.
             return -(maxDistance - x) + (isValid ? 0 : Number.MAX_VALUE);
         }, 0, maxDistance);
     };
@@ -211,7 +212,7 @@ function getLabelWidth(pos, internal, external) {
     return Math.min(findDistance(radius, -1), findDistance(radius, 1)) * 2;
 }
 /**
- * Calculates a margin for a point based on the iternal and external
+ * Calculates a margin for a point based on the internal and external
  * circles. The margin describes if the point is well placed within the
  * internal circles, and away from the external.
  * @private
@@ -226,11 +227,11 @@ function getLabelWidth(pos, internal, external) {
  * Returns the margin.
  */
 function getMarginFromCircles(point, internal, external) {
-    let margin = internal.reduce(function (margin, circle) {
+    let margin = internal.reduce((margin, circle) => {
         const m = circle.r - getDistanceBetweenPoints(point, circle);
         return (m <= margin) ? m : margin;
     }, Number.MAX_VALUE);
-    margin = external.reduce(function (margin, circle) {
+    margin = external.reduce((margin, circle) => {
         const m = getDistanceBetweenPoints(point, circle) - circle.r;
         return (m <= margin) ? m : margin;
     }, margin);
@@ -257,10 +258,16 @@ function getOverlapBetweenCircles(circles) {
     return overlap;
 }
 // eslint-disable-next-line require-jsdoc
+/**
+ *
+ */
 function isSet(x) {
     return isArray(x.sets) && x.sets.length === 1;
 }
 // eslint-disable-next-line require-jsdoc
+/**
+ *
+ */
 function isValidRelation(x) {
     const map = {};
     return (isObject(x) &&
@@ -278,6 +285,9 @@ function isValidRelation(x) {
         }));
 }
 // eslint-disable-next-line require-jsdoc
+/**
+ *
+ */
 function isValidSet(x) {
     return (isValidRelation(x) && isSet(x) && x.value > 0);
 }
@@ -293,9 +303,8 @@ function layoutGreedyVenn(relations) {
     const positionedSets = [], mapOfIdToCircles = {};
     // Define a circle for each set.
     relations
-        .filter(function (relation) {
-        return relation.sets.length === 1;
-    }).forEach(function (relation) {
+        .filter((relation) => (relation.sets.length === 1))
+        .forEach((relation) => {
         mapOfIdToCircles[relation.sets[0]] = relation.circle = {
             x: Number.MAX_VALUE,
             y: Number.MAX_VALUE,
@@ -311,7 +320,7 @@ function layoutGreedyVenn(relations) {
      * @param {Object} coordinates
      * The coordinates to position the set at.
      */
-    const positionSet = function positionSet(set, coordinates) {
+    const positionSet = (set, coordinates) => {
         const circle = set.circle;
         if (circle) {
             circle.x = coordinates.x;
@@ -327,14 +336,12 @@ function layoutGreedyVenn(relations) {
         .sort(sortByTotalOverlap);
     // Position the most overlapped set at 0,0.
     positionSet(sortedByOverlap.shift(), { x: 0, y: 0 });
-    const relationsWithTwoSets = relations.filter(function (x) {
-        return x.sets.length === 2;
-    });
+    const relationsWithTwoSets = relations.filter((x) => (x.sets.length === 2));
     // Iterate and position the remaining sets.
-    sortedByOverlap.forEach(function (set) {
+    for (const set of sortedByOverlap) {
         const circle = set.circle;
         if (!circle) {
-            return;
+            continue;
         }
         const radius = circle.r, overlapping = set.overlapping;
         const bestPosition = positionedSets.reduce((best, positionedSet, i) => {
@@ -356,10 +363,10 @@ function layoutGreedyVenn(relations) {
             ];
             // If there are more circles overlapping, then add the
             // intersection points as possible positions.
-            positionedSets.slice(i + 1).forEach(function (positionedSet2) {
+            for (const positionedSet2 of positionedSets.slice(i + 1)) {
                 const positionedCircle2 = positionedSet2.circle, overlap2 = overlapping[positionedSet2.sets[0]];
                 if (!positionedCircle2) {
-                    return;
+                    continue;
                 }
                 const distance2 = getDistanceBetweenCirclesByOverlap(radius, positionedCircle2.r, overlap2);
                 // Add intersections to list of coordinates.
@@ -372,9 +379,9 @@ function layoutGreedyVenn(relations) {
                     y: positionedCircle2.y,
                     r: distance2
                 }));
-            });
+            }
             // Iterate all suggested coordinates and find the best one.
-            possibleCoordinates.forEach(function (coordinates) {
+            for (const coordinates of possibleCoordinates) {
                 circle.x = coordinates.x;
                 circle.y = coordinates.y;
                 // Calculate loss for the suggested coordinates.
@@ -384,7 +391,7 @@ function layoutGreedyVenn(relations) {
                     best.loss = currentLoss;
                     best.coordinates = coordinates;
                 }
-            });
+            }
             // Return resulting coordinates.
             return best;
         }, {
@@ -393,7 +400,7 @@ function layoutGreedyVenn(relations) {
         });
         // Add the set to its final position.
         positionSet(set, bestPosition.coordinates);
-    });
+    }
     // Return the positions of each set.
     return mapOfIdToCircles;
 }
@@ -439,7 +446,7 @@ function loss(mapOfIdToCircle, relations) {
  * @param {Highcharts.NelderMeadPointArray} initial
  *        The initial point to optimize.
  * @return {Highcharts.NelderMeadPointArray}
- *         Returns the opimized position of a point.
+ *         Returns the optimized position of a point.
  */
 function nelderMead(fn, initial) {
     const maxIterations = 100, sortByFx = function (a, b) {

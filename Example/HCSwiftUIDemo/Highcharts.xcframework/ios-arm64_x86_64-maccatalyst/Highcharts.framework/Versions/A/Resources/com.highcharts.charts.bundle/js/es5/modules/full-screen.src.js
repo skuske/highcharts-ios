@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Advanced Highcharts Stock tools
  *
- * (c) 2010-2021 Highsoft AS
+ * (c) 2010-2024 Highsoft AS
  * Author: Torstein Honsi
  *
  * License: www.highcharts.com/license
@@ -29,19 +29,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Extensions/Exporting/Fullscreen.js', [_modules['Core/Renderer/HTML/AST.js'], _modules['Core/Utilities.js']], function (AST, U) {
+    _registerModule(_modules, 'Extensions/Exporting/Fullscreen.js', [_modules['Core/Renderer/HTML/AST.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (AST, H, U) {
         /* *
          *
-         *  (c) 2009-2021 Rafal Sebestjanski
+         *  (c) 2009-2024 Rafal Sebestjanski
          *
          *  Full screen for Highcharts
          *
@@ -55,18 +53,8 @@
          * Used in StockTools too.
          * Based on default solutions in browsers.
          */
-        /* *
-         *
-         *  Imports
-         *
-         * */
-        var addEvent = U.addEvent, fireEvent = U.fireEvent;
-        /* *
-         *
-         *  Constants
-         *
-         * */
-        var composedMembers = [];
+        var composed = H.composed;
+        var addEvent = U.addEvent, fireEvent = U.fireEvent, pushUnique = U.pushUnique;
         /* *
          *
          *  Functions
@@ -165,7 +153,7 @@
              * The chart class to decorate with fullscreen support.
              */
             Fullscreen.compose = function (ChartClass) {
-                if (U.pushUnique(composedMembers, ChartClass)) {
+                if (pushUnique(composed, 'Fullscreen')) {
                     // Initialize fullscreen
                     addEvent(ChartClass, 'beforeRender', onChartBeforeRender);
                 }
@@ -235,7 +223,7 @@
                     fullscreen.origHeight = chart.chartHeight;
                     // Handle exitFullscreen() method when user clicks 'Escape' button.
                     if (fullscreen.browserProps) {
-                        var unbindChange_1 = addEvent(chart.container.ownerDocument, // chart's document
+                        var unbindChange_1 = addEvent(chart.container.ownerDocument, // Chart's document
                         fullscreen.browserProps.fullscreenChange, function () {
                             // Handle lack of async of browser's
                             // fullScreenChange event.
@@ -335,10 +323,10 @@
          * @callback Highcharts.FullScreenfullscreenCloseCallbackFunction
          *
          * @param {Highcharts.Chart} chart
-         *        The chart on which the event occured.
+         *        The chart on which the event occurred.
          *
          * @param {global.Event} event
-         *        The event that occured.
+         *        The event that occurred.
          */
         /**
          * Gets fired when opening the fullscreen
@@ -346,12 +334,12 @@
          * @callback Highcharts.FullScreenfullscreenOpenCallbackFunction
          *
          * @param {Highcharts.Chart} chart
-         *        The chart on which the event occured.
+         *        The chart on which the event occurred.
          *
          * @param {global.Event} event
-         *        The event that occured.
+         *        The event that occurred.
          */
-        (''); // keeps doclets above separated from following code
+        (''); // Keeps doclets above separated from following code
         /* *
          *
          *  API Options
@@ -384,15 +372,16 @@
          * @requires  modules/full-screen
          * @apioption chart.events.fullscreenOpen
          */
-        (''); // keeps doclets above in transpiled file
+        (''); // Keeps doclets above in transpiled file
 
         return Fullscreen;
     });
     _registerModule(_modules, 'masters/modules/full-screen.src.js', [_modules['Core/Globals.js'], _modules['Extensions/Exporting/Fullscreen.js']], function (Highcharts, Fullscreen) {
 
         var G = Highcharts;
-        G.Fullscreen = Fullscreen;
-        Fullscreen.compose(G.Chart);
+        G.Fullscreen = G.Fullscreen || Fullscreen;
+        G.Fullscreen.compose(G.Chart);
 
+        return Highcharts;
     });
 }));

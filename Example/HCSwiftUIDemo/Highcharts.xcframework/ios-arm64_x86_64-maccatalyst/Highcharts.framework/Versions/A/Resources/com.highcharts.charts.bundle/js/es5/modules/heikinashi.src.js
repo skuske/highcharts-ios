@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * HeikinAshi series type for Highcharts Stock
  *
- * (c) 2010-2021 Karol Kolodziej
+ * (c) 2010-2024 Karol Kolodziej
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Series/HeikinAshi/HeikinAshiPoint.js', [_modules['Core/Series/SeriesRegistry.js']], function (SeriesRegistry) {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -62,7 +60,9 @@
                 d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
             };
         })();
-        var _a = SeriesRegistry.seriesTypes, CandlestickPoint = _a.candlestick.prototype.pointClass, HLCPoint = _a.hlc.prototype.pointClass;
+        var _a = SeriesRegistry.seriesTypes, CandlestickPoint = _a.candlestick.prototype.pointClass, 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        HLCPoint = _a.hlc.prototype.pointClass;
         /* *
          *
          *  Class
@@ -71,10 +71,7 @@
         var HeikinAshiPoint = /** @class */ (function (_super) {
             __extends(HeikinAshiPoint, _super);
             function HeikinAshiPoint() {
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                // clone inheritence
-                _this.resolveColor = HLCPoint.prototype.resolveColor;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             return HeikinAshiPoint;
         }(CandlestickPoint));
@@ -89,7 +86,7 @@
     _registerModule(_modules, 'Series/HeikinAshi/HeikinAshiSeriesDefaults.js', [], function () {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -181,7 +178,7 @@
          * @product   highstock
          * @apioption series.heikinashi.data
          */
-        ''; // adds doclets above to transpilat
+        ''; // Adds doclets above to transpiled
         /* *
          *
          *  Default Export
@@ -190,10 +187,10 @@
 
         return HeikinAshiDefaults;
     });
-    _registerModule(_modules, 'Series/HeikinAshi/HeikinAshiSeries.js', [_modules['Series/HeikinAshi/HeikinAshiPoint.js'], _modules['Series/HeikinAshi/HeikinAshiSeriesDefaults.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (HeikinAshiPoint, HeikinAshiSeriesDefaults, SeriesRegistry, U) {
+    _registerModule(_modules, 'Series/HeikinAshi/HeikinAshiSeries.js', [_modules['Core/Globals.js'], _modules['Series/HeikinAshi/HeikinAshiPoint.js'], _modules['Series/HeikinAshi/HeikinAshiSeriesDefaults.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (H, HeikinAshiPoint, HeikinAshiSeriesDefaults, SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -215,14 +212,9 @@
                 d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
             };
         })();
+        var composed = H.composed;
         var CandlestickSeries = SeriesRegistry.seriesTypes.candlestick;
-        var addEvent = U.addEvent, merge = U.merge;
-        /* *
-         *
-         *  Constants
-         *
-         * */
-        var composedMembers = [];
+        var addEvent = U.addEvent, merge = U.merge, pushUnique = U.pushUnique;
         /* *
          *
          *  Functions
@@ -250,7 +242,7 @@
          */
         function onHeikinAshiSeriesAfterTranslate() {
             var series = this, points = series.points, heikiashiData = series.heikiashiData, cropStart = series.cropStart || 0;
-            // Reset the proccesed data.
+            // Reset the processed data.
             series.processedYData.length = 0;
             // Modify points.
             for (var i = 0; i < points.length; i++) {
@@ -294,17 +286,7 @@
                  *
                  * */
                 var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
                 _this.heikiashiData = [];
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.yData = void 0;
-                _this.processedYData = void 0;
                 return _this;
             }
             /* *
@@ -313,15 +295,9 @@
              *
              * */
             HeikinAshiSeries.compose = function (SeriesClass, AxisClass) {
-                var _args = [];
-                for (var _i = 2; _i < arguments.length; _i++) {
-                    _args[_i - 2] = arguments[_i];
-                }
                 CandlestickSeries.compose(SeriesClass);
-                if (U.pushUnique(composedMembers, AxisClass)) {
+                if (pushUnique(composed, 'HeikinAshi')) {
                     addEvent(AxisClass, 'postProcessData', onAxisPostProcessData);
-                }
-                if (U.pushUnique(composedMembers, HeikinAshiSeries)) {
                     addEvent(HeikinAshiSeries, 'afterTranslate', onHeikinAshiSeriesAfterTranslate);
                     addEvent(HeikinAshiSeries, 'updatedData', onHeikinAshiSeriesUpdatedData);
                 }
@@ -410,5 +386,6 @@
         var G = Highcharts;
         HeikinAshiSeries.compose(G.Series, G.Axis);
 
+        return Highcharts;
     });
 }));

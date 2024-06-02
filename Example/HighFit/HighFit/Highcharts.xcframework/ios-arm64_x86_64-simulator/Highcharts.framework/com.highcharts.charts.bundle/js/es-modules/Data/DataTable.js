@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2023 Highsoft AS
+ *  (c) 2009-2024 Highsoft AS
  *
  *  License: www.highcharts.com/license
  *
@@ -24,7 +24,6 @@ const { addEvent, fireEvent, uniqueKey } = U;
  * to add, remove, and manipulate columns and rows, as well as to retrieve data
  * from specific cells.
  *
- * @private
  * @class
  * @name Highcharts.DataTable
  *
@@ -95,7 +94,17 @@ class DataTable {
      * Options to initialize the new DataTable instance.
      */
     constructor(options = {}) {
-        this.aliases = {};
+        /**
+         * Dictionary of all column aliases and their mapped column. If a column
+         * for one of the get-methods matches an column alias, this column will
+         * be replaced with the mapped column by the column alias.
+         *
+         * @name Highcharts.DataTable#aliases
+         * @type {Highcharts.Dictionary<string>}
+         */
+        this.aliases = (options.aliases ?
+            JSON.parse(JSON.stringify(options.aliases)) :
+            {});
         /**
          * Whether the ID was automatic generated or given in the constructor.
          *
@@ -449,22 +458,6 @@ class DataTable {
         return this.getColumns([columnNameOrAlias], asReference)[columnNameOrAlias];
     }
     /**
-     * Fetches all column aliases and their mapped columns.
-     *
-     * @function Highcharts.DataTable#getColumnAliases
-     *
-     * @return {Highcharts.Dictionary<string>}
-     * Returns all column aliases.
-     */
-    getColumnAliases() {
-        const aliases = this.aliases, aliasKeys = Object.keys(aliases), columnAliases = {};
-        for (let i = 0, iEnd = aliasKeys.length, alias; i < iEnd; ++i) {
-            alias = aliasKeys[i];
-            columnAliases[alias] = aliases[alias];
-        }
-        return columnAliases;
-    }
-    /**
      * Fetches the given column by the canonical column name or by an alias, and
      * validates the type of the first few cells. If the first defined cell is
      * of type number, it assumes for performance reasons, that all cells are of
@@ -498,7 +491,7 @@ class DataTable {
                 for (let i = 0, cellValue; i < columnLength; ++i) {
                     cellValue = column[i];
                     if (typeof cellValue === 'number') {
-                        // assume unmixed data for performance reasons
+                        // Assume unmixed data for performance reasons
                         return column.slice();
                     }
                     if (cellValue !== null &&
@@ -878,30 +871,6 @@ class DataTable {
         this.setColumns({ [columnNameOrAlias]: column }, rowIndex, eventDetail);
     }
     /**
-     * Defines an alias for a column. If a column name for one of the
-     * get-functions matches an column alias, the column name will be replaced
-     * with the original column name.
-     *
-     * @function Highcharts.DataTable#setColumnAlias
-     *
-     * @param {string} columnAlias
-     * Column alias to create.
-     *
-     * @param {string} columnName
-     * Original column name to create an alias for.
-     *
-     * @return {boolean}
-     * `true` if successfully changed, `false` if reserved.
-     */
-    setColumnAlias(columnAlias, columnName) {
-        const aliases = this.aliases;
-        if (!aliases[columnAlias]) {
-            aliases[columnAlias] = columnName;
-            return true;
-        }
-        return false;
-    }
-    /**
      * Sets cell values for multiple columns. Will insert new columns, if not
      * found.
      *
@@ -920,7 +889,7 @@ class DataTable {
      * @emits #afterSetColumns
      */
     setColumns(columns, rowIndex, eventDetail) {
-        const table = this, tableColumns = table.columns, tableModifier = table.modifier, tableRowCount = table.rowCount, reset = (typeof rowIndex === 'undefined'), columnNames = Object.keys(columns);
+        const table = this, tableColumns = table.columns, tableModifier = table.modifier, reset = (typeof rowIndex === 'undefined'), columnNames = Object.keys(columns);
         table.emit({
             type: 'setColumns',
             columns,
@@ -1111,7 +1080,7 @@ class DataTable {
 }
 /* *
  *
- *  Static Functions
+ *  Static Properties
  *
  * */
 /**
@@ -1128,71 +1097,14 @@ class DataTable {
  * table.setRows([DataTable.NULL, DataTable.NULL], 10);
  */
 DataTable.NULL = {};
+/**
+ * Semantic version string of the DataTable class.
+ * @internal
+ */
+DataTable.version = '1.0.0';
 /* *
  *
  *  Default Export
  *
  * */
 export default DataTable;
-/* *
- *
- *  API Declarations
- *
- * */
-/**
- * Possible value types for a table cell.
- * @private
- * @typedef {boolean|null|number|string|Highcharts.DataTable|undefined} Highcharts.DataTableCellType
- */
-/**
- * Array of table cells in vertical expansion.
- * @private
- * @typedef {Array<Highcharts.DataTableCellType>} Highcharts.DataTableColumn
- */
-/**
- * Collection of columns, where the key is the column name (or alias) and
- * the value is an array of column values.
- * @private
- * @interface Highcharts.DataTableColumnCollection
- * @readonly
- */ /**
-* @name Highcharts.DataTableColumnCollection#[key:string]
-* @type {Highcharts.DataTableColumn}
-*/
-/**
- * Options to initialize a new DataTable instance.
- * @private
- * @interface Highcharts.DataTableOptions
- * @readonly
- */ /**
-* Initial map of column aliases to original column names.
-* @name Highcharts.DataTableOptions#aliases
-* @type {Highcharts.Dictionary<string>|undefined}
-*/ /**
-* Initial columns with their values.
-* @name Highcharts.DataTableOptions#columns
-* @type {Highcharts.DataTableColumnCollection|undefined}
-*/ /**
-* Custom ID to identify the new DataTable instance.
-* @name Highcharts.DataTableOptions#id
-* @type {string|undefined}
-*/
-/**
- * Custom information for an event.
- * @private
- * @typedef Highcharts.DataTableEventDetail
- * @type {Record<string,(boolean|number|string|null|undefined)>}
- */
-/**
- * Array of table cells in horizontal expansion. Index of the array is the index
- * of the column names.
- * @private
- * @typedef {Array<Highcharts.DataTableCellType>} Highcharts.DataTableRow
- */
-/**
- * Record of table cells in horizontal expansion. Keys of the record are the
- * column names (or aliases).
- * @private
- * @typedef {Record<string,Highcharts.DataTableCellType>} Highcharts.DataTableRowObject
- */
-(''); // keeps doclets above in transpiled file

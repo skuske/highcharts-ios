@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,14 +9,12 @@
  * */
 'use strict';
 import ChartDefaults from './Chart/ChartDefaults.js';
-import Color from './Color/Color.js';
-const { parse: color } = Color;
 import H from './Globals.js';
-const { isTouchDevice, svg } = H;
+const { isTouchDevice } = H;
 import Palettes from './Color/Palettes.js';
 import Time from './Time.js';
 import U from './Utilities.js';
-const { merge } = U;
+const { fireEvent, merge } = U;
 /* *
  *
  *  API Options
@@ -60,7 +58,7 @@ const defaultOptions = {
      *     "#2ee0ca",
      *     "#fa4b42",
      *     "#feb56a",
-     *     "#91e8e12
+     *     "#91e8e1"
      * ]
      */
     colors: Palettes.colors,
@@ -190,7 +188,7 @@ const defaultOptions = {
          * [Metric prefixes](https://en.wikipedia.org/wiki/Metric_prefix) used
          * to shorten high numbers in axis labels. Replacing any of the
          * positions with `null` causes the full number to be written. Setting
-         * `numericSymbols` to `null` disables shortening altogether.
+         * `numericSymbols` to `undefined` disables shortening altogether.
          *
          * @sample {highcharts} highcharts/lang/numericsymbols/
          *         Replacing the symbols with text
@@ -247,84 +245,163 @@ const defaultOptions = {
      * ```js
      * Highcharts.setOptions({
      *     global: {
-     *         useUTC: false
+     *         buttonTheme: {
+     *             fill: '#d0d0d0'
+     *         }
      *     }
      * });
      * ```
      */
-    /**
-     * _Canvg rendering for Android 2.x is removed as of Highcharts 5.0\.
-     * Use the [libURL](#exporting.libURL) option to configure exporting._
-     *
-     * The URL to the additional file to lazy load for Android 2.x devices.
-     * These devices don't support SVG, so we download a helper file that
-     * contains [canvg](https://github.com/canvg/canvg), its dependency
-     * rbcolor, and our own CanVG Renderer class. To avoid hotlinking to
-     * our site, you can install canvas-tools.js on your own server and
-     * change this option accordingly.
-     *
-     * @deprecated
-     *
-     * @type      {string}
-     * @default   https://code.highcharts.com/{version}/modules/canvas-tools.js
-     * @product   highcharts highmaps
-     * @apioption global.canvasToolsURL
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.useUTC](#time.useUTC) that supports individual time settings
-     * per chart.
-     *
-     * @deprecated
-     *
-     * @type      {boolean}
-     * @apioption global.useUTC
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.Date](#time.Date) that supports individual time settings
-     * per chart.
-     *
-     * @deprecated
-     *
-     * @type      {Function}
-     * @product   highcharts highstock
-     * @apioption global.Date
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.getTimezoneOffset](#time.getTimezoneOffset) that supports
-     * individual time settings per chart.
-     *
-     * @deprecated
-     *
-     * @type      {Function}
-     * @product   highcharts highstock
-     * @apioption global.getTimezoneOffset
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.timezone](#time.timezone) that supports individual time
-     * settings per chart.
-     *
-     * @deprecated
-     *
-     * @type      {string}
-     * @product   highcharts highstock
-     * @apioption global.timezone
-     */
-    /**
-     * This option is deprecated since v6.0.5. Instead, use
-     * [time.timezoneOffset](#time.timezoneOffset) that supports individual
-     * time settings per chart.
-     *
-     * @deprecated
-     *
-     * @type      {number}
-     * @product   highcharts highstock
-     * @apioption global.timezoneOffset
-     */
-    global: {},
+    global: {
+        /**
+         * _Canvg rendering for Android 2.x is removed as of Highcharts 5.0\.
+         * Use the [libURL](#exporting.libURL) option to configure exporting._
+         *
+         * The URL to the additional file to lazy load for Android 2.x devices.
+         * These devices don't support SVG, so we download a helper file that
+         * contains [canvg](https://github.com/canvg/canvg), its dependency
+         * rbcolor, and our own CanVG Renderer class. To avoid hotlinking to
+         * our site, you can install canvas-tools.js on your own server and
+         * change this option accordingly.
+         *
+         * @deprecated
+         *
+         * @type      {string}
+         * @default   https://code.highcharts.com/{version}/modules/canvas-tools.js
+         * @product   highcharts highmaps
+         * @apioption global.canvasToolsURL
+         */
+        /**
+         * This option is deprecated since v6.0.5. Instead, use
+         * [time.useUTC](#time.useUTC) that supports individual time settings
+         * per chart.
+         *
+         * @deprecated
+         *
+         * @type      {boolean}
+         * @apioption global.useUTC
+         */
+        /**
+         * This option is deprecated since v6.0.5. Instead, use
+         * [time.Date](#time.Date) that supports individual time settings
+         * per chart.
+         *
+         * @deprecated
+         *
+         * @type      {Function}
+         * @product   highcharts highstock
+         * @apioption global.Date
+         */
+        /**
+         * This option is deprecated since v6.0.5. Instead, use
+         * [time.getTimezoneOffset](#time.getTimezoneOffset) that supports
+         * individual time settings per chart.
+         *
+         * @deprecated
+         *
+         * @type      {Function}
+         * @product   highcharts highstock
+         * @apioption global.getTimezoneOffset
+         */
+        /**
+         * This option is deprecated since v6.0.5. Instead, use
+         * [time.timezone](#time.timezone) that supports individual time
+         * settings per chart.
+         *
+         * @deprecated
+         *
+         * @type      {string}
+         * @product   highcharts highstock
+         * @apioption global.timezone
+         */
+        /**
+         * This option is deprecated since v6.0.5. Instead, use
+         * [time.timezoneOffset](#time.timezoneOffset) that supports individual
+         * time settings per chart.
+         *
+         * @deprecated
+         *
+         * @type      {number}
+         * @product   highcharts highstock
+         * @apioption global.timezoneOffset
+         */
+        /**
+         * General theme for buttons. This applies to the zoom button, exporting
+         * context menu, map navigation, range selector buttons and custom
+         * buttons generated using the `SVGRenderer.button` function. However,
+         * each of these may be overridden with more specific options.
+         *
+         * @sample highcharts/global/buttontheme
+         *         General button theme
+         * @since 11.4.2
+         */
+        buttonTheme: {
+            /**
+             * The fill color for buttons
+             */
+            fill: "#f7f7f7" /* Palette.neutralColor3 */,
+            /**
+             * The padding of buttons
+             */
+            padding: 8,
+            /**
+             * The border radius for buttons
+             */
+            r: 2,
+            /**
+             * The stroke color for buttons
+             */
+            stroke: "#cccccc" /* Palette.neutralColor20 */,
+            /**
+             * The stroke width for buttons
+             */
+            'stroke-width': 1,
+            /**
+             * CSS styling for the buttons' text
+             */
+            style: {
+                color: "#333333" /* Palette.neutralColor80 */,
+                cursor: 'pointer',
+                fontSize: '0.8em',
+                fontWeight: 'normal'
+            },
+            /**
+             * State overrides for the buttons
+             */
+            states: {
+                /**
+                 * Hover state overrides for the buttons are applied in addition
+                 * to the normal state options
+                 */
+                hover: {
+                    fill: "#e6e6e6" /* Palette.neutralColor10 */
+                },
+                /**
+                 * Select state overrides for the buttons are applied in
+                 * addition to the normal state options
+                 */
+                select: {
+                    fill: "#e6e9ff" /* Palette.highlightColor10 */,
+                    style: {
+                        color: "#000000" /* Palette.neutralColor100 */,
+                        fontWeight: 'bold'
+                    }
+                },
+                /**
+                 * Disabled state overrides for the buttons are applied in
+                 * addition to the normal state options
+                 */
+                disabled: {
+                    /**
+                     * Disabled state CSS style overrides for the buttons' text
+                     */
+                    style: {
+                        color: "#cccccc" /* Palette.neutralColor20 */
+                    }
+                }
+            }
+        }
+    },
     /**
      * Time options that can apply globally or to individual charts. These
      * settings affect how `datetime` axes are laid out, how tooltips are
@@ -360,7 +437,7 @@ const defaultOptions = {
      * );
      * ```
      *
-     * Since v6.0.5, the time options were moved from the `global` obect to the
+     * Since v6.0.5, the time options were moved from the `global` object to the
      * `time` object, and time options can be set on each individual chart.
      *
      * @sample {highcharts|highstock}
@@ -394,28 +471,30 @@ const defaultOptions = {
          * for drawing time based charts in specific time zones using their
          * local DST crossover dates, with the help of external libraries.
          *
-         * @see [global.timezoneOffset](#global.timezoneOffset)
+         * This option is deprecated as of v11.4.1 and will be removed in a
+         * future release. Use the [time.timezone](#time.timezone) option
+         * instead.
          *
          * @sample {highcharts|highstock} highcharts/time/gettimezoneoffset/
          *         Use moment.js to draw Oslo time regardless of browser locale
          *
          * @type      {Highcharts.TimezoneOffsetCallbackFunction}
          * @since     4.1.0
+         * @deprecated 11.4.2
          * @product   highcharts highstock gantt
          */
         getTimezoneOffset: void 0,
         /**
-         * Requires [moment.js](https://momentjs.com/). If the timezone option
-         * is specified, it creates a default
-         * [getTimezoneOffset](#time.getTimezoneOffset) function that looks
-         * up the specified timezone in moment.js. If moment.js is not included,
-         * this throws a Highcharts error in the console, but does not crash the
-         * chart.
+         * A named time zone. Supported time zone names rely on the browser
+         * implementations, as described in the [mdn
+         * docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#timezone).
+         * If the given time zone is not recognized by the browser, Highcharts
+         * provides a warning and falls back to returning a 0 offset,
+         * corresponding to the UTC time zone.
          *
-         * @see [getTimezoneOffset](#time.getTimezoneOffset)
+         * Until v11.2.0, this option depended on moment.js.
          *
-         * @sample {highcharts|highstock} highcharts/time/timezone/
-         *         Europe/Oslo
+         * @sample {highcharts|highstock} highcharts/time/timezone/ Europe/Oslo
          *
          * @type      {string}
          * @since     5.0.7
@@ -428,12 +507,17 @@ const defaultOptions = {
          * [getTimezoneOffset](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getTimezoneOffset)
          * method. Use this to display UTC based data in a predefined time zone.
          *
+         * This option is deprecated as of v11.4.1 and will be removed in a
+         * future release. Use the [time.timezone](#time.timezone) option
+         * instead.
+         *
          * @see [time.getTimezoneOffset](#time.getTimezoneOffset)
          *
          * @sample {highcharts|highstock} highcharts/time/timezoneoffset/
          *         Timezone offset
          *
          * @since     3.0.8
+         * @deprecated 11.4.2
          * @product   highcharts highstock gantt
          */
         timezoneOffset: 0,
@@ -1072,7 +1156,7 @@ const defaultOptions = {
          * @type {Highcharts.FormatterCallbackFunction<Point|Series>}
          */
         labelFormatter: function () {
-            /** eslint-enable valid-jsdoc */
+            // eslint-enable valid-jsdoc
             return this.name;
         },
         /**
@@ -1148,6 +1232,12 @@ const defaultOptions = {
          * exported images. One way of working around that is to
          * [increase the chart height in
          * export](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/legend/navigation-enabled-false/).
+         *
+         * @sample highcharts/legend/scrollable-vertical/
+         *         Legend with vertical scrollable extension
+         * @sample highcharts/legend/scrollable-horizontal/
+         *         Legend with horizontal scrollable extension
+         *
          */
         navigation: {
             /**
@@ -1313,7 +1403,7 @@ const defaultOptions = {
          *         Item text styles
          *
          * @type    {Highcharts.CSSObject}
-         * @default {"color": "#333333", "cursor": "pointer", "fontSize": "0.75em", "fontWeight": "bold", "textOverflow": "ellipsis"}
+         * @default {"color": "#333333", "cursor": "pointer", "fontSize": "0.8em", "fontWeight": "bold", "textOverflow": "ellipsis"}
          */
         itemStyle: {
             /**
@@ -1343,7 +1433,7 @@ const defaultOptions = {
          * are inherited from `style` unless overridden here.
          *
          * @see In styled mode, the hovered legend items can be styled with
-         *      the `.highcharts-legend-item:hover` pesudo-class.
+         *      the `.highcharts-legend-item:hover` pseudo-class.
          *
          * @sample {highcharts} highcharts/legend/itemhoverstyle/
          *         Red on hover
@@ -1421,7 +1511,7 @@ const defaultOptions = {
              */
             height: '13px'
         },
-        // itemWidth: undefined,
+        /// itemWidth: undefined,
         /**
          * When this is true, the legend symbol width will be the same as
          * the symbol height, which in turn defaults to the font size of the
@@ -1433,6 +1523,10 @@ const defaultOptions = {
         /**
          * The pixel height of the symbol for series types that use a rectangle
          * in the legend. Defaults to the font size of legend items.
+         *
+         * Note: This option is a default source of color axis height, if the
+         * [colorAxis.height](https://api.highcharts.com/highcharts/colorAxis.height)
+         * option is not set.
          *
          * @productdesc {highmaps}
          * In Highmaps, when the symbol is the gradient of a vertical color
@@ -1469,6 +1563,10 @@ const defaultOptions = {
          * The pixel width of the legend item symbol. When the `squareSymbol`
          * option is set, this defaults to the `symbolHeight`, otherwise 16.
          *
+         * Note: This option is a default source of color axis width, if the
+         * [colorAxis.width](https://api.highcharts.com/highcharts/colorAxis.width)
+         * option is not set.
+         *
          * @productdesc {highmaps}
          * In Highmaps, when the symbol is the gradient of a horizontal color
          * axis, the width defaults to 200.
@@ -1489,6 +1587,11 @@ const defaultOptions = {
          *
          * Prior to 4.1.7, when using HTML, [legend.navigation](
          * #legend.navigation) was disabled.
+         *
+         * @sample highcharts/legend/scrollable-vertical/
+         *         Legend with vertical scrollable extension
+         * @sample highcharts/legend/scrollable-horizontal/
+         *         Legend with horizontal scrollable extension
          *
          * @type      {boolean}
          * @default   false
@@ -1560,7 +1663,7 @@ const defaultOptions = {
          * @since 2.0
          */
         verticalAlign: 'bottom',
-        // width: undefined,
+        // Width: undefined,
         /**
          * The x offset of the legend relative to its horizontal alignment
          * `align` within chart.spacingLeft and chart.spacingRight. Negative
@@ -1612,7 +1715,7 @@ const defaultOptions = {
              *      `.highcharts-legend-title` class.
              *
              * @type    {Highcharts.CSSObject}
-             * @default {"fontSize": "0.75em", "fontWeight": "bold"}
+             * @default {"fontSize": "0.8em", "fontWeight": "bold"}
              * @since   3.0
              */
             style: {
@@ -1733,16 +1836,19 @@ const defaultOptions = {
          * The color of the tooltip border. When `undefined`, the border takes
          * the color of the corresponding series or point.
          *
-         * @sample {highcharts} highcharts/tooltip/bordercolor-default/
-         *         Follow series by default
-         * @sample {highcharts} highcharts/tooltip/bordercolor-black/
-         *         Black border
-         * @sample {highstock} stock/tooltip/general/
-         *         Styled tooltip
-         * @sample {highmaps} maps/tooltip/background-border/
-         *         Background and border demo
+         * Note that the [borderWidth](#tooltip.borderWidth) is usually 0 by
+         * default, so the border color may not be visible until a border width
+         * is set.
          *
-         * @type      {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
+         * @sample {highcharts} highcharts/tooltip/bordercolor-default/ Follow
+         *         series by default
+         * @sample {highcharts} highcharts/tooltip/bordercolor-black/ Black
+         *         border
+         * @sample {highstock} stock/tooltip/general/ Styled tooltip
+         * @sample {highmaps} maps/tooltip/background-border/ Background and
+         *         border demo
+         *
+         * @type {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
          * @apioption tooltip.borderColor
          */
         /**
@@ -1816,20 +1922,20 @@ const defaultOptions = {
          */
         /**
          * A [format string](https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting)
-         * for the whole tooltip. When format strings are a requirement, it is
-         * usually more convenient to use `headerFormat`, `pointFormat` and
-         * `footerFormat`, but the `format` option allows combining them into
-         * one setting.
+         * for the whole shared tooltip. When format strings are a requirement,
+         * it is usually more convenient to use `headerFormat`, `pointFormat`
+         * and `footerFormat`, but the `format` option allows combining them
+         * into one setting.
          *
          * The context of the format string is the same as that of the
-         * `formatter` callback.
+         * `tooltip.formatter` callback.
          *
          * @sample {highcharts} highcharts/tooltip/format-shared/
          *         Format for shared tooltip
          *
          * @type      {string}
          * @default   undefined
-         * @since 11.1.0
+         * @since     11.1.0
          * @apioption tooltip.format
          */
         /**
@@ -2102,11 +2208,14 @@ const defaultOptions = {
         /**
          * Enable or disable animation of the tooltip.
          *
-         * @type       {boolean}
-         * @default    true
+         * @type       {boolean|Partial<Highcharts.AnimationOptionsObject>}
          * @since      2.3.0
          */
-        animation: svg,
+        animation: {
+            duration: 300,
+            // EaseOutCirc
+            easing: (x) => Math.sqrt(1 - Math.pow(x - 1, 2))
+        },
         /**
          * The radius of the rounded border corners.
          *
@@ -2174,7 +2283,7 @@ const defaultOptions = {
          *         Different shapes for header and split boxes
          *
          * @type       {Highcharts.TooltipShapeValue}
-         * @validvalue ["callout", "square"]
+         * @validvalue ["callout", "rect"]
          * @since      7.0
          */
         headerShape: 'callout',
@@ -2527,9 +2636,12 @@ const defaultOptions = {
     }
 };
 /* eslint-disable spaced-comment */
-
+/*= if (!build.classic) { =*/
+// Legacy build for styled mode, set the styledMode option to true by default.
+defaultOptions.chart.styledMode = true;
+/*= } else { =*/
 defaultOptions.chart.styledMode = false;
-
+/*= } =*/
 '';
 const defaultTime = new Time(defaultOptions.time);
 /**
@@ -2561,6 +2673,7 @@ function getOptions() {
  * Updated options.
  */
 function setOptions(options) {
+    fireEvent(H, 'setOptions', { options });
     // Copy in the default options
     merge(true, defaultOptions, options);
     // Update the time object
@@ -2610,10 +2723,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartAddSeriesCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {Highcharts.ChartAddSeriesEventObject} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Contains common event information. Through the `options` property you can
@@ -2643,10 +2756,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartClickCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {Highcharts.PointerEventObject} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Contains an axes of the clicked spot.
@@ -2686,10 +2799,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartLoadCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {global.Event} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Fires when the chart is redrawn, either after a call to `chart.redraw()` or
@@ -2699,10 +2812,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartRedrawCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {global.Event} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Gets fired after initial load of the chart (directly after the `load` event),
@@ -2711,10 +2824,10 @@ export default DefaultOptions;
  * @callback Highcharts.ChartRenderCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {global.Event} event
- *        The event that occured.
+ *        The event that occurred.
  */
 /**
  * Gets fired when an area of the chart has been selected. The default action
@@ -2724,7 +2837,7 @@ export default DefaultOptions;
  * @callback Highcharts.ChartSelectionCallbackFunction
  *
  * @param {Highcharts.Chart} this
- *        The chart on which the event occured.
+ *        The chart on which the event occurred.
  *
  * @param {Highcharts.SelectEventObject} event
  *        Event informations
@@ -2732,4 +2845,4 @@ export default DefaultOptions;
  * @return {boolean|undefined}
  *         Return false to prevent the default action, usually zoom.
  */
-(''); // detach doclets above
+(''); // Detach doclets above

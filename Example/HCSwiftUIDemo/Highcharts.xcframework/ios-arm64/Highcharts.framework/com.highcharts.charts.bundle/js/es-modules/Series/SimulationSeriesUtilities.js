@@ -5,7 +5,7 @@
  * */
 'use strict';
 import U from '../Core/Utilities.js';
-const { syncTimeout } = U;
+const { merge, syncTimeout } = U;
 import A from '../Core/Animation/AnimationUtilities.js';
 const { animObject } = A;
 /**
@@ -15,14 +15,13 @@ const { animObject } = A;
  * @private
  */
 function initDataLabelsDefer() {
-    var _a;
     const dlOptions = this.options.dataLabels;
-    // drawDataLabels() fires for the first time after
+    // Method drawDataLabels() fires for the first time after
     // dataLabels.animation.defer time unless
     // the dataLabels.animation = false or dataLabels.defer = false
     // or if the simulation is disabled
-    if (!(dlOptions === null || dlOptions === void 0 ? void 0 : dlOptions.defer) ||
-        !((_a = this.options.layoutAlgorithm) === null || _a === void 0 ? void 0 : _a.enableSimulation)) {
+    if (!dlOptions?.defer ||
+        !this.options.layoutAlgorithm?.enableSimulation) {
         this.deferDataLabels = false;
     }
     else {
@@ -43,7 +42,7 @@ function initDataLabels() {
         const dataLabelsGroup = this.initDataLabelsGroup();
         // Apply the dataLabels.style not only to the
         // individual dataLabels but also to the entire group
-        if (!series.chart.styledMode && (dlOptions === null || dlOptions === void 0 ? void 0 : dlOptions.style)) {
+        if (!series.chart.styledMode && dlOptions?.style) {
             dataLabelsGroup.css(dlOptions.style);
         }
         // Initialize the opacity of the group to 0 (start of animation)
@@ -53,7 +52,8 @@ function initDataLabels() {
         }
         return dataLabelsGroup;
     }
-    series.dataLabelsGroup.attr({ opacity: 1 });
+    // Place it on first and subsequent (redraw) calls
+    series.dataLabelsGroup.attr(merge({ opacity: 1 }, this.getPlotBox('data-labels')));
     return series.dataLabelsGroup;
 }
 const DataLabelsDeferUtils = {

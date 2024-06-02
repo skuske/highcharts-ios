@@ -1,8 +1,8 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  * Organization chart series type
  *
- * (c) 2019-2021 Torstein Honsi
+ * (c) 2019-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -27,12 +27,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -41,7 +39,7 @@
          *
          *  Organization chart module
          *
-         *  (c) 2018-2021 Torstein Honsi
+         *  (c) 2018-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -65,11 +63,14 @@
         })();
         var SankeyPointClass = SeriesRegistry.seriesTypes.sankey.prototype.pointClass;
         var defined = U.defined, find = U.find, pick = U.pick;
-        /**
-         * Get columns offset including all sibiling and cousins etc.
+        /* *
          *
+         *  Functions
+         *
+         * */
+        /**
+         * Get columns offset including all sibling and cousins etc.
          * @private
-         * @param node Point
          */
         function getOffset(node) {
             var offset = node.linksFrom.length;
@@ -93,34 +94,19 @@
          * */
         var OrganizationPoint = /** @class */ (function (_super) {
             __extends(OrganizationPoint, _super);
-            function OrganizationPoint() {
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                _this.fromNode = void 0;
-                _this.linksFrom = void 0;
-                _this.linksTo = void 0;
-                _this.options = void 0;
-                _this.series = void 0;
-                _this.toNode = void 0;
-                return _this;
-            }
             /* *
              *
              *  Functions
              *
              * */
-            OrganizationPoint.prototype.init = function () {
-                SankeyPointClass.prototype.init.apply(this, arguments);
-                if (!this.isNode) {
-                    this.dataLabelOnNull = true;
-                    this.formatPrefix = 'link';
+            function OrganizationPoint(series, options, x) {
+                var _this = _super.call(this, series, options, x) || this;
+                if (!_this.isNode) {
+                    _this.dataLabelOnNull = true;
+                    _this.formatPrefix = 'link';
                 }
-                return this;
-            };
+                return _this;
+            }
             /**
              * All nodes in an org chart are equal width.
              * @private
@@ -144,11 +130,11 @@
                     // And parent uses hanging layout
                     fromNode &&
                     fromNode.options.layout === 'hanging') {
+                    var i_1 = -1, link = void 0;
                     // Default all children of the hanging node
                     // to have hanging layout
                     node.options.layout = pick(node.options.layout, 'hanging');
                     node.hangsFrom = fromNode;
-                    var i_1 = -1;
                     find(fromNode.linksFrom, function (link, index) {
                         var found = link.toNode === node;
                         if (found) {
@@ -158,8 +144,8 @@
                     });
                     // For all siblings' children (recursively)
                     // increase the column offset to prevent overlapping
-                    for (var j = 0; j < fromNode.linksFrom.length; j++) {
-                        var link = fromNode.linksFrom[j];
+                    for (var j = 0; j < fromNode.linksFrom.length; ++j) {
+                        link = fromNode.linksFrom[j];
                         if (link.toNode.id === node.id) {
                             // Break
                             j = fromNode.linksFrom.length;
@@ -186,7 +172,7 @@
          *
          *  Organization chart module
          *
-         *  (c) 2018-2021 Torstein Honsi
+         *  (c) 2018-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -438,6 +424,19 @@
              */
             hangingIndentTranslation: 'inherit',
             /**
+             * Whether links connecting hanging nodes should be drawn on the left
+             * or right side. Useful for RTL layouts.
+             * **Note:** Only effects inverted charts (vertical layout).
+             *
+             * @sample highcharts/series-organization/hanging-side
+             *         Nodes hanging from right side.
+             *
+             * @type {'left'|'right'}
+             * @since 11.3.0
+             * @default 'left'
+             */
+            hangingSide: 'left',
+            /**
              *
              * The color of the links between nodes. This option is moved to
              * [link.color](#plotOptions.organization.link.color).
@@ -475,8 +474,8 @@
             minNodeLength: 10,
             /**
              * In a horizontal chart, the width of the nodes in pixels. Note that
-             * most organization charts are vertical, so the name of this option
-             * is counterintuitive.
+             * most organization charts are inverted (vertical), so the name of this
+             * option is counterintuitive.
              *
              * @see [minNodeLength](#plotOptions.organization.minNodeLength)
              *
@@ -583,7 +582,7 @@
          * Layout for the node's children. If `hanging`, this node's children will hang
          * below their parent, allowing a tighter packing of nodes in the diagram.
          *
-         * Note: Since @next version, the `hanging` layout is set by default for
+         * Note: Since version 10.0.0, the `hanging` layout is set by default for
          * children of a parent using `hanging` layout.
          *
          * @sample highcharts/demo/organization-chart
@@ -631,7 +630,7 @@
          * @product   highcharts
          * @apioption series.organization.data
          */
-        ''; // keeps doclets above in JS file
+        ''; // Keeps doclets above in JS file
         /* *
          *
          *  Default Export
@@ -643,7 +642,7 @@
     _registerModule(_modules, 'Series/PathUtilities.js', [], function () {
         /* *
          *
-         *  (c) 2010-2022 Pawel Lysy
+         *  (c) 2010-2024 Pawel Lysy
          *
          *  License: www.highcharts.com/license
          *
@@ -655,6 +654,9 @@
             straight: getStraightPath,
             curved: getCurvedPath
         };
+        /**
+         *
+         */
         function getDefaultPath(pathParams) {
             var x1 = pathParams.x1, y1 = pathParams.y1, x2 = pathParams.x2, y2 = pathParams.y2, _a = pathParams.width, width = _a === void 0 ? 0 : _a, _b = pathParams.inverted, inverted = _b === void 0 ? false : _b, radius = pathParams.radius, parentVisible = pathParams.parentVisible;
             var path = [
@@ -674,6 +676,9 @@
                 ], radius) :
                 path;
         }
+        /**
+         *
+         */
         function getStraightPath(pathParams) {
             var x1 = pathParams.x1, y1 = pathParams.y1, x2 = pathParams.x2, y2 = pathParams.y2, _a = pathParams.width, width = _a === void 0 ? 0 : _a, _b = pathParams.inverted, inverted = _b === void 0 ? false : _b, parentVisible = pathParams.parentVisible;
             return parentVisible ? [
@@ -686,6 +691,9 @@
                 ['L', x1, y2]
             ];
         }
+        /**
+         *
+         */
         function getCurvedPath(pathParams) {
             var x1 = pathParams.x1, y1 = pathParams.y1, x2 = pathParams.x2, y2 = pathParams.y2, _a = pathParams.offset, offset = _a === void 0 ? 0 : _a, _b = pathParams.width, width = _b === void 0 ? 0 : _b, _c = pathParams.inverted, inverted = _c === void 0 ? false : _c, parentVisible = pathParams.parentVisible;
             return parentVisible ?
@@ -718,13 +726,13 @@
                 var x = path[i][1];
                 var y = path[i][2];
                 if (typeof x === 'number' && typeof y === 'number') {
-                    // moveTo
+                    // MoveTo
                     if (i === 0) {
                         d.push(['M', x, y]);
                     }
                     else if (i === path.length - 1) {
                         d.push(['L', x, y]);
-                        // curveTo
+                        // CurveTo
                     }
                     else if (r) {
                         var prevSeg = path[i - 1];
@@ -754,7 +762,7 @@
                                 ]);
                             }
                         }
-                        // lineTo
+                        // LineTo
                     }
                     else {
                         d.push(['L', x, y]);
@@ -775,7 +783,7 @@
          *
          *  Organization chart module
          *
-         *  (c) 2018-2021 Torstein Honsi
+         *  (c) 2018-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -798,7 +806,7 @@
             };
         })();
         var SankeySeries = SeriesRegistry.seriesTypes.sankey;
-        var css = U.css, extend = U.extend, isNumber = U.isNumber, merge = U.merge, pick = U.pick;
+        var css = U.css, crisp = U.crisp, extend = U.extend, isNumber = U.isNumber, merge = U.merge, pick = U.pick;
         /* *
          *
          *  Class
@@ -814,40 +822,20 @@
         var OrganizationSeries = /** @class */ (function (_super) {
             __extends(OrganizationSeries, _super);
             function OrganizationSeries() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Static Functions
-                 *
-                 * */
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
-                /* eslint-enable valid-jsdoc */
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
              *  Functions
              *
              * */
-            /* eslint-disable valid-jsdoc */
             OrganizationSeries.prototype.alignDataLabel = function (point, dataLabel, options) {
                 // Align the data label to the point graphic
                 var shapeArgs = point.shapeArgs;
                 if (options.useHTML && shapeArgs) {
-                    var width_1 = shapeArgs.width || 0, height_1 = shapeArgs.height || 0, padjust = (this.options.borderWidth +
+                    var padjust = (this.options.borderWidth +
                         2 * this.options.dataLabels.padding);
+                    var width_1 = shapeArgs.width || 0, height_1 = shapeArgs.height || 0;
                     if (this.chart.inverted) {
                         width_1 = height_1;
                         height_1 = shapeArgs.width || 0;
@@ -903,47 +891,49 @@
                 return attribs;
             };
             OrganizationSeries.prototype.translateLink = function (point) {
-                var fromNode = point.fromNode, toNode = point.toNode, linkWidth = pick(this.options.linkLineWidth, this.options.link.lineWidth), crisp = (Math.round(linkWidth) % 2) / 2, factor = pick(this.options.link.offset, 0.5), type = pick(point.options.link && point.options.link.type, this.options.link.type);
+                var chart = this.chart, options = this.options, fromNode = point.fromNode, toNode = point.toNode, linkWidth = pick(options.linkLineWidth, options.link.lineWidth, 0), factor = pick(options.link.offset, 0.5), type = pick(point.options.link && point.options.link.type, options.link.type);
                 if (fromNode.shapeArgs && toNode.shapeArgs) {
-                    var x1 = Math.floor((fromNode.shapeArgs.x || 0) +
-                        (fromNode.shapeArgs.width || 0)) + crisp, y1 = Math.floor((fromNode.shapeArgs.y || 0) +
-                        (fromNode.shapeArgs.height || 0) / 2) + crisp, x2 = Math.floor(toNode.shapeArgs.x || 0) + crisp, y2 = Math.floor((toNode.shapeArgs.y || 0) +
-                        (toNode.shapeArgs.height || 0) / 2) + crisp, xMiddle = void 0, hangingIndent = this.options.hangingIndent, toOffset = toNode.options.offset, percentOffset = /%$/.test(toOffset) && parseInt(toOffset, 10), inverted = this.chart.inverted;
+                    var hangingIndent = options.hangingIndent, hangingRight = options.hangingSide === 'right', toOffset = toNode.options.offset, percentOffset = /%$/.test(toOffset) && parseInt(toOffset, 10), inverted = chart.inverted;
+                    var x1 = crisp((fromNode.shapeArgs.x || 0) +
+                        (fromNode.shapeArgs.width || 0), linkWidth), y1 = crisp((fromNode.shapeArgs.y || 0) +
+                        (fromNode.shapeArgs.height || 0) / 2, linkWidth), x2 = crisp(toNode.shapeArgs.x || 0, linkWidth), y2 = crisp((toNode.shapeArgs.y || 0) +
+                        (toNode.shapeArgs.height || 0) / 2, linkWidth), xMiddle = void 0;
                     if (inverted) {
                         x1 -= (fromNode.shapeArgs.width || 0);
                         x2 += (toNode.shapeArgs.width || 0);
                     }
                     xMiddle = this.colDistance ?
-                        Math.floor(x2 +
+                        crisp(x2 +
                             ((inverted ? 1 : -1) *
                                 (this.colDistance - this.nodeWidth)) /
-                                2) + crisp :
-                        Math.floor((x2 + x1) / 2) + crisp;
+                                2, linkWidth) :
+                        crisp((x2 + x1) / 2, linkWidth);
                     // Put the link on the side of the node when an offset is given. HR
                     // node in the main demo.
                     if (percentOffset &&
                         (percentOffset >= 50 || percentOffset <= -50)) {
-                        xMiddle = x2 = Math.floor(x2 + (inverted ? -0.5 : 0.5) *
-                            (toNode.shapeArgs.width || 0)) + crisp;
+                        xMiddle = x2 = crisp(x2 + (inverted ? -0.5 : 0.5) *
+                            (toNode.shapeArgs.width || 0), linkWidth);
                         y2 = toNode.shapeArgs.y || 0;
                         if (percentOffset > 0) {
                             y2 += toNode.shapeArgs.height || 0;
                         }
                     }
                     if (toNode.hangsFrom === fromNode) {
-                        if (this.chart.inverted) {
-                            y1 = Math.floor((fromNode.shapeArgs.y || 0) +
-                                (fromNode.shapeArgs.height || 0) -
-                                hangingIndent / 2) + crisp;
-                            y2 = ((toNode.shapeArgs.y || 0) +
-                                (toNode.shapeArgs.height || 0));
+                        if (chart.inverted) {
+                            y1 = !hangingRight ?
+                                crisp((fromNode.shapeArgs.y || 0) +
+                                    (fromNode.shapeArgs.height || 0) -
+                                    hangingIndent / 2, linkWidth) :
+                                crisp((fromNode.shapeArgs.y || 0) + hangingIndent / 2, linkWidth);
+                            y2 = !hangingRight ? ((toNode.shapeArgs.y || 0) +
+                                (toNode.shapeArgs.height || 0)) : (toNode.shapeArgs.y || 0) + hangingIndent / 2;
                         }
                         else {
-                            y1 = Math.floor((fromNode.shapeArgs.y || 0) +
-                                hangingIndent / 2) + crisp;
+                            y1 = crisp((fromNode.shapeArgs.y || 0) + hangingIndent / 2, linkWidth);
                         }
-                        xMiddle = x2 = Math.floor((toNode.shapeArgs.x || 0) +
-                            (toNode.shapeArgs.width || 0) / 2) + crisp;
+                        xMiddle = x2 = crisp((toNode.shapeArgs.x || 0) +
+                            (toNode.shapeArgs.width || 0) / 2, linkWidth);
                     }
                     point.plotX = xMiddle;
                     point.plotY = (y1 + y2) / 2;
@@ -972,7 +962,7 @@
                                 ['L', xMiddle, y1],
                                 ['L', xMiddle, y2],
                                 ['L', x2, y2]
-                            ], pick(this.options.linkRadius, this.options.link.radius))
+                            ], pick(options.linkRadius, options.link.radius))
                         };
                     }
                     point.dlBox = {
@@ -984,15 +974,20 @@
                 }
             };
             OrganizationSeries.prototype.translateNode = function (node, column) {
-                SankeySeries.prototype.translateNode.call(this, node, column);
-                var parentNode = node.hangsFrom, indent = this.options.hangingIndent || 0, sign = this.chart.inverted ? -1 : 1, shapeArgs = node.shapeArgs, indentLogic = this.options.hangingIndentTranslation, minLength = this.options.minNodeLength || 10;
+                _super.prototype.translateNode.call(this, node, column);
+                var chart = this.chart, options = this.options, sum = node.getSum(), translationFactor = this.translationFactor, nodeHeight = Math.max(Math.round(sum * translationFactor), options.minLinkWidth || 0), hangingRight = options.hangingSide === 'right', indent = options.hangingIndent || 0, indentLogic = options.hangingIndentTranslation, minLength = options.minNodeLength || 10, nodeWidth = Math.round(this.nodeWidth), shapeArgs = node.shapeArgs, sign = chart.inverted ? -1 : 1;
+                var parentNode = node.hangsFrom;
                 if (parentNode) {
                     if (indentLogic === 'cumulative') {
                         // Move to the right:
                         shapeArgs.height -= indent;
-                        shapeArgs.y -= sign * indent;
+                        // If hanging right, first indent is handled by shrinking.
+                        if (chart.inverted && !hangingRight) {
+                            shapeArgs.y -= sign * indent;
+                        }
                         while (parentNode) {
-                            shapeArgs.y += sign * indent;
+                            // Hanging right is the same direction as non-inverted.
+                            shapeArgs.y += (hangingRight ? 1 : sign) * indent;
                             parentNode = parentNode.hangsFrom;
                         }
                     }
@@ -1001,21 +996,35 @@
                         while (parentNode &&
                             shapeArgs.height > indent + minLength) {
                             shapeArgs.height -= indent;
+                            // Fixes nodes not dropping in non-inverted charts.
+                            // Hanging right is the same as non-inverted.
+                            if (!chart.inverted || hangingRight) {
+                                shapeArgs.y += indent;
+                            }
                             parentNode = parentNode.hangsFrom;
                         }
                     }
                     else {
-                        // indentLogic === "inherit"
+                        // Option indentLogic === "inherit"
                         // Do nothing (v9.3.2 and prev versions):
                         shapeArgs.height -= indent;
-                        if (!this.chart.inverted) {
+                        if (!chart.inverted || hangingRight) {
                             shapeArgs.y += indent;
                         }
                     }
                 }
-                node.nodeHeight = this.chart.inverted ?
+                node.nodeHeight = chart.inverted ?
                     shapeArgs.width :
                     shapeArgs.height;
+                // Calculate shape args correctly to align nodes to center (#19946)
+                if (node.shapeArgs && !node.hangsFrom) {
+                    node.shapeArgs = merge(node.shapeArgs, {
+                        x: (node.shapeArgs.x || 0) + (nodeWidth / 2) -
+                            ((node.shapeArgs.width || 0) / 2),
+                        y: (node.shapeArgs.y || 0) + (nodeHeight / 2) -
+                            ((node.shapeArgs.height || 0) / 2)
+                    });
+                }
             };
             OrganizationSeries.prototype.drawDataLabels = function () {
                 var dlOptions = this.options.dataLabels;
@@ -1027,6 +1036,11 @@
                 }
                 _super.prototype.drawDataLabels.call(this);
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             OrganizationSeries.defaultOptions = merge(SankeySeries.defaultOptions, OrganizationSeriesDefaults);
             return OrganizationSeries;
         }(SankeySeries));
@@ -1058,12 +1072,13 @@
          *
          * @typedef {"inherit"|"cumulative"|"shrink"} Highcharts.OrganizationHangingIndentTranslationValue
          */
-        ''; // detach doclets above
+        ''; // Detach doclets above
 
         return OrganizationSeries;
     });
-    _registerModule(_modules, 'masters/modules/organization.src.js', [], function () {
+    _registerModule(_modules, 'masters/modules/organization.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

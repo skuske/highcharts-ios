@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2014-2021 Highsoft AS
+ *  (c) 2014-2024 Highsoft AS
  *
  *  Authors: Jon Arild Nygard / Oystein Moseng
  *
@@ -12,44 +12,27 @@
 'use strict';
 /* *
  *
- *  Imports
- *
- * */
-import U from '../../Core/Utilities.js';
-const { objectEach } = U;
-/* *
- *
  *  Namespace
  *
  * */
 var TreemapUtilities;
 (function (TreemapUtilities) {
-    TreemapUtilities.AXIS_MAX = 100;
-    /* eslint-disable no-invalid-this, valid-jsdoc */
-    /**
-     * @todo Similar to eachObject, this function is likely redundant
-     */
-    function isBoolean(x) {
-        return typeof x === 'boolean';
-    }
-    TreemapUtilities.isBoolean = isBoolean;
-    /**
-     * @todo Similar to recursive, this function is likely redundant
-     */
-    function eachObject(list, func, context) {
-        context = context || this;
-        objectEach(list, function (val, key) {
-            func.call(context, val, key, list);
-        });
-    }
-    TreemapUtilities.eachObject = eachObject;
+    /* *
+     *
+     *  Declarations
+     *
+     * */
+    /* *
+     *
+     *  Functions
+     *
+     * */
     /**
      * @todo find correct name for this function.
      * @todo Similar to reduce, this function is likely redundant
      */
-    function recursive(item, func, context = this) {
-        let next;
-        next = func.call(context, item);
+    function recursive(item, func, context) {
+        const next = func.call(context || this, item);
         if (next !== false) {
             recursive(next, func, context);
         }

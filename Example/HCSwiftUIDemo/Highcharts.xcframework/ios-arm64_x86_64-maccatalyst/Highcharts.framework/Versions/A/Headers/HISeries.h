@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -171,13 +171,13 @@ User supplied description text. This is added in the point comment description b
 */
 @property(nonatomic, readwrite) NSString *definition;
 /**
-xAxis description for series if there are multiple xAxes in the chart.
+X-axis description for series if there are multiple xAxes in the chart.
 
 **Defaults to** `X axis, {name}`.
 */
 @property(nonatomic, readwrite) NSString *xAxisDescription;
 /**
-yAxis description for series if there are multiple yAxes in the chart.
+Y-axis description for series if there are multiple yAxes in the chart.
 
 **Defaults to** `Y axis, {name}`.
 */
@@ -286,6 +286,7 @@ The draggable-points module allows points to be moved around or modified in the 
 * [Draggable bar](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/dragdrop/bar-series)
 * [Draggable bubbles](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/dragdrop/drag-bubble)
 * [Draggable X range series](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/dragdrop/drag-xrange)
+* [Dragging disabled for specific points](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/dragdrop/undraggable-points)
 */
 @property(nonatomic, readwrite) HIDragDrop *dragDrop;
 /**
@@ -361,6 +362,16 @@ Whether to connect a graph line across null points, or render a gap between the 
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *connectNulls;
 /**
+Highlight only the hovered point and fade the remaining points. Scatter-type series require enabling the 'inactive' marker state and adjusting opacity. Note that this approach could affect performance with large datasets.
+
+**Defaults to** `false`.
+
+**Try it**
+
+* [Chart with inactiveOtherPoints option enabled.](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-inactiveotherpoints-enabled/)
+*/
+@property(nonatomic, readwrite) NSNumber /* Bool */ *inactiveOtherPoints;
+/**
 Enable or disable the mouse tracking for a specific series. This includes point tooltips and click events on graphs and points. For large datasets it improves performance.
 
 **Defaults to** `true`.
@@ -388,8 +399,6 @@ Options for the _Series on point_ feature. Only `pie` and `sunburst` series are 
 @property(nonatomic, readwrite) HIOnPoint *onPoint;
 /**
 Whether to stack the values of each series on top of each other. Possible values are `undefined` to disable, `"normal"` to stack by value or `"percent"`. When stacking is enabled, data must be sorted in ascending X order. Some stacking options are related to specific series types. In the streamgraph series type, the stacking option is set to `"stream"`. The second one is `"overlap"`, which only applies to waterfall series.
-
-**Accepted values:** `["normal", "overlap", "percent", "stream"]`.
 
 **Try it**
 
@@ -456,15 +465,13 @@ If true, a checkbox is displayed next to the legend item to allow selecting the 
 /**
 Sets the color blending in the boost module.
 
-**Accepted values:** `["add", "multiply", "darken"]`.
-
 **Defaults to** `undefined`.
 */
 @property(nonatomic, readwrite) NSString *boostBlending;
 /**
-What type of legend symbol to render for this series. Can be one of `lineMarker` or `rectangle`.
+What type of legend symbol to render for this series. Can be one of `areaMarker`, `lineMarker` or `rectangle`.
 
-**Accepted values:** `["lineMarker", "rectangle"]`.
+**Accepted values:** `["areaMarker", "lineMarker", "rectangle"]`.
 
 **Defaults to** `rectangle`.
 
@@ -530,8 +537,6 @@ Accessibility options for a series.
 @property(nonatomic, readwrite) HIAccessibility *accessibility;
 /**
 Whether to apply steps to the line. Possible values are `left`, `center` and `right`.
-
-**Accepted values:** `["left", "center", "right"]`.
 
 **Try it**
 
@@ -602,8 +607,6 @@ An array defining zones within a series. Zones can be applied to the X axis, Y a
 /**
 On datetime series, this allows for setting the `pointInterval` to irregular time units, `day`, `month` and `year`. A day is usually the same as 24 hours, but `pointIntervalUnit` also takes the DST crossover into consideration when dealing with local time. Combine this option with `pointInterval` to draw weeks, quarters, 6 months, 10 years etc. Please note that this options applies to the _series data_, not the interval of the axis ticks, which is independent.
 
-**Accepted values:** `["day", "month", "year"]`.
-
 **Try it**
 
 * [One point a month](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-pointintervalunit/)
@@ -612,7 +615,7 @@ On datetime series, this allows for setting the `pointInterval` to irregular tim
 /**
 Pixel width of the graph line.
 
-**Defaults to** `1`.
+**Defaults to** `2`.
 
 **Try it**
 
@@ -674,7 +677,7 @@ An additional class name to apply to the series' graphical elements. This option
 
 **Try it**
 
-* [e](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/)
+* [Series and point class name](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/css/point-series-classname)
 */
 @property(nonatomic, readwrite) NSString *className;
 /**

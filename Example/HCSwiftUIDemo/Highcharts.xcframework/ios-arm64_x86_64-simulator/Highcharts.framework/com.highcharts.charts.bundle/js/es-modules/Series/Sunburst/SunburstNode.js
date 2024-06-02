@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2022 Pawel Lysy
+ *  (c) 2010-2024 Pawel Lysy
  *
  *  License: www.highcharts.com/license
  *
@@ -9,6 +9,16 @@
  * */
 'use strict';
 import TreemapNode from '../Treemap/TreemapNode.js';
+/* *
+ *
+ *  Class
+ *
+ * */
 class SunburstNode extends TreemapNode {
 }
+/* *
+ *
+ *  Default Export
+ *
+ * */
 export default SunburstNode;

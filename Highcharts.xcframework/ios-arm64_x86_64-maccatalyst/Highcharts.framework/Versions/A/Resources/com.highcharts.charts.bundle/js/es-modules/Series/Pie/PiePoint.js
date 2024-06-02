@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -19,17 +19,6 @@ const { addEvent, defined, extend, isNumber, pick, relativeLength } = U;
  *
  * */
 class PiePoint extends Point {
-    constructor() {
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        super(...arguments);
-        this.labelDistance = void 0;
-        this.options = void 0;
-        this.series = void 0;
-    }
     /* *
      *
      *  Functions
@@ -41,25 +30,19 @@ class PiePoint extends Point {
      * data label and the pie slice.
      * @private
      */
-    getConnectorPath() {
-        const labelPosition = this.labelPosition, options = this.series.options.dataLabels, predefinedShapes = this.connectorShapes;
-        let connectorShape = options.connectorShape;
-        // find out whether to use the predefined shape
-        if (predefinedShapes[connectorShape]) {
-            connectorShape = predefinedShapes[connectorShape];
-        }
-        return connectorShape.call(this, {
-            // pass simplified label position object for user's convenience
-            x: labelPosition.computed.x,
-            y: labelPosition.computed.y,
+    getConnectorPath(dataLabel) {
+        const labelPosition = dataLabel.dataLabelPosition, options = (dataLabel.options || {}), connectorShape = options.connectorShape, shapeFunc = (this.connectorShapes[connectorShape] || connectorShape);
+        return labelPosition && shapeFunc.call(this, {
+            // Pass simplified label position object for user's convenience
+            ...labelPosition.computed,
             alignment: labelPosition.alignment
-        }, labelPosition.connectorPosition, options);
+        }, labelPosition.connectorPosition, options) || [];
     }
     /**
      * @private
      */
     getTranslate() {
-        return this.sliced ? this.slicedTranslation : {
+        return this.sliced && this.slicedTranslation || {
             translateX: 0,
             translateY: 0
         };
@@ -84,16 +67,16 @@ class PiePoint extends Point {
      * Initialize the pie slice.
      * @private
      */
-    init() {
-        super.init.apply(this, arguments);
-        this.name = pick(this.name, 'Slice');
-        // add event listener for select
+    constructor(series, options, x) {
+        super(series, options, x);
+        this.half = 0;
+        this.name ?? (this.name = 'Slice');
+        // Add event listener for select
         const toggleSlice = (e) => {
             this.slice(e.type === 'select');
         };
         addEvent(this, 'select', toggleSlice);
         addEvent(this, 'unselect', toggleSlice);
-        return this;
     }
     /**
      * Negative points are not valid (#1530, #3623, #5322)
@@ -117,38 +100,12 @@ class PiePoint extends Point {
      * redraw to false and call {@link Chart#redraw|chart.redraw()} after.
      *
      */
-    setVisible(vis, redraw) {
-        const series = this.series, chart = series.chart, ignoreHiddenPoint = series.options.ignoreHiddenPoint;
-        redraw = pick(redraw, ignoreHiddenPoint);
+    setVisible(vis, redraw = true) {
         if (vis !== this.visible) {
             // If called without an argument, toggle visibility
-            this.visible = this.options.visible = vis =
-                typeof vis === 'undefined' ? !this.visible : vis;
-            // update userOptions.data
-            series.options.data[series.data.indexOf(this)] =
-                this.options;
-            // Show and hide associated elements. This is performed
-            // regardless of redraw or not, because chart.redraw only
-            // handles full series.
-            ['graphic', 'dataLabel', 'connector'].forEach((key) => {
-                if (this[key]) {
-                    this[key][vis ? 'show' : 'hide'](vis);
-                }
-            });
-            if (this.legendItem) {
-                chart.legend.colorizeItem(this, vis);
-            }
-            // #4170, hide halo after hiding point
-            if (!vis && this.state === 'hover') {
-                this.setState('');
-            }
-            // Handle ignore hidden slices
-            if (ignoreHiddenPoint) {
-                series.isDirty = true;
-            }
-            if (redraw) {
-                chart.redraw();
-            }
+            this.update({
+                visible: vis ?? !this.visible
+            }, redraw, void 0, false);
         }
     }
     /**
@@ -167,7 +124,7 @@ class PiePoint extends Point {
     slice(sliced, redraw, animation) {
         const series = this.series, chart = series.chart;
         setAnimation(animation, chart);
-        // redraw is true by default
+        // Redraw is true by default
         redraw = pick(redraw, true);
         /**
          * Pie series only. Whether to display a slice offset from the
@@ -178,7 +135,7 @@ class PiePoint extends Point {
         // if called without an argument, toggle
         this.sliced = this.options.sliced = sliced =
             defined(sliced) ? sliced : !this.sliced;
-        // update userOptions.data
+        // Update userOptions.data
         series.options.data[series.data.indexOf(this)] =
             this.options;
         if (this.graphic) {
@@ -188,7 +145,7 @@ class PiePoint extends Point {
 }
 extend(PiePoint.prototype, {
     connectorShapes: {
-        // only one available before v7.0.0
+        // Only one available before v7.0.0
         fixedOffset: function (labelPosition, connectorPosition, options) {
             const breakAt = connectorPosition.breakAt, touchingSliceAt = connectorPosition.touchingSliceAt, lineSegment = options.softConnector ? [
                 'C',
@@ -206,7 +163,7 @@ extend(PiePoint.prototype, {
                 breakAt.x,
                 breakAt.y
             ];
-            // assemble the path
+            // Assemble the path
             return ([
                 ['M', labelPosition.x, labelPosition.y],
                 lineSegment,
@@ -215,14 +172,14 @@ extend(PiePoint.prototype, {
         },
         straight: function (labelPosition, connectorPosition) {
             const touchingSliceAt = connectorPosition.touchingSliceAt;
-            // direct line to the slice
+            // Direct line to the slice
             return [
                 ['M', labelPosition.x, labelPosition.y],
                 ['L', touchingSliceAt.x, touchingSliceAt.y]
             ];
         },
         crookedLine: function (labelPosition, connectorPosition, options) {
-            const { breakAt, touchingSliceAt } = connectorPosition, { series } = this, [cx, cy, diameter] = series.center, r = diameter / 2, plotWidth = series.chart.plotWidth, plotLeft = series.chart.plotLeft, leftAligned = labelPosition.alignment === 'left', { x, y } = labelPosition;
+            const { breakAt, touchingSliceAt } = connectorPosition, { series } = this, [cx, cy, diameter] = series.center, r = diameter / 2, { plotLeft, plotWidth } = series.chart, leftAligned = labelPosition.alignment === 'left', { x, y } = labelPosition;
             let crookX = breakAt.x;
             if (options.crookDistance) {
                 const crookDistance = relativeLength(// % to fraction

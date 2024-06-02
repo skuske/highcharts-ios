@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -26,54 +26,38 @@ var ColorAxisComposition;
      * */
     /* *
      *
-     *  Constants
-     *
-     * */
-    const composedMembers = [];
-    /* *
-     *
      *  Variables
      *
      * */
-    let ColorAxisClass;
+    let ColorAxisConstructor;
     /* *
      *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     /**
      * @private
      */
-    function compose(ColorAxisType, ChartClass, FxClass, LegendClass, SeriesClass) {
-        if (!ColorAxisClass) {
-            ColorAxisClass = ColorAxisType;
-        }
-        if (U.pushUnique(composedMembers, ChartClass)) {
-            const chartProto = ChartClass.prototype;
+    function compose(ColorAxisClass, ChartClass, FxClass, LegendClass, SeriesClass) {
+        const chartProto = ChartClass.prototype, fxProto = FxClass.prototype, seriesProto = SeriesClass.prototype;
+        if (!chartProto.collectionsWithUpdate.includes('colorAxis')) {
+            ColorAxisConstructor = ColorAxisClass;
             chartProto.collectionsWithUpdate.push('colorAxis');
             chartProto.collectionsWithInit.colorAxis = [
                 chartProto.addColorAxis
             ];
             addEvent(ChartClass, 'afterGetAxes', onChartAfterGetAxes);
             wrapChartCreateAxis(ChartClass);
-        }
-        if (U.pushUnique(composedMembers, FxClass)) {
-            const fxProto = FxClass.prototype;
             fxProto.fillSetter = wrapFxFillSetter;
             fxProto.strokeSetter = wrapFxStrokeSetter;
-        }
-        if (U.pushUnique(composedMembers, LegendClass)) {
             addEvent(LegendClass, 'afterGetAllItems', onLegendAfterGetAllItems);
             addEvent(LegendClass, 'afterColorizeItem', onLegendAfterColorizeItem);
             addEvent(LegendClass, 'afterUpdate', onLegendAfterUpdate);
-        }
-        if (U.pushUnique(composedMembers, SeriesClass)) {
-            extend(SeriesClass.prototype, {
+            extend(seriesProto, {
                 optionalAxis: 'colorAxis',
                 translateColors: seriesTranslateColors
             });
-            extend(SeriesClass.prototype.pointClass.prototype, {
+            extend(seriesProto.pointClass.prototype, {
                 setVisible: pointSetVisible
             });
             addEvent(SeriesClass, 'afterTranslate', onSeriesAfterTranslate, { order: 1 });
@@ -86,13 +70,13 @@ var ColorAxisComposition;
      * @private
      */
     function onChartAfterGetAxes() {
-        const options = this.options;
+        const { userOptions } = this;
         this.colorAxis = [];
-        if (options.colorAxis) {
-            options.colorAxis = splat(options.colorAxis);
-            options.colorAxis.forEach((axisOptions) => {
-                new ColorAxisClass(this, axisOptions); // eslint-disable-line no-new
-            });
+        // If a `colorAxis` config is present in the user options (not in a
+        // theme), instanciate it.
+        if (userOptions.colorAxis) {
+            userOptions.colorAxis = splat(userOptions.colorAxis);
+            userOptions.colorAxis.map((axisOptions) => (new ColorAxisConstructor(this, axisOptions)));
         }
     }
     /**
@@ -157,13 +141,10 @@ var ColorAxisComposition;
      * Updates in the legend need to be reflected in the color axis. (#6888)
      * @private
      */
-    function onLegendAfterUpdate() {
-        const colorAxes = this.chart.colorAxis;
-        if (colorAxes) {
-            colorAxes.forEach(function (colorAxis) {
-                colorAxis.update({}, arguments[2]);
-            });
-        }
+    function onLegendAfterUpdate(e) {
+        this.chart.colorAxis?.forEach((colorAxis) => {
+            colorAxis.update({}, e.redraw);
+        });
     }
     /**
      * Calculate and set colors for points.
@@ -204,7 +185,7 @@ var ColorAxisComposition;
                 point[key][method]();
             }
         });
-        this.series.buildKDTree(); // rebuild kdtree #13195
+        this.series.buildKDTree(); // Rebuild kdtree #13195
     }
     ColorAxisComposition.pointSetVisible = pointSetVisible;
     /**
@@ -237,24 +218,25 @@ var ColorAxisComposition;
     function wrapChartCreateAxis(ChartClass) {
         const superCreateAxis = ChartClass.prototype.createAxis;
         ChartClass.prototype.createAxis = function (type, options) {
+            const chart = this;
             if (type !== 'colorAxis') {
-                return superCreateAxis.apply(this, arguments);
+                return superCreateAxis.apply(chart, arguments);
             }
-            const axis = new ColorAxisClass(this, merge(options.axis, {
-                index: this[type].length,
+            const axis = new ColorAxisConstructor(chart, merge(options.axis, {
+                index: chart[type].length,
                 isX: false
             }));
-            this.isDirtyLegend = true;
+            chart.isDirtyLegend = true;
             // Clear before 'bindAxes' (#11924)
-            this.axes.forEach(function (axis) {
+            chart.axes.forEach((axis) => {
                 axis.series = [];
             });
-            this.series.forEach(function (series) {
+            chart.series.forEach((series) => {
                 series.bindAxes();
                 series.isDirtyData = true;
             });
             if (pick(options.redraw, true)) {
-                this.redraw(options.animation);
+                chart.redraw(options.animation);
             }
             return axis;
         };

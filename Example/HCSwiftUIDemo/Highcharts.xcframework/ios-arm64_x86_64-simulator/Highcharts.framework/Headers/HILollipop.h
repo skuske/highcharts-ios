@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -7,6 +7,7 @@
 */
 
 #import "HISeries.h"
+#import "HILowMarker.h"
 #import "HIColor.h"
 
 
@@ -40,6 +41,17 @@
  */
 @interface HILollipop: HISeries
 
+/**
+Whether to group non-stacked lollipop points or to let them render independent of each other. Non-grouped lollipop points will be laid out individually and overlap each other.
+
+**Defaults to** `true`.
+
+**Try it**
+
+* [Multiple lollipop series with grouping](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-lollipop/enabled-grouping/)
+* [Multiple lollipop series with disabled grouping](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-lollipop/disabled-grouping/)
+*/
+@property(nonatomic, readwrite) NSNumber /* Bool */ *grouping;
 @property(nonatomic, readwrite) NSNumber *pointRange;
 /**
 Color of the line that connects the dumbbell point's values. By default it is the series' color.
@@ -52,9 +64,15 @@ Pixel width of the line that connects the dumbbell point's values.
 */
 @property(nonatomic, readwrite) NSNumber *connectorWidth;
 @property(nonatomic, readwrite) NSNumber *pointPadding;
+/**
+Options for the lower markers of the dumbbell-like series. When `lowMarker` is not defined, options inherit form the marker.
+
+**Defaults to** `undefined`.
+*/
+@property(nonatomic, readwrite) HILowMarker *lowMarker;
 @property(nonatomic, readwrite) NSNumber *groupPadding;
 /**
-A separate color for the negative part of the area. In styled mode, a negative color is set with the `.highcharts-negative` class name.
+A separate color for the negative part of the area. Note that `zones` takes precedence over the negative fill color. In styled mode, a negative color is set with the `.highcharts-negative` class name.
 
 **Try it**
 

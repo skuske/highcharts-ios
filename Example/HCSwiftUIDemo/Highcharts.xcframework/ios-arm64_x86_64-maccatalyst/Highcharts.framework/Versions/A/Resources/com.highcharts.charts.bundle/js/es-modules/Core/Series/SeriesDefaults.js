@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -19,7 +19,7 @@
  * @optionparent plotOptions.series
  */
 const seriesDefaults = {
-    // base series options
+    // Base series options
     /**
      * The SVG value used for the `stroke-linecap` and `stroke-linejoin`
      * of a line graph. Round means that lines are rounded in the ends and
@@ -43,7 +43,7 @@ const seriesDefaults = {
      *
      * @product highcharts highstock
      */
-    lineWidth: 1,
+    lineWidth: 2,
     /**
      * For some series, there is a limit that shuts down animation
      * by default when the total number of points in the chart is too high.
@@ -174,6 +174,7 @@ const seriesDefaults = {
      * chart's legend and tooltip.
      *
      * @sample {highcharts} highcharts/css/point-series-classname
+     *         Series and point class name
      *
      * @type      {string}
      * @since     5.0.0
@@ -400,6 +401,20 @@ const seriesDefaults = {
      * @since     4.1.6
      * @product   highcharts highstock gantt
      * @apioption plotOptions.series.getExtremesFromAll
+     */
+    /**
+     * Highlight only the hovered point and fade the remaining points.
+     *
+     * Scatter-type series require enabling the 'inactive' marker state and
+     * adjusting opacity. Note that this approach could affect performance
+     * with large datasets.
+     *
+     * @sample {highcharts} highcharts/plotoptions/series-inactiveotherpoints-enabled/
+     *         Chart with inactiveOtherPoints option enabled.
+     *
+     * @type      {boolean}
+     * @default   false
+     * @apioption plotOptions.series.inactiveOtherPoints
      */
     /**
      * An array specifying which option maps to which key in the data point
@@ -1433,6 +1448,21 @@ const seriesDefaults = {
          */
         align: 'center',
         /**
+         * Alignment method for data labels. If set to `plotEdges`, the labels
+         * are aligned within the plot area in the direction of the y-axis. So
+         * in a regular column chart, the labels are aligned vertically
+         * according to the `verticalAlign` setting. In a bar chart, which is
+         * inverted, the labels are aligned horizontally according to the
+         * `align` setting. Applies to cartesian series only.
+         *
+         * @sample {highcharts} highcharts/series-bar/datalabels-alignto/
+         *         Align to plot edges
+         *
+         * @type      {string}
+         * @since 11.4.2
+         * @apioption plotOptions.series.dataLabels.alignTo
+         */
+        /**
          * Whether to allow data labels to overlap. To make the labels less
          * sensitive for overlapping, the
          * [dataLabels.padding](#plotOptions.series.dataLabels.padding)
@@ -1595,10 +1625,10 @@ const seriesDefaults = {
          */
         /**
          * The operator to compare by. Can be one of `>`, `<`, `>=`, `<=`,
-         * `==`, and `===`.
+         * `==`, `===`, `!=` and `!==`.
          *
          * @type       {string}
-         * @validvalue [">", "<", ">=", "<=", "==", "==="]
+         * @validvalue [">", "<", ">=", "<=", "==", "===", "!=", "!=="]
          * @apioption  plotOptions.series.dataLabels.filter.operator
          */
         /**
@@ -2031,8 +2061,8 @@ const seriesDefaults = {
              * @product   highcharts highstock
              */
             marker: {
-            // lineWidth: base + 1,
-            // radius: base + 1
+            // `lineWidth: base + 1`,
+            // `radius: base + 1`
             },
             /**
              * Options for the halo appearing around the hovered point in
@@ -2320,9 +2350,9 @@ const seriesDefaults = {
      */
     /**
      * What type of legend symbol to render for this series. Can be one of
-     * `lineMarker` or `rectangle`.
+     * `areaMarker`, `lineMarker` or `rectangle`.
      *
-     * @validvalue ["lineMarker", "rectangle"]
+     * @validvalue ["areaMarker", "lineMarker", "rectangle"]
      *
      * @sample {highcharts} highcharts/series/legend-symbol/
      *         Change the legend symbol

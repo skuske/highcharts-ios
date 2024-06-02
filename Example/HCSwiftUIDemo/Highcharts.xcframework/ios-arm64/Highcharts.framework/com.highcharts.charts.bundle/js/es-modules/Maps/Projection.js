@@ -10,15 +10,28 @@
 'use strict';
 import PC from '../Core/Geometry/PolygonClip.js';
 const { clipLineString, clipPolygon } = PC;
-import registry from './Projections/ProjectionRegistry.js';
+import ProjectionRegistry from './Projections/ProjectionRegistry.js';
 import U from '../Core/Utilities.js';
 const { clamp, erase } = U;
-const deg2rad = Math.PI * 2 / 360;
+/* *
+ *
+ *  Constants
+ *
+ * */
+const deg2rad = Math.PI * 2 / 360, 
 // Safe padding on either side of the antimeridian to avoid points being
 // projected to the wrong side of the plane
-const floatCorrection = 0.000001;
-// Keep longitude within -180 and 180. This is faster than using the modulo
-// operator, and preserves the distinction between -180 and 180.
+floatCorrection = 0.000001;
+/* *
+ *
+ *  Functions
+ *
+ * */
+/**
+ * Keep longitude within -180 and 180. This is faster than using the modulo
+ * operator, and preserves the distinction between -180 and 180.
+ * @private
+ */
 const wrapLon = (lon) => {
     // Replacing the if's with while would increase the range, but make it prone
     // to crashes on bad data
@@ -30,26 +43,51 @@ const wrapLon = (lon) => {
     }
     return lon;
 };
+/**
+ * Calculate the haversine of an angle.
+ * @private
+ */
+const hav = (radians) => (1 - Math.cos(radians)) / 2;
+/**
+* Calculate the haversine of an angle from two coordinates.
+* @private
+*/
+const havFromCoords = (point1, point2) => {
+    const cos = Math.cos, lat1 = point1[1] * deg2rad, lon1 = point1[0] * deg2rad, lat2 = point2[1] * deg2rad, lon2 = point2[0] * deg2rad, deltaLat = lat2 - lat1, deltaLon = lon2 - lon1, havFromCoords = hav(deltaLat) + cos(lat1) * cos(lat2) * hav(deltaLon);
+    return havFromCoords;
+};
+/* *
+ *
+ *  Class
+ *
+ * */
 class Projection {
-    // Add a projection definition to the registry, accessible by its `name`.
+    /* *
+     *
+     *  Static Functions
+     *
+     * */
+    /**
+     * Add a projection definition to the registry, accessible by its `name`.
+     * @private
+     */
     static add(name, definition) {
         Projection.registry[name] = definition;
     }
-    // Calculate the great circle between two given coordinates
-    static greatCircle(point1, point2, inclusive) {
-        const { atan2, cos, sin, sqrt } = Math;
-        const lat1 = point1[1] * deg2rad;
-        const lon1 = point1[0] * deg2rad;
-        const lat2 = point2[1] * deg2rad;
-        const lon2 = point2[0] * deg2rad;
-        const deltaLat = lat2 - lat1;
-        const deltaLng = lon2 - lon1;
-        const calcA = sin(deltaLat / 2) * sin(deltaLat / 2) +
-            cos(lat1) * cos(lat2) * sin(deltaLng / 2) * sin(deltaLng / 2);
-        const calcB = 2 * atan2(sqrt(calcA), sqrt(1 - calcA));
-        const distance = calcB * 6371e3; // in meters
-        const jumps = Math.round(distance / 500000); // 500 km each jump
-        const lineString = [];
+    /**
+     * Calculate the distance in meters between two given coordinates.
+     * @private
+     */
+    static distance(point1, point2) {
+        const { atan2, sqrt } = Math, hav = havFromCoords(point1, point2), angularDistance = 2 * atan2(sqrt(hav), sqrt(1 - hav)), distance = angularDistance * 6371e3;
+        return distance;
+    }
+    /**
+     * Calculate the geodesic line string between two given coordinates.
+     * @private
+     */
+    static geodesic(point1, point2, inclusive, stepDistance = 500000) {
+        const { atan2, cos, sin, sqrt } = Math, distance = Projection.distance, lat1 = point1[1] * deg2rad, lon1 = point1[0] * deg2rad, lat2 = point2[1] * deg2rad, lon2 = point2[0] * deg2rad, cosLat1CosLon1 = cos(lat1) * cos(lon1), cosLat2CosLon2 = cos(lat2) * cos(lon2), cosLat1SinLon1 = cos(lat1) * sin(lon1), cosLat2SinLon2 = cos(lat2) * sin(lon2), sinLat1 = sin(lat1), sinLat2 = sin(lat2), pointDistance = distance(point1, point2), angDistance = pointDistance / 6371e3, sinAng = sin(angDistance), jumps = Math.round(pointDistance / stepDistance), lineString = [];
         if (inclusive) {
             lineString.push(point1);
         }
@@ -57,13 +95,8 @@ class Projection {
             const step = 1 / jumps;
             for (let fraction = step; fraction < 0.999; // Account for float errors
              fraction += step) {
-                const A = sin((1 - fraction) * calcB) / sin(calcB);
-                const B = sin(fraction * calcB) / sin(calcB);
-                const x = A * cos(lat1) * cos(lon1) + B * cos(lat2) * cos(lon2);
-                const y = A * cos(lat1) * sin(lon1) + B * cos(lat2) * sin(lon2);
-                const z = A * sin(lat1) + B * sin(lat2);
-                const lat3 = atan2(z, sqrt(x * x + y * y));
-                const lon3 = atan2(y, x);
+                // Add intermediate point to lineString
+                const A = sin((1 - fraction) * angDistance) / sinAng, B = sin(fraction * angDistance) / sinAng, x = A * cosLat1CosLon1 + B * cosLat2CosLon2, y = A * cosLat1SinLon1 + B * cosLat2SinLon2, z = A * sinLat1 + B * sinLat2, lat3 = atan2(z, sqrt(x * x + y * y)), lon3 = atan2(y, x);
                 lineString.push([lon3 / deg2rad, lat3 / deg2rad]);
             }
         }
@@ -72,16 +105,16 @@ class Projection {
         }
         return lineString;
     }
-    static insertGreatCircles(poly) {
+    static insertGeodesics(poly) {
         let i = poly.length - 1;
         while (i--) {
             // Distance in degrees, either in lon or lat. Avoid heavy
             // calculation of true distance.
             const roughDistance = Math.max(Math.abs(poly[i][0] - poly[i + 1][0]), Math.abs(poly[i][1] - poly[i + 1][1]));
             if (roughDistance > 10) {
-                const greatCircle = Projection.greatCircle(poly[i], poly[i + 1]);
-                if (greatCircle.length) {
-                    poly.splice(i + 1, 0, ...greatCircle);
+                const geodesic = Projection.geodesic(poly[i], poly[i + 1]);
+                if (geodesic.length) {
+                    poly.splice(i + 1, 0, ...geodesic);
                 }
             }
         }
@@ -90,6 +123,11 @@ class Projection {
         const { name, rotation } = options || {};
         return [name, rotation && rotation.join(',')].join(';');
     }
+    /* *
+     *
+     *  Constructor
+     *
+     * */
     constructor(options = {}) {
         // Whether the chart has points, lines or polygons given as coordinates
         // with positive up, as opposed to paths in the SVG plane with positive
@@ -128,6 +166,11 @@ class Projection {
             def && def.bounds :
             projectedBounds;
     }
+    /* *
+     *
+     *  Functions
+     *
+     * */
     lineIntersectsBounds(line) {
         const { x1, x2, y1, y2 } = this.bounds || {};
         const getIntersect = (line, dim, val) => {
@@ -159,8 +202,10 @@ class Projection {
         }
         return ret;
     }
-    /*
-     * Take the rotation options and return the appropriate projection functions
+    /**
+     * Take the rotation options and returns the appropriate projection
+     * functions.
+     * @private
      */
     getRotator(rotation) {
         const deltaLambda = rotation[0] * deg2rad, deltaPhi = (rotation[1] || 0) * deg2rad, deltaGamma = (rotation[2] || 0) * deg2rad;
@@ -192,25 +237,31 @@ class Projection {
             }
         };
     }
-    // Project a lonlat coordinate position to xy. Dynamically overridden when
-    // projection is set.
+    /**
+     * Project a lonlat coordinate position to xy. Dynamically overridden when
+     * projection is set.
+     * @private
+     */
     forward(lonLat) {
         return lonLat;
     }
-    // Unproject an xy chart coordinate position to lonlat. Dynamically
-    // overridden when projection is set.
+    /**
+     * Unproject an xy chart coordinate position to lonlat. Dynamically
+     * overridden when projection is set.
+     * @private
+     */
     inverse(xy) {
         return xy;
     }
     cutOnAntimeridian(poly, isPolygon) {
-        const antimeridian = 180;
-        const intersections = [];
+        const antimeridian = 180, intersections = [];
         const polygons = [poly];
-        poly.forEach((lonLat, i) => {
+        for (let i = 0, iEnd = poly.length; i < iEnd; ++i) {
+            const lonLat = poly[i];
             let previousLonLat = poly[i - 1];
             if (!i) {
                 if (!isPolygon) {
-                    return;
+                    continue;
                 }
                 // Else, wrap to beginning
                 previousLonLat = poly[poly.length - 1];
@@ -235,7 +286,7 @@ class Projection {
                     lonLat
                 });
             }
-        });
+        }
         let polarIntersection;
         if (intersections.length) {
             if (isPolygon) {
@@ -258,9 +309,9 @@ class Projection {
                         intersections[i].direction * floatCorrection);
                     const slice = poly.splice(index, intersections[i + 1].i - index, 
                     // Add interpolated points close to the cut
-                    ...Projection.greatCircle([lonPlus, intersections[i].lat], [lonPlus, intersections[i + 1].lat], true));
+                    ...Projection.geodesic([lonPlus, intersections[i].lat], [lonPlus, intersections[i + 1].lat], true));
                     // Add interpolated points close to the cut
-                    slice.push(...Projection.greatCircle([lonMinus, intersections[i + 1].lat], [lonMinus, intersections[i].lat], true));
+                    slice.push(...Projection.geodesic([lonMinus, intersections[i + 1].lat], [lonMinus, intersections[i].lat], true));
                     polygons.push(slice);
                     i -= 2;
                 }
@@ -275,7 +326,7 @@ class Projection {
                                 direction * floatCorrection);
                             const lon2 = wrapLon(antimeridian -
                                 direction * floatCorrection);
-                            const polarSegment = Projection.greatCircle([lon1, lat], [lon1, polarLatitude], true);
+                            const polarSegment = Projection.geodesic([lon1, lat], [lon1, polarLatitude], true);
                             // Circle around the pole point in order to make
                             // polygon clipping right. Without this, Antarctica
                             // would wrap the wrong way in an LLC projection
@@ -283,7 +334,7 @@ class Projection {
                             for (let lon = lon1 + 120 * direction; lon > -180 && lon < 180; lon += 120 * direction) {
                                 polarSegment.push([lon, polarLatitude]);
                             }
-                            polarSegment.push(...Projection.greatCircle([lon2, polarLatitude], [lon2, polarIntersection.lat], true));
+                            polarSegment.push(...Projection.geodesic([lon2, polarLatitude], [lon2, polarIntersection.lat], true));
                             poly.splice(indexOf, 0, ...polarSegment);
                             break;
                         }
@@ -314,7 +365,10 @@ class Projection {
         }
         return polygons;
     }
-    // Take a GeoJSON geometry and return a translated SVGPath
+    /**
+     * Take a GeoJSON geometry and return a translated SVGPath.
+     * @private
+     */
     path(geometry) {
         const { bounds, def, rotator } = this;
         const antimeridian = 180;
@@ -369,7 +423,7 @@ class Projection {
             let polygons = [poly];
             if (hasGeoProjection) {
                 // Insert great circles into long straight lines
-                Projection.insertGreatCircles(poly);
+                Projection.insertGeodesics(poly);
                 if (projectingToPlane) {
                     polygons = this.cutOnAntimeridian(poly, isPolygon);
                 }
@@ -466,8 +520,8 @@ class Projection {
                                 // we may have to rewrite this to use the small
                                 // circle related to the current lon0 and lat0.
                                 if (isPolygon && hasGeoProjection) {
-                                    const greatCircle = Projection.greatCircle(lastValidLonLat, lonLat);
-                                    greatCircle.forEach((lonLat) => pushToPath(postclip.forward(lonLat)));
+                                    const geodesic = Projection.geodesic(lastValidLonLat, lonLat);
+                                    geodesic.forEach((lonLat) => pushToPath(postclip.forward(lonLat)));
                                     // For lines, just jump over the gap
                                 }
                                 else {
@@ -508,5 +562,15 @@ class Projection {
         return path;
     }
 }
-Projection.registry = registry;
+/* *
+ *
+ *  Static Properties
+ *
+ * */
+Projection.registry = ProjectionRegistry;
+/* *
+ *
+ *  Default Export
+ *
+ * */
 export default Projection;

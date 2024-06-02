@@ -1,9 +1,9 @@
 /**
- * @license Highcharts Stock JS v11.1.0 (2023-06-05)
+ * @license Highcharts Stock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Karol Kolodziej
+ * (c) 2010-2024 Karol Kolodziej
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Stock/Indicators/MultipleLinesComposition.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Wojciech Chmiel
+         *  (c) 2010-2024 Wojciech Chmiel
          *
          *  License: www.highcharts.com/license
          *
@@ -62,11 +60,10 @@
              *
              * */
             /* *
-            *
-            *  Constants
-            *
-            * */
-            var composedMembers = [];
+             *
+             *  Constants
+             *
+             * */
             /**
              * Additional lines DOCS names. Elements of linesApiNames array should
              * be consistent with DOCS line names defined in your implementation.
@@ -89,7 +86,7 @@
              */
             var pointArrayMap = ['top', 'bottom'];
             /**
-             * Names of the lines, bewteen which the area should be plotted.
+             * Names of the lines, between which the area should be plotted.
              * If the drawing of the area should
              * be disabled for some indicators, leave this option as an empty array.
              * Names should be the same as the names in the pointArrayMap.
@@ -106,10 +103,10 @@
              */
             var pointValKey = 'top';
             /* *
-            *
-            *  Functions
-            *
-            * */
+             *
+             *  Functions
+             *
+             * */
             /**
              * Composition useful for all indicators that have more than one line.
              * Compose it with your implementation where you will provide the
@@ -121,21 +118,19 @@
              * @private
              */
             function compose(IndicatorClass) {
-                if (U.pushUnique(composedMembers, IndicatorClass)) {
-                    var proto = IndicatorClass.prototype;
-                    proto.linesApiNames = (proto.linesApiNames ||
-                        linesApiNames.slice());
-                    proto.pointArrayMap = (proto.pointArrayMap ||
-                        pointArrayMap.slice());
-                    proto.pointValKey = (proto.pointValKey ||
-                        pointValKey);
-                    proto.areaLinesNames = (proto.areaLinesNames ||
-                        areaLinesNames.slice());
-                    proto.drawGraph = indicatorDrawGraph;
-                    proto.getGraphPath = indicatorGetGraphPath;
-                    proto.toYData = indicatorToYData;
-                    proto.translate = indicatorTranslate;
-                }
+                var proto = IndicatorClass.prototype;
+                proto.linesApiNames = (proto.linesApiNames ||
+                    linesApiNames.slice());
+                proto.pointArrayMap = (proto.pointArrayMap ||
+                    pointArrayMap.slice());
+                proto.pointValKey = (proto.pointValKey ||
+                    pointValKey);
+                proto.areaLinesNames = (proto.areaLinesNames ||
+                    areaLinesNames.slice());
+                proto.drawGraph = indicatorDrawGraph;
+                proto.getGraphPath = indicatorGetGraphPath;
+                proto.toYData = indicatorToYData;
+                proto.translate = indicatorTranslate;
                 return IndicatorClass;
             }
             MultipleLinesComposition.compose = compose;
@@ -179,12 +174,12 @@
                         gapSize: mainLineOptions.gapSize
                     }
                 }, 
-                // additional lines point place holders:
+                // Additional lines point place holders:
                 secondaryLines = [], secondaryLinesNames = getTranslatedLinesNames(indicator, pointValKey);
                 var pointsLength = mainLinePoints.length, point;
                 // Generate points for additional lines:
                 secondaryLinesNames.forEach(function (plotLine, index) {
-                    // create additional lines point place holders
+                    // Create additional lines point place holders
                     secondaryLines[index] = [];
                     while (pointsLength--) {
                         point = mainLinePoints[pointsLength];
@@ -362,22 +357,7 @@
         var KlingerIndicator = /** @class */ (function (_super) {
             __extends(KlingerIndicator, _super);
             function KlingerIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                _this.volumeSeries = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -415,10 +395,10 @@
             };
             KlingerIndicator.prototype.getVolumeForce = function (yVal) {
                 var volumeForce = [];
-                var CM = 0, // cumulative measurement
-                DM, // daily measurement
-                force, i = 1, // start from second point
-                previousCM = 0, previousDM = yVal[0][1] - yVal[0][2], // initial DM
+                var CM = 0, // Cumulative measurement
+                DM, // Daily measurement
+                force, i = 1, // Start from second point
+                previousCM = 0, previousDM = yVal[0][1] - yVal[0][2], // Initial DM
                 previousTrend = 0, trend;
                 for (i; i < yVal.length; i++) {
                     trend = this.calculateTrend(yVal, i);
@@ -447,9 +427,7 @@
             };
             KlingerIndicator.prototype.getValues = function (series, params) {
                 var Klinger = [], xVal = series.xData, yVal = series.yData, xData = [], yData = [], calcSingal = [];
-                var KO, i = 0, fastEMA = 0, slowEMA, 
-                // signalEMA: number|undefined = void 0,
-                previousFastEMA = void 0, previousSlowEMA = void 0, signal = null;
+                var KO, i = 0, fastEMA = 0, slowEMA, previousFastEMA = void 0, previousSlowEMA = void 0, signal = null;
                 // If the necessary conditions are not fulfilled, don't proceed.
                 if (!this.isValidData(yVal[0])) {
                     return;
@@ -491,6 +469,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Klinger oscillator. This series requires the `linkedTo` option to be set
              * and should be loaded after the `stock/indicators/indicators.js` file.
@@ -507,7 +490,7 @@
              */
             KlingerIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Klinger Oscillator.
+                 * Parameters used in calculation of Klinger Oscillator.
                  *
                  * @excluding index, period
                  */
@@ -597,12 +580,13 @@
          * @requires  stock/indicators/klinger
          * @apioption series.klinger
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return KlingerIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/klinger.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/klinger.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

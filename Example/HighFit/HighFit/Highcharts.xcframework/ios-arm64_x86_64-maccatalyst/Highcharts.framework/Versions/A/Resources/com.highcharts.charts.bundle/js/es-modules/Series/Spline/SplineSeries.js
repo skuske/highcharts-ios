@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -23,23 +23,6 @@ const { merge, pick } = U;
  * @private
  */
 class SplineSeries extends LineSeries {
-    constructor() {
-        /* *
-         *
-         *  Static Properties
-         *
-         * */
-        super(...arguments);
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        this.data = void 0;
-        this.options = void 0;
-        this.points = void 0;
-        /* eslint-enable valid-jsdoc */
-    }
     /* *
      *
      *  Functions
@@ -86,11 +69,11 @@ class SplineSeries extends LineSeries {
             }
             leftContY += correction;
             rightContY += correction;
-            // to prevent false extremes, check that control points are
+            // To prevent false extremes, check that control points are
             // between neighbouring points' y values
             if (leftContY > lastY && leftContY > plotY) {
                 leftContY = Math.max(lastY, plotY);
-                // mirror of left control point
+                // Mirror of left control point
                 rightContY = 2 * plotY - leftContY;
             }
             else if (leftContY < lastY && leftContY < plotY) {
@@ -105,59 +88,73 @@ class SplineSeries extends LineSeries {
                 rightContY = Math.min(nextY, plotY);
                 leftContY = 2 * plotY - rightContY;
             }
-            // record for drawing in next point
+            // Record for drawing in next point
             point.rightContX = rightContX;
             point.rightContY = rightContY;
+            // Visualize control points for debugging
+            /*
+            if (leftContX) {
+                this.chart.renderer
+                    .circle(
+                        leftContX + this.chart.plotLeft,
+                        leftContY + this.chart.plotTop,
+                        2
+                    )
+                    .attr({
+                        stroke: 'red',
+                        'stroke-width': 2,
+                        fill: 'none',
+                        zIndex: 9
+                    })
+                    .add();
+                this.chart.renderer
+                    .path([['M', leftContX + this.chart.plotLeft,
+                        leftContY + this.chart.plotTop
+                    ], ['L', plotX + this.chart.plotLeft,
+                        plotY + this.chart.plotTop
+                    ]])
+                    .attr({
+                        stroke: 'red',
+                        'stroke-width': 2,
+                        zIndex: 9
+                    })
+                    .add();
+            }
+            if (rightContX) {
+                this.chart.renderer
+                    .circle(
+                        rightContX + this.chart.plotLeft,
+                        rightContY + this.chart.plotTop,
+                        2
+                    )
+                    .attr({
+                        stroke: 'green',
+                        'stroke-width': 2,
+                        fill: 'none',
+                        zIndex: 9
+                    })
+                    .add();
+                this.chart.renderer
+                    .path([[
+                        'M', rightContX + this.chart.plotLeft,
+                        rightContY + this.chart.plotTop
+                    ], [
+                        'L', plotX + this.chart.plotLeft,
+                        plotY + this.chart.plotTop
+                    ]])
+                    .attr({
+                        stroke: 'green',
+                        'stroke-width': 2,
+                        zIndex: 9
+                    })
+                    .add();
+            }
+            // */
+            point.controlPoints = {
+                low: [leftContX, leftContY],
+                high: [rightContX, rightContY]
+            };
         }
-        // Visualize control points for debugging
-        /*
-        if (leftContX) {
-            this.chart.renderer.circle(
-                    leftContX + this.chart.plotLeft,
-                    leftContY + this.chart.plotTop,
-                    2
-                )
-                .attr({
-                    stroke: 'red',
-                    'stroke-width': 2,
-                    fill: 'none',
-                    zIndex: 9
-                })
-                .add();
-            this.chart.renderer.path(['M', leftContX + this.chart.plotLeft,
-                leftContY + this.chart.plotTop,
-                'L', plotX + this.chart.plotLeft, plotY + this.chart.plotTop])
-                .attr({
-                    stroke: 'red',
-                    'stroke-width': 2,
-                    zIndex: 9
-                })
-                .add();
-        }
-        if (rightContX) {
-            this.chart.renderer.circle(
-                    rightContX + this.chart.plotLeft,
-                    rightContY + this.chart.plotTop,
-                    2
-                )
-                .attr({
-                    stroke: 'green',
-                    'stroke-width': 2,
-                    fill: 'none',
-                    zIndex: 9
-                })
-                .add();
-            this.chart.renderer.path(['M', rightContX + this.chart.plotLeft,
-                rightContY + this.chart.plotTop,
-                'L', plotX + this.chart.plotLeft, plotY + this.chart.plotTop])
-                .attr({
-                    stroke: 'green',
-                    'stroke-width': 2,
-                    zIndex: 9
-                })
-                .add();
-        }
-        // */
         const ret = [
             'C',
             pick(lastPoint.rightContX, lastPoint.plotX, 0),
@@ -167,11 +164,16 @@ class SplineSeries extends LineSeries {
             plotX,
             plotY
         ];
-        // reset for updating series later
+        // Reset for updating series later
         lastPoint.rightContX = lastPoint.rightContY = void 0;
         return ret;
     }
 }
+/* *
+ *
+ *  Static Properties
+ *
+ * */
 /**
  * A spline series is a special type of line series, where the segments
  * between the data points are smoothed.
@@ -267,4 +269,4 @@ export default SplineSeries;
  * @product   highcharts highstock
  * @apioption series.spline.data
  */
-''; // adds doclets above intro transpilat
+''; // Adds doclets above intro transpiled

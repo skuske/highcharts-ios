@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Sebastian Bochan
+ * (c) 2010-2024 Sebastian Bochan
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -80,18 +78,7 @@
         var MACDIndicator = /** @class */ (function (_super) {
             __extends(MACDIndicator, _super);
             function MACDIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                _this.data = void 0;
-                _this.macdZones = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.signalZones = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -134,7 +121,6 @@
                         zones: this.macdZones.zones.concat(this.options.signalLine.zones),
                         startIndex: this.macdZones.zones.length
                     };
-                    this.resetZones = true;
                 }
                 // Reset color and index #15608.
                 this.color = originalColor;
@@ -155,7 +141,7 @@
                 });
             };
             MACDIndicator.prototype.destroy = function () {
-                // this.graph is null due to removing two times the same SVG element
+                // This.graph is null due to removing two times the same SVG element
                 this.graph = null;
                 this.graphmacd = this.graphmacd && this.graphmacd.destroy();
                 this.graphsignal = this.graphsignal && this.graphsignal.destroy();
@@ -188,47 +174,28 @@
                 }
                 // Modify options and generate smoothing line:
                 ['macd', 'signal'].forEach(function (lineName, i) {
+                    var _a;
                     indicator.points = otherSignals[i];
-                    indicator.options = merge(mainLineOptions[lineName + 'Line'].styles, gappedExtend);
-                    indicator.graph = indicator['graph' + lineName];
+                    indicator.options = merge(((_a = mainLineOptions["".concat(lineName, "Line")]) === null || _a === void 0 ? void 0 : _a.styles) || {}, gappedExtend);
+                    indicator.graph = indicator["graph".concat(lineName)];
                     // Zones extension:
-                    indicator.currentLineZone = lineName + 'Zones';
-                    indicator.zones =
-                        indicator[indicator.currentLineZone].zones;
+                    indicator.zones = (indicator["".concat(lineName, "Zones")].zones || []).slice(indicator["".concat(lineName, "Zones")].startIndex || 0);
                     SeriesRegistry.seriesTypes.sma.prototype.drawGraph.call(indicator);
-                    indicator['graph' + lineName] = indicator.graph;
+                    indicator["graph".concat(lineName)] = indicator.graph;
                 });
                 // Restore options:
                 indicator.points = mainLinePoints;
                 indicator.options = mainLineOptions;
                 indicator.zones = histogramZones;
-                indicator.currentLineZone = void 0;
-                // indicator.graph = null;
-            };
-            MACDIndicator.prototype.getZonesGraphs = function (props) {
-                var allZones = _super.prototype.getZonesGraphs.call(this, props);
-                var currentZones = allZones;
-                if (this.currentLineZone) {
-                    currentZones = allZones.splice(this[this.currentLineZone].startIndex + 1);
-                    if (!currentZones.length) {
-                        // Line has no zones, return basic graph "zone"
-                        currentZones = [props[0]];
-                    }
-                    else {
-                        // Add back basic prop:
-                        currentZones.splice(0, 0, props[0]);
-                    }
-                }
-                return currentZones;
             };
             MACDIndicator.prototype.applyZones = function () {
                 // Histogram zones are handled by drawPoints method
                 // Here we need to apply zones for all lines
                 var histogramZones = this.zones;
-                // signalZones.zones contains all zones:
+                // `signalZones.zones` contains all zones:
                 this.zones = this.signalZones.zones;
                 SeriesRegistry.seriesTypes.sma.prototype.applyZones.call(this);
-                // applyZones hides only main series.graph, hide macd line manually
+                // `applyZones` hides only main series.graph, hide macd line manually
                 if (this.graphmacd && this.options.macdLine.zones.length) {
                     this.graphmacd.hide();
                 }
@@ -287,7 +254,7 @@
                 // Setting the MACD Histogram. In comparison to the loop with pure
                 // MACD this loop uses MACD x value not xData.
                 for (i = 0; i < MACD.length; i++) {
-                    // detect the first point
+                    // Detect the first point
                     if (MACD[i][0] >= signalLine[0][0]) {
                         MACD[i][2] = signalLine[j][1];
                         yMACD[i] = [0, signalLine[j][1], MACD[i][3]];
@@ -310,6 +277,11 @@
                     yData: yMACD
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Moving Average Convergence Divergence (MACD). This series requires
              * `linkedTo` option to be set and should be loaded after the
@@ -451,12 +423,13 @@
          * @requires  stock/indicators/macd
          * @apioption series.macd
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return MACDIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/macd.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/macd.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

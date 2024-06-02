@@ -2,7 +2,7 @@
  *
  *  Experimental data export module for Highcharts
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -14,28 +14,44 @@
 //   module importing the same data.
 'use strict';
 import AST from '../../Core/Renderer/HTML/AST.js';
-import ExportDataDefaults from './ExportDataDefaults.js';
-import H from '../../Core/Globals.js';
-const { doc, win } = H;
 import D from '../../Core/Defaults.js';
 const { getOptions, setOptions } = D;
 import DownloadURL from '../DownloadURL.js';
 const { downloadURL } = DownloadURL;
-import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-const { series: SeriesClass, seriesTypes: { arearange: AreaRangeSeries, gantt: GanttSeries, map: MapSeries, mapbubble: MapBubbleSeries, treemap: TreemapSeries } } = SeriesRegistry;
+import ExportDataDefaults from './ExportDataDefaults.js';
+import H from '../../Core/Globals.js';
+const { doc, win } = H;
 import U from '../../Core/Utilities.js';
 const { addEvent, defined, extend, find, fireEvent, isNumber, pick } = U;
-/* *
- *
- *  Constants
- *
- * */
-const composedMembers = [];
 /* *
  *
  *  Functions
  *
  * */
+/**
+ * Wrapper function for the download functions, which handles showing and hiding
+ * the loading message
+ *
+ * @private
+ *
+ */
+function wrapLoading(fn) {
+    const showMessage = Boolean(this.options.exporting?.showExportInProgress);
+    // Prefer requestAnimationFrame if available
+    const timeoutFn = win.requestAnimationFrame || setTimeout;
+    // Outer timeout avoids menu freezing on click
+    timeoutFn(() => {
+        showMessage && this.showLoading(this.options.lang.exportInProgress);
+        timeoutFn(() => {
+            try {
+                fn.call(this);
+            }
+            finally {
+                showMessage && this.hideLoading();
+            }
+        });
+    });
+}
 /**
  * Generates a data URL of CSV for local download in the browser. This is the
  * default action for a click on the 'Download CSV' button.
@@ -47,9 +63,11 @@ const composedMembers = [];
  * @requires modules/exporting
  */
 function chartDownloadCSV() {
-    const csv = this.getCSV(true);
-    downloadURL(getBlobFromContent(csv, 'text/csv') ||
-        'data:text/csv,\uFEFF' + encodeURIComponent(csv), this.getFilename() + '.csv');
+    wrapLoading.call(this, () => {
+        const csv = this.getCSV(true);
+        downloadURL(getBlobFromContent(csv, 'text/csv') ||
+            'data:text/csv,\uFEFF' + encodeURIComponent(csv), this.getFilename() + '.csv');
+    });
 }
 /**
  * Generates a data URL of an XLS document for local download in the browser.
@@ -62,27 +80,29 @@ function chartDownloadCSV() {
  * @requires modules/exporting
  */
 function chartDownloadXLS() {
-    const uri = 'data:application/vnd.ms-excel;base64,', template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
-        'xmlns:x="urn:schemas-microsoft-com:office:excel" ' +
-        'xmlns="http://www.w3.org/TR/REC-html40">' +
-        '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook>' +
-        '<x:ExcelWorksheets><x:ExcelWorksheet>' +
-        '<x:Name>Ark1</x:Name>' +
-        '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>' +
-        '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook>' +
-        '</xml><![endif]-->' +
-        '<style>td{border:none;font-family: Calibri, sans-serif;} ' +
-        '.number{mso-number-format:"0.00";} ' +
-        '.text{ mso-number-format:"\@";}</style>' +
-        '<meta name=ProgId content=Excel.Sheet>' +
-        '<meta charset=UTF-8>' +
-        '</head><body>' +
-        this.getTable(true) +
-        '</body></html>', base64 = function (s) {
-        return win.btoa(unescape(encodeURIComponent(s))); // #50
-    };
-    downloadURL(getBlobFromContent(template, 'application/vnd.ms-excel') ||
-        uri + base64(template), this.getFilename() + '.xls');
+    wrapLoading.call(this, () => {
+        const uri = 'data:application/vnd.ms-excel;base64,', template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+            'xmlns:x="urn:schemas-microsoft-com:office:excel" ' +
+            'xmlns="http://www.w3.org/TR/REC-html40">' +
+            '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook>' +
+            '<x:ExcelWorksheets><x:ExcelWorksheet>' +
+            '<x:Name>Ark1</x:Name>' +
+            '<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>' +
+            '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook>' +
+            '</xml><![endif]-->' +
+            '<style>td{border:none;font-family: Calibri, sans-serif;} ' +
+            '.number{mso-number-format:"0.00";} ' +
+            '.text{ mso-number-format:"\@";}</style>' +
+            '<meta name=ProgId content=Excel.Sheet>' +
+            '<meta charset=UTF-8>' +
+            '</head><body>' +
+            this.getTable(true) +
+            '</body></html>', base64 = function (s) {
+            return win.btoa(unescape(encodeURIComponent(s))); // #50
+        };
+        downloadURL(getBlobFromContent(template, 'application/vnd.ms-excel') ||
+            uri + base64(template), this.getFilename() + '.xls');
+    });
 }
 /**
  * Export-data module required. Returns the current chart data as a CSV string.
@@ -102,7 +122,7 @@ function chartGetCSV(useLocalDecimalPoint) {
     const rows = this.getDataRows(), csvOptions = this.options.exporting.csv, decimalPoint = pick(csvOptions.decimalPoint, csvOptions.itemDelimiter !== ',' && useLocalDecimalPoint ?
         (1.1).toLocaleString()[1] :
         '.'), 
-    // use ';' for direct to Excel
+    // Use ';' for direct to Excel
     itemDelimiter = pick(csvOptions.itemDelimiter, decimalPoint === ',' ? ';' : ','), 
     // '\n' isn't working with the js csv data extraction
     lineDelimiter = csvOptions.lineDelimiter;
@@ -112,7 +132,7 @@ function chartGetCSV(useLocalDecimalPoint) {
         while (j--) {
             val = row[j];
             if (typeof val === 'string') {
-                val = '"' + val + '"';
+                val = `"${val}"`;
             }
             if (typeof val === 'number') {
                 if (decimalPoint !== '.') {
@@ -165,9 +185,11 @@ function chartGetDataRows(multiLevelHeaders) {
         if (!item) {
             return categoryHeader;
         }
-        if (!(item instanceof SeriesClass)) {
-            return (item.options.title && item.options.title.text) ||
-                (item.dateTime ? categoryDatetimeHeader : categoryHeader);
+        if (!item.bindAxes) {
+            return (item.options.title &&
+                item.options.title.text) || (item.dateTime ?
+                categoryDatetimeHeader :
+                categoryHeader);
         }
         if (multiLevelHeaders) {
             return {
@@ -201,22 +223,16 @@ function chartGetDataRows(multiLevelHeaders) {
     // Create point array depends if xAxis is category
     // or point.name is defined #13293
     getPointArray = function (series, xAxis) {
-        const namedPoints = series.data.filter((d) => (typeof d.y !== 'undefined') && d.name);
-        if (namedPoints.length &&
+        const pointArrayMap = series.pointArrayMap || ['y'], namedPoints = series.data.some((d) => (typeof d.y !== 'undefined') && d.name);
+        // If there are points with a name, we also want the x value in the
+        // table
+        if (namedPoints &&
             xAxis &&
             !xAxis.categories &&
-            !series.keyToAxis) {
-            if (series.pointArrayMap) {
-                const pointArrayMapCheck = series.pointArrayMap
-                    .filter((p) => p === 'x');
-                if (pointArrayMapCheck.length) {
-                    series.pointArrayMap.unshift('x');
-                    return series.pointArrayMap;
-                }
-            }
-            return ['x', 'y'];
+            series.exportKey !== 'name') {
+            return ['x', ...pointArrayMap];
         }
-        return series.pointArrayMap || ['y'];
+        return pointArrayMap;
     }, xAxisIndices = [];
     let xAxis, dataRows, columnTitleObj, i = 0, // Loop the series and index values
     x, xTitle;
@@ -265,18 +281,8 @@ function chartGetDataRows(multiLevelHeaders) {
                     categoryAndDatetimeMap = getCategoryAndDateTimeMap(series, pointArrayMap, pIdx);
                 }
                 series.pointClass.prototype.applyOptions.apply(mockPoint, [options]);
-                key = mockPoint.x;
-                if (defined(rows[key]) &&
-                    rows[key].seriesIndices.includes(mockSeries.index)) {
-                    // find keys, which belong to actual series
-                    const keysFromActualSeries = Object.keys(rows).filter((i) => rows[i].seriesIndices.includes(mockSeries.index) &&
-                        key), 
-                    // find all properties, which start with actual key
-                    existingKeys = keysFromActualSeries
-                        .filter((propertyName) => propertyName.indexOf(String(key)) === 0);
-                    key = key.toString() + ',' + existingKeys.length;
-                }
                 const name = series.data[pIdx] && series.data[pIdx].name;
+                key = (mockPoint.x ?? '') + ',' + name;
                 j = 0;
                 // Pies, funnels, geo maps etc. use point name in X row
                 if (!xAxis ||
@@ -291,31 +297,47 @@ function chartGetDataRows(multiLevelHeaders) {
                     xTaken[key] = true;
                 }
                 if (!rows[key]) {
-                    // Generate the row
                     rows[key] = [];
-                    // Contain the X values from one or more X axes
                     rows[key].xValues = [];
+                    // ES5 replacement for Array.from / fill.
+                    const arr = [];
+                    for (let i = 0; i < series.chart.series.length; i++) {
+                        arr[i] = 0;
+                    }
+                    // Create pointers array, holding information how many
+                    // duplicates of specific x occurs in each series.
+                    // Used for creating rows with duplicates.
+                    rows[key].pointers = arr;
+                    rows[key].pointers[series.index] = 1;
+                }
+                else {
+                    // Handle duplicates (points with the same x), by creating
+                    // extra rows based on pointers for better performance.
+                    const modifiedKey = `${key},${rows[key].pointers[series.index]}`, originalKey = key;
+                    if (rows[key].pointers[series.index]) {
+                        if (!rows[modifiedKey]) {
+                            rows[modifiedKey] = [];
+                            rows[modifiedKey].xValues = [];
+                            rows[modifiedKey].pointers = [];
+                        }
+                        key = modifiedKey;
+                    }
+                    rows[originalKey].pointers[series.index] += 1;
                 }
                 rows[key].x = mockPoint.x;
                 rows[key].name = name;
                 rows[key].xValues[xAxisIndex] = mockPoint.x;
-                if (!defined(rows[key].seriesIndices)) {
-                    rows[key].seriesIndices = [];
-                }
-                rows[key].seriesIndices = [
-                    ...rows[key].seriesIndices, mockSeries.index
-                ];
                 while (j < valueCount) {
-                    prop = pointArrayMap[j]; // y, z etc
+                    prop = pointArrayMap[j]; // `y`, `z` etc
                     val = mockPoint[prop];
                     rows[key][i + j] = pick(
                     // Y axis category if present
                     categoryAndDatetimeMap.categoryMap[prop][val], 
-                    // datetime yAxis
+                    // Datetime yAxis
                     categoryAndDatetimeMap.dateTimeValueAxisMap[prop] ?
                         time.dateFormat(csvOptions.dateFormat, val) :
                         null, 
-                    // linear/log yAxis
+                    // Linear/log yAxis
                     val);
                     j++;
                 }
@@ -636,6 +658,9 @@ function chartToggleDataTable(show) {
                 wasHidden: createContainer || oldDisplay !== style.display
             });
         }
+        else {
+            fireEvent(this, 'afterHideData');
+        }
     }
     // Set the flag
     this.isDataTableVisible = show;
@@ -669,12 +694,14 @@ function chartViewData() {
 /**
  * @private
  */
-function compose(ChartClass) {
-    if (U.pushUnique(composedMembers, ChartClass)) {
+function compose(ChartClass, SeriesClass) {
+    const chartProto = ChartClass.prototype;
+    if (!chartProto.getCSV) {
+        const exportingOptions = getOptions().exporting;
         // Add an event listener to handle the showTable option
         addEvent(ChartClass, 'afterViewData', onChartAfterViewData);
         addEvent(ChartClass, 'render', onChartRenderer);
-        const chartProto = ChartClass.prototype;
+        addEvent(ChartClass, 'destroy', onChartDestroy);
         chartProto.downloadCSV = chartDownloadCSV;
         chartProto.downloadXLS = chartDownloadXLS;
         chartProto.getCSV = chartGetCSV;
@@ -684,9 +711,6 @@ function compose(ChartClass) {
         chartProto.hideData = chartHideData;
         chartProto.toggleDataTable = chartToggleDataTable;
         chartProto.viewData = chartViewData;
-    }
-    if (U.pushUnique(composedMembers, setOptions)) {
-        const exportingOptions = getOptions().exporting;
         // Add "Download CSV" to the exporting menu.
         // @todo consider move to defaults
         if (exportingOptions) {
@@ -706,7 +730,7 @@ function compose(ChartClass) {
                 viewData: {
                     textKey: 'viewData',
                     onclick: function () {
-                        this.toggleDataTable();
+                        wrapLoading.call(this, this.toggleDataTable);
                     }
                 }
             });
@@ -716,27 +740,34 @@ function compose(ChartClass) {
             }
         }
         setOptions(ExportDataDefaults);
-    }
-    if (AreaRangeSeries && U.pushUnique(composedMembers, AreaRangeSeries)) {
-        AreaRangeSeries.prototype.keyToAxis = {
-            low: 'y',
-            high: 'y'
-        };
-    }
-    if (GanttSeries && U.pushUnique(composedMembers, GanttSeries)) {
-        GanttSeries.prototype.keyToAxis = {
-            start: 'x',
-            end: 'x'
-        };
-    }
-    if (MapSeries && U.pushUnique(composedMembers, MapSeries)) {
-        MapSeries.prototype.exportKey = 'name';
-    }
-    if (MapBubbleSeries && U.pushUnique(composedMembers, MapBubbleSeries)) {
-        MapBubbleSeries.prototype.exportKey = 'name';
-    }
-    if (TreemapSeries && U.pushUnique(composedMembers, TreemapSeries)) {
-        TreemapSeries.prototype.exportKey = 'name';
+        const { arearange: AreaRangeSeries, gantt: GanttSeries, map: MapSeries, mapbubble: MapBubbleSeries, treemap: TreemapSeries, xrange: XRangeSeries } = SeriesClass.types;
+        if (AreaRangeSeries) {
+            AreaRangeSeries.prototype.keyToAxis = {
+                low: 'y',
+                high: 'y'
+            };
+        }
+        if (GanttSeries) {
+            GanttSeries.prototype.exportKey = 'name';
+            GanttSeries.prototype.keyToAxis = {
+                start: 'x',
+                end: 'x'
+            };
+        }
+        if (MapSeries) {
+            MapSeries.prototype.exportKey = 'name';
+        }
+        if (MapBubbleSeries) {
+            MapBubbleSeries.prototype.exportKey = 'name';
+        }
+        if (TreemapSeries) {
+            TreemapSeries.prototype.exportKey = 'name';
+        }
+        if (XRangeSeries) {
+            XRangeSeries.prototype.keyToAxis = {
+                x2: 'x'
+            };
+        }
     }
 }
 /**
@@ -751,8 +782,7 @@ function compose(ChartClass) {
  *         The blob object, or undefined if not supported.
  */
 function getBlobFromContent(content, type) {
-    const nav = win.navigator, webKit = (nav.userAgent.indexOf('WebKit') > -1 &&
-        nav.userAgent.indexOf('Chrome') < 0), domurl = win.URL || win.webkitURL || win;
+    const nav = win.navigator, domurl = win.URL || win.webkitURL || win;
     try {
         // MS specific
         if ((nav.msSaveOrOpenBlob) && win.MSBlobBuilder) {
@@ -760,12 +790,8 @@ function getBlobFromContent(content, type) {
             blob.append(content);
             return blob.getBlob('image/svg+xml');
         }
-        // Safari requires data URI since it doesn't allow navigation to blob
-        // URLs.
-        if (!webKit) {
-            return domurl.createObjectURL(new win.Blob(['\uFEFF' + content], // #7084
-            { type: type }));
-        }
+        return domurl.createObjectURL(new win.Blob(['\uFEFF' + content], // #7084
+        { type: type }));
     }
     catch (e) {
         // Ignore
@@ -824,6 +850,13 @@ function onChartRenderer() {
         this.viewData();
     }
 }
+/**
+ * Clean up
+ * @private
+ */
+function onChartDestroy() {
+    this.dataTableDiv?.remove();
+}
 /* *
  *
  *  Default Export
@@ -847,7 +880,7 @@ export default ExportData;
  * @extends Highcharts.EventCallbackFunction<Highcharts.Chart>
  *
  * @param {Highcharts.Chart} this
- * Chart context where the event occured.
+ * Chart context where the event occurred.
  *
  * @param {Highcharts.ExportDataEventObject} event
  * Event object with data rows that can be modified.
@@ -861,4 +894,4 @@ export default ExportData;
 * @name Highcharts.ExportDataEventObject#dataRows
 * @type {Array<Array<string>>}
 */
-(''); // keeps doclets above in JS file
+(''); // Keeps doclets above in JS file

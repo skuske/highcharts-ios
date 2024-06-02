@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2024 Øystein Moseng
  *
  *  Extend SVG and Chart classes with focus border capabilities.
  *
@@ -10,7 +10,6 @@
  *
  * */
 'use strict';
-import SVGLabel from '../Core/Renderer/SVG/SVGLabel.js';
 import U from '../Core/Utilities.js';
 const { addEvent, pick } = U;
 /* *
@@ -30,7 +29,6 @@ var FocusBorderComposition;
      *  Constants
      *
      * */
-    const composedMembers = [];
     // Attributes that trigger a focus border update
     const svgElementBorderUpdateTriggers = [
         'x', 'y', 'transform', 'width', 'height', 'r', 'd', 'stroke-width'
@@ -40,18 +38,16 @@ var FocusBorderComposition;
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     /**
      * @private
      */
     function compose(ChartClass, SVGElementClass) {
-        if (U.pushUnique(composedMembers, ChartClass)) {
-            const chartProto = ChartClass.prototype;
+        const chartProto = ChartClass.prototype, svgElementProto = SVGElementClass.prototype;
+        if (!chartProto.renderFocusBorder) {
             chartProto.renderFocusBorder = chartRenderFocusBorder;
             chartProto.setFocusToElement = chartSetFocusToElement;
         }
-        if (U.pushUnique(composedMembers, SVGElementClass)) {
-            const svgElementProto = SVGElementClass.prototype;
+        if (!svgElementProto.addFocusBorder) {
             svgElementProto.addFocusBorder = svgElementAddFocusBorder;
             svgElementProto.removeFocusBorder = svgElementRemoveFocusBorder;
         }
@@ -174,7 +170,7 @@ var FocusBorderComposition;
                 y: posYCorrection
             };
         }
-        const isLabel = this instanceof SVGLabel;
+        const isLabel = !!this.text;
         if (this.element.nodeName === 'text' || isLabel) {
             const isRotated = !!this.rotation;
             const correction = !isLabel ? getTextAnchorCorrection(this) :

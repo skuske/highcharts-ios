@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2019-2021 Torstein Honsi
+ *  (c) 2019-2024 Torstein Honsi
  *
  *  Item series type for Highcharts
  *
@@ -11,7 +11,7 @@
  * */
 'use strict';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-const { series: Series, seriesTypes: { pie: PieSeries } } = SeriesRegistry;
+const { series: { prototype: { pointClass: Point } }, seriesTypes: { pie: { prototype: { pointClass: PiePoint } } } } = SeriesRegistry;
 import U from '../../Core/Utilities.js';
 const { extend } = U;
 /* *
@@ -19,20 +19,10 @@ const { extend } = U;
  *  Class
  *
  * */
-class ItemPoint extends PieSeries.prototype.pointClass {
-    constructor() {
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        super(...arguments);
-        this.options = void 0;
-        this.series = void 0;
-    }
+class ItemPoint extends PiePoint {
 }
 extend(ItemPoint.prototype, {
-    haloPath: Series.prototype.pointClass.prototype.haloPath
+    haloPath: Point.prototype.haloPath
 });
 /* *
  *

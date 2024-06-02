@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2023 Highsoft AS
+ *  (c) 2009-2024 Highsoft AS
  *
  *  License: www.highcharts.com/license
  *
@@ -49,7 +49,7 @@ class SortModifier extends DataModifier {
     /**
      * Constructs an instance of the range modifier.
      *
-     * @param {RangeDataModifier.Options} [options]
+     * @param {Partial<RangeDataModifier.Options>} [options]
      * Options to configure the range modifier.
      */
     constructor(options) {
@@ -247,7 +247,7 @@ class SortModifier extends DataModifier {
  * Default options to group table rows.
  */
 SortModifier.defaultOptions = {
-    modifier: 'Sort',
+    type: 'Sort',
     direction: 'desc',
     orderByColumn: 'y'
 };

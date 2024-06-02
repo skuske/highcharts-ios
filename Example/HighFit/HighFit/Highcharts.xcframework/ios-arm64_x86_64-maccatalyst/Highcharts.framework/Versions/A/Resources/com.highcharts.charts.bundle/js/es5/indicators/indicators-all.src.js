@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * All technical indicators for Highcharts Stock
  *
- * (c) 2010-2021 Pawel Fus
+ * (c) 2010-2024 Pawel Fus
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -75,23 +73,7 @@
         var SMAIndicator = /** @class */ (function (_super) {
             __extends(SMAIndicator, _super);
             function SMAIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.dataEventsToUnbind = void 0;
-                _this.linkedParent = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -234,7 +216,7 @@
                 // for example when using Axis.setDataGrouping(). See #16670
                 var processedData = indicator.linkedParent.options &&
                     indicator.linkedParent.yData && // #18176, #18177 indicators should
-                    indicator.linkedParent.yData.length ? // work with empty dataset
+                    indicator.linkedParent.yData.length ? // Work with empty dataset
                     (indicator.getValues(indicator.linkedParent, indicator.options.params) || emptySet) : emptySet;
                 // We need to update points to reflect changes in all,
                 // x and y's, values. However, do it only for non-grouped
@@ -306,6 +288,11 @@
                 }
                 return;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * The parameter allows setting line series type and use OHLC indicators.
              * Data in OHLC format is required.
@@ -368,7 +355,7 @@
                  */
                 compareToMain: false,
                 /**
-                 * Paramters used in calculation of regression series' points.
+                 * Parameters used in calculation of regression series' points.
                  */
                 params: {
                     /**
@@ -418,7 +405,7 @@
          * @requires  stock/indicators/indicators
          * @apioption series.sma
          */
-        (''); // adds doclet above to the transpiled file
+        (''); // Adds doclet above to the transpiled file
 
         return SMAIndicator;
     });
@@ -464,21 +451,7 @@
         var EMAIndicator = /** @class */ (function (_super) {
             __extends(EMAIndicator, _super);
             function EMAIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -515,7 +488,7 @@
                 }
                 // Accumulate first N-points
                 sum = this.accumulatePeriodPoints(period, index, yVal);
-                // first point
+                // First point
                 SMA = sum / period;
                 // Calculate value one-by-one for each period in visible data
                 for (i = period; i < yValLen + 1; i++) {
@@ -531,6 +504,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Exponential moving average indicator (EMA). This series requires the
              * `linkedTo` option to be set.
@@ -584,7 +562,7 @@
          * @requires  stock/indicators/indicators
          * @apioption series.ema
          */
-        ''; // adds doclet above to the transpiled file
+        ''; // Adds doclet above to the transpiled file
 
         return EMAIndicator;
     });
@@ -629,28 +607,16 @@
         var ADIndicator = /** @class */ (function (_super) {
             __extends(ADIndicator, _super);
             function ADIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
              *  Static Functions
              *
              * */
-            ADIndicator.populateAverage = function (xVal, yVal, yValVolume, i, _period) {
+            ADIndicator.populateAverage = function (xVal, yVal, yValVolume, i, 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            _period) {
                 var high = yVal[i][1], low = yVal[i][2], close = yVal[i][3], volume = yValVolume[i], adY = close === high && close === low || high === low ?
                     0 :
                     ((2 * close - low - high) / (high - low)) * volume, adX = xVal[i];
@@ -675,7 +641,7 @@
                         ' not found! Check `volumeSeriesID`.', true, series.chart);
                     return;
                 }
-                // i = period <-- skip first N-points
+                // When i = period <-- skip first N-points
                 // Calculate value one-by-one for each period in visible data
                 for (i = period; i < yValLen; i++) {
                     len = AD.length;
@@ -693,6 +659,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Accumulation Distribution (AD). This series requires `linkedTo` option to
              * be set.
@@ -752,7 +723,7 @@
          * @requires  stock/indicators/accumulation-distribution
          * @apioption series.ad
          */
-        ''; // add doclet above to transpiled file
+        ''; // Add doclet above to transpiled file
 
         return ADIndicator;
     });
@@ -799,21 +770,7 @@
         var AOIndicator = /** @class */ (function (_super) {
             __extends(AOIndicator, _super);
             function AOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -881,6 +838,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Awesome Oscillator. This series requires the `linkedTo` option to
              * be set and should be loaded after the `stock/indicators/indicators.js`
@@ -944,7 +906,7 @@
         }(SMAIndicator));
         extend(AOIndicator.prototype, {
             nameBase: 'AO',
-            nameComponents: false,
+            nameComponents: void 0,
             // Columns support:
             markerAttribs: noop,
             getColumnMetrics: columnProto.getColumnMetrics,
@@ -977,14 +939,14 @@
          * @requires  stock/indicators/ao
          * @apioption series.ao
          */
-        ''; // for including the above in the doclets
+        ''; // For including the above in the doclets
 
         return AOIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/MultipleLinesComposition.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Wojciech Chmiel
+         *  (c) 2010-2024 Wojciech Chmiel
          *
          *  License: www.highcharts.com/license
          *
@@ -1006,11 +968,10 @@
              *
              * */
             /* *
-            *
-            *  Constants
-            *
-            * */
-            var composedMembers = [];
+             *
+             *  Constants
+             *
+             * */
             /**
              * Additional lines DOCS names. Elements of linesApiNames array should
              * be consistent with DOCS line names defined in your implementation.
@@ -1033,7 +994,7 @@
              */
             var pointArrayMap = ['top', 'bottom'];
             /**
-             * Names of the lines, bewteen which the area should be plotted.
+             * Names of the lines, between which the area should be plotted.
              * If the drawing of the area should
              * be disabled for some indicators, leave this option as an empty array.
              * Names should be the same as the names in the pointArrayMap.
@@ -1050,10 +1011,10 @@
              */
             var pointValKey = 'top';
             /* *
-            *
-            *  Functions
-            *
-            * */
+             *
+             *  Functions
+             *
+             * */
             /**
              * Composition useful for all indicators that have more than one line.
              * Compose it with your implementation where you will provide the
@@ -1065,21 +1026,19 @@
              * @private
              */
             function compose(IndicatorClass) {
-                if (U.pushUnique(composedMembers, IndicatorClass)) {
-                    var proto = IndicatorClass.prototype;
-                    proto.linesApiNames = (proto.linesApiNames ||
-                        linesApiNames.slice());
-                    proto.pointArrayMap = (proto.pointArrayMap ||
-                        pointArrayMap.slice());
-                    proto.pointValKey = (proto.pointValKey ||
-                        pointValKey);
-                    proto.areaLinesNames = (proto.areaLinesNames ||
-                        areaLinesNames.slice());
-                    proto.drawGraph = indicatorDrawGraph;
-                    proto.getGraphPath = indicatorGetGraphPath;
-                    proto.toYData = indicatorToYData;
-                    proto.translate = indicatorTranslate;
-                }
+                var proto = IndicatorClass.prototype;
+                proto.linesApiNames = (proto.linesApiNames ||
+                    linesApiNames.slice());
+                proto.pointArrayMap = (proto.pointArrayMap ||
+                    pointArrayMap.slice());
+                proto.pointValKey = (proto.pointValKey ||
+                    pointValKey);
+                proto.areaLinesNames = (proto.areaLinesNames ||
+                    areaLinesNames.slice());
+                proto.drawGraph = indicatorDrawGraph;
+                proto.getGraphPath = indicatorGetGraphPath;
+                proto.toYData = indicatorToYData;
+                proto.translate = indicatorTranslate;
                 return IndicatorClass;
             }
             MultipleLinesComposition.compose = compose;
@@ -1123,12 +1082,12 @@
                         gapSize: mainLineOptions.gapSize
                     }
                 }, 
-                // additional lines point place holders:
+                // Additional lines point place holders:
                 secondaryLines = [], secondaryLinesNames = getTranslatedLinesNames(indicator, pointValKey);
                 var pointsLength = mainLinePoints.length, point;
                 // Generate points for additional lines:
                 secondaryLinesNames.forEach(function (plotLine, index) {
-                    // create additional lines point place holders
+                    // Create additional lines point place holders
                     secondaryLines[index] = [];
                     while (pointsLength--) {
                         point = mainLinePoints[pointsLength];
@@ -1327,21 +1286,7 @@
         var AroonIndicator = /** @class */ (function (_super) {
             __extends(AroonIndicator, _super);
             function AroonIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -1378,6 +1323,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Aroon. This series requires the `linkedTo` option to be
              * set and should be loaded after the `stock/indicators/indicators.js`.
@@ -1398,7 +1348,7 @@
              */
             AroonIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of aroon series points.
+                 * Parameters used in calculation of aroon series points.
                  *
                  * @excluding index
                  */
@@ -1413,7 +1363,7 @@
                     pointFormat: '<span style="color:{point.color}">\u25CF</span><b> {series.name}</b><br/>Aroon Up: {point.y}<br/>Aroon Down: {point.aroonDown}<br/>'
                 },
                 /**
-                 * aroonDown line options.
+                 * AroonDown line options.
                  */
                 aroonDown: {
                     /**
@@ -1472,7 +1422,7 @@
          * @requires  stock/indicators/aroon
          * @apioption series.aroon
          */
-        ''; // to avoid removal of the above jsdoc
+        ''; // To avoid removal of the above jsdoc
 
         return AroonIndicator;
     });
@@ -1518,21 +1468,7 @@
         var AroonOscillatorIndicator = /** @class */ (function (_super) {
             __extends(AroonOscillatorIndicator, _super);
             function AroonOscillatorIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -1558,6 +1494,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Aroon Oscillator. This series requires the `linkedTo` option to be set
              * and should be loaded after the `stock/indicators/indicators.js` and
@@ -1619,7 +1560,7 @@
          * @requires  stock/indicators/aroon-oscillator
          * @apioption series.aroonoscillator
          */
-        ''; // adds doclet above to the transpiled file
+        ''; // Adds doclet above to the transpiled file
 
         return AroonOscillatorIndicator;
     });
@@ -1692,21 +1633,7 @@
         var ATRIndicator = /** @class */ (function (_super) {
             __extends(ATRIndicator, _super);
             function ATRIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -1748,6 +1675,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Average true range indicator (ATR). This series requires `linkedTo`
              * option to be set.
@@ -1767,7 +1699,7 @@
                  * @excluding index
                  */
                 params: {
-                    index: void 0 // unused index, do not inherit (#15362)
+                    index: void 0 // Unused index, do not inherit (#15362)
                 }
             });
             return ATRIndicator;
@@ -1795,7 +1727,7 @@
          * @requires  stock/indicators/atr
          * @apioption series.atr
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return ATRIndicator;
     });
@@ -1861,21 +1793,7 @@
         var BBIndicator = /** @class */ (function (_super) {
             __extends(BBIndicator, _super);
             function BBIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -1902,7 +1820,7 @@
                 var period = params.period, standardDeviation = params.standardDeviation, xData = [], yData = [], xVal = series.xData, yVal = series.yData, yValLen = yVal ? yVal.length : 0, 
                 // 0- date, 1-middle line, 2-top line, 3-bottom line
                 BB = [];
-                // middle line, top line and bottom line
+                // Middle line, top line and bottom line
                 var ML, TL, BL, date, slicedX, slicedY, stdDev, point, i;
                 if (xVal.length < period) {
                     return;
@@ -1930,6 +1848,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Bollinger bands (BB). This series requires the `linkedTo` option to be
              * set and should be loaded after the `stock/indicators/indicators.js` file.
@@ -2053,7 +1976,7 @@
          * @requires  stock/indicators/bollinger-bands
          * @apioption series.bb
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return BBIndicator;
     });
@@ -2123,21 +2046,7 @@
         var CCIIndicator = /** @class */ (function (_super) {
             __extends(CCIIndicator, _super);
             function CCIIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -2153,7 +2062,7 @@
                     yVal[0].length !== 4) {
                     return;
                 }
-                // accumulate first N-points
+                // Accumulate first N-points
                 while (range < period) {
                     p = yVal[range - 1];
                     TP.push((p[1] + p[2] + p[3]) / 3);
@@ -2177,6 +2086,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Commodity Channel Index (CCI). This series requires `linkedTo` option to
              * be set.
@@ -2196,7 +2110,7 @@
                  * @excluding index
                  */
                 params: {
-                    index: void 0 // unused index, do not inherit (#15362)
+                    index: void 0 // Unused index, do not inherit (#15362)
                 }
             });
             return CCIIndicator;
@@ -2224,14 +2138,14 @@
          * @requires  stock/indicators/cci
          * @apioption series.cci
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return CCIIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/CMF/CMFIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Highsoft AS
+         *  (c) 2010-2024 Highsoft AS
          *
          *  Author: Sebastian Domas
          *
@@ -2282,17 +2196,6 @@
                  *
                  * */
                 var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.volumeSeries = void 0;
-                _this.linkedParent = void 0;
-                _this.yData = void 0;
                 _this.nameBase = 'Chaikin Money Flow';
                 return _this;
             }
@@ -2460,7 +2363,7 @@
                     index: void 0,
                     /**
                      * The id of another series to use its data as volume data for the
-                     * indiator calculation.
+                     * indicator calculation.
                      */
                     volumeSeriesID: 'volume'
                 }
@@ -2490,13 +2393,13 @@
          * @requires  stock/indicators/cmf
          * @apioption series.cmf
          */
-        ''; // adds doclet above to the transpiled file
+        ''; // Adds doclet above to the transpiled file
 
         return CMFIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/DMI/DMIIndicator.js', [_modules['Stock/Indicators/MultipleLinesComposition.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (MultipleLinesComposition, SeriesRegistry, U) {
         /* *
-         *  (c) 2010-2021 Rafal Sebestjanski
+         *  (c) 2010-2024 Rafal Sebestjanski
          *
          *  Directional Movement Index (DMI) indicator for Highcharts Stock
          *
@@ -2539,19 +2442,7 @@
         var DMIIndicator = /** @class */ (function (_super) {
             __extends(DMIIndicator, _super);
             function DMIIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -2562,11 +2453,11 @@
                 var currentHigh = yVal[i][1], currentLow = yVal[i][2], previousHigh = yVal[i - 1][1], previousLow = yVal[i - 1][2];
                 var DM;
                 if (currentHigh - previousHigh > previousLow - currentLow) {
-                    // for +DM
+                    // For +DM
                     DM = isPositiveDM ? Math.max(currentHigh - previousHigh, 0) : 0;
                 }
                 else {
-                    // for -DM
+                    // For -DM
                     DM = !isPositiveDM ? Math.max(previousLow - currentLow, 0) : 0;
                 }
                 return correctFloat(DM);
@@ -2582,11 +2473,11 @@
             };
             DMIIndicator.prototype.getTR = function (currentPoint, prevPoint) {
                 return correctFloat(Math.max(
-                // currentHigh - currentLow
+                // `currentHigh - currentLow`
                 currentPoint[1] - currentPoint[2], 
-                // currentHigh - previousClose
+                // `currentHigh - previousClose`
                 !prevPoint ? 0 : Math.abs(currentPoint[1] - prevPoint[3]), 
-                // currentLow - previousClose
+                // `currentLow - previousClose`
                 !prevPoint ? 0 : Math.abs(currentPoint[2] - prevPoint[3])));
             };
             DMIIndicator.prototype.getValues = function (series, params) {
@@ -2656,6 +2547,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Directional Movement Index (DMI).
              * This series requires the `linkedTo` option to be set and should
@@ -2679,7 +2575,7 @@
                  * @excluding index
                  */
                 params: {
-                    index: void 0 // unused index, do not inherit (#15362)
+                    index: void 0 // Unused index, do not inherit (#15362)
                 },
                 marker: {
                     enabled: false
@@ -2712,7 +2608,7 @@
                          *
                          * @type {Highcharts.ColorString}
                          */
-                        lineColor: "#06b535" /* Palette.positiveColor */ // green-ish
+                        lineColor: "#06b535" /* Palette.positiveColor */ // Green-ish
                     }
                 },
                 /**
@@ -2732,7 +2628,7 @@
                          *
                          * @type {Highcharts.ColorString}
                          */
-                        lineColor: "#f21313" /* Palette.negativeColor */ // red-ish
+                        lineColor: "#f21313" /* Palette.negativeColor */ // Red-ish
                     }
                 },
                 dataGrouping: {
@@ -2776,7 +2672,7 @@
          * @requires  stock/indicators/dmi
          * @apioption series.dmi
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return DMIIndicator;
     });
@@ -2838,21 +2734,7 @@
         var DPOIndicator = /** @class */ (function (_super) {
             __extends(DPOIndicator, _super);
             function DPOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                _this.options = void 0;
-                _this.data = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -2876,11 +2758,11 @@
                 for (j = 0; j <= yValLen - range; j++) {
                     periodIndex = j + period - 1;
                     rangeIndex = j + range - 1;
-                    // adding the last period point
+                    // Adding the last period point
                     sum = accumulatePoints(sum, yVal, periodIndex, index);
                     price = pick(yVal[rangeIndex][index], yVal[rangeIndex]);
                     oscillator = price - sum / period;
-                    // substracting the first period point
+                    // Subtracting the first period point
                     sum = accumulatePoints(sum, yVal, j, index, true);
                     DPO.push([xVal[rangeIndex], oscillator]);
                     xData.push(xVal[rangeIndex]);
@@ -2892,6 +2774,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Detrended Price Oscillator. This series requires the `linkedTo` option to
              * be set and should be loaded after the `stock/indicators/indicators.js`.
@@ -2953,7 +2840,7 @@
          * @requires  stock/indicators/dpo
          * @apioption series.dpo
          */
-        ''; // to include the above in the js output'
+        ''; // To include the above in the js output'
 
         return DPOIndicator;
     });
@@ -2999,21 +2886,7 @@
         var ChaikinIndicator = /** @class */ (function (_super) {
             __extends(ChaikinIndicator, _super);
             function ChaikinIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -3066,6 +2939,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Chaikin Oscillator. This series requires the `linkedTo` option to
              * be set and should be loaded after the `stock/indicators/indicators.js`.
@@ -3085,7 +2963,7 @@
              */
             ChaikinIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Chaikin Oscillator
+                 * Parameters used in calculation of Chaikin Oscillator
                  * series points.
                  *
                  * @excluding index
@@ -3144,7 +3022,7 @@
          * @requires  stock/indicators/chaikin
          * @apioption series.chaikin
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return ChaikinIndicator;
     });
@@ -3190,21 +3068,7 @@
         var CMOIndicator = /** @class */ (function (_super) {
             __extends(CMOIndicator, _super);
             function CMOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -3238,7 +3102,7 @@
                         sumOfLowerValues += values[j - 1] - values[j];
                     }
                 }
-                // You might devide by 0 if all values are equal,
+                // You might divide by 0 if all values are equal,
                 // so return 0 in this case.
                 y =
                     sumOfHigherValues + sumOfLowerValues > 0 ?
@@ -3257,7 +3121,7 @@
                         sumOfLowerValues += values[i - 1] - values[i];
                     }
                     // Check, to which sum was the first value added to,
-                    // and substract this value from given sum.
+                    // and subtract this value from given sum.
                     if (values[i - period] > values[i - period - 1]) {
                         sumOfHigherValues -= firstAddedSum;
                     }
@@ -3280,6 +3144,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Chande Momentum Oscilator (CMO) technical indicator. This series
              * requires the `linkedTo` option to be set and should be loaded after
@@ -3326,7 +3195,7 @@
          * @requires  stock/indicators/cmo
          * @apioption series.cmo
          */
-        (''); // to include the above in the js output
+        (''); // To include the above in the js output
 
         return CMOIndicator;
     });
@@ -3372,22 +3241,7 @@
         var DEMAIndicator = /** @class */ (function (_super) {
             __extends(DEMAIndicator, _super);
             function DEMAIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.EMApercent = void 0;
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -3418,7 +3272,7 @@
                 // Accumulate first N-points
                 accumulatePeriodPoints =
                     _super.prototype.accumulatePeriodPoints.call(this, period, index, yVal);
-                // first point
+                // First point
                 SMA = accumulatePeriodPoints / period;
                 accumulatePeriodPoints = 0;
                 // Calculate value one-by-one for each period in visible data
@@ -3456,6 +3310,11 @@
                     yData: yDataDema
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Double exponential moving average (DEMA) indicator. This series requires
              * `linkedTo` option to be set and should be loaded after the
@@ -3503,7 +3362,7 @@
          * @requires  stock/indicators/dema
          * @apioption series.dema
          */
-        ''; // adds doclet above to the transpiled file
+        ''; // Adds doclet above to the transpiled file
 
         return DEMAIndicator;
     });
@@ -3549,22 +3408,7 @@
         var TEMAIndicator = /** @class */ (function (_super) {
             __extends(TEMAIndicator, _super);
             function TEMAIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.EMApercent = void 0;
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -3605,7 +3449,7 @@
                 }
                 // Accumulate first N-points
                 accumulatePeriodPoints = _super.prototype.accumulatePeriodPoints.call(this, period, index, yVal);
-                // first point
+                // First point
                 sma = accumulatePeriodPoints / period;
                 accumulatePeriodPoints = 0;
                 // Calculate value one-by-one for each period in visible data
@@ -3666,6 +3510,11 @@
                     yData: yDataTema
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Triple exponential moving average (TEMA) indicator. This series requires
              * `linkedTo` option to be set and should be loaded after the
@@ -3713,7 +3562,7 @@
          * @requires  stock/indicators/tema
          * @apioption series.tema
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return TEMAIndicator;
     });
@@ -3759,21 +3608,7 @@
         var TRIXIndicator = /** @class */ (function (_super) {
             __extends(TRIXIndicator, _super);
             function TRIXIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -3791,6 +3626,11 @@
                     ];
                 }
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Triple exponential average (TRIX) oscillator. This series requires
              * `linkedTo` option to be set.
@@ -3838,7 +3678,7 @@
          * @requires  stock/indicators/tema
          * @apioption series.trix
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return TRIXIndicator;
     });
@@ -3884,21 +3724,7 @@
         var APOIndicator = /** @class */ (function (_super) {
             __extends(APOIndicator, _super);
             function APOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -3944,6 +3770,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Absolute Price Oscillator. This series requires the `linkedTo` option to
              * be set and should be loaded after the `stock/indicators/indicators.js`.
@@ -3963,7 +3794,7 @@
              */
             APOIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Absolute Price Oscillator
+                 * Parameters used in calculation of Absolute Price Oscillator
                  * series points.
                  *
                  * @excluding period
@@ -4011,7 +3842,7 @@
          * @requires  stock/indicators/apo
          * @apioption series.apo
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return APOIndicator;
     });
@@ -4265,7 +4096,7 @@
                 // getGraphPath()
                 nextPoints = [
                     [],
-                    [] // NextPoints negative color
+                    [] // Next points negative color
                 ];
                 var pointsLength = mainLinePoints.length, lineIndex = 0, position, point, i, startIntersect, endIntersect, sectionPoints, sectionNextPoints, pointsPlotYSum, nextPointsPlotYSum, senkouSpanTempColor, concatArrIndex, j, k;
                 indicator.ikhMap = ikhMap;
@@ -4722,7 +4553,7 @@
          * @requires  stock/indicators/ichimoku-kinko-hyo
          * @apioption series.ikh
          */
-        (''); // add doclet above to transpiled file
+        (''); // Add doclet above to transpiled file
 
         return IKHIndicator;
     });
@@ -4768,21 +4599,7 @@
         var KeltnerChannelsIndicator = /** @class */ (function (_super) {
             __extends(KeltnerChannelsIndicator, _super);
             function KeltnerChannelsIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -4815,7 +4632,7 @@
                 }), seriesATR = SeriesRegistry.seriesTypes.atr.prototype.getValues(series, {
                     period: periodATR
                 }), xData = [], yData = [];
-                // middle line, top line and bottom lineI
+                // Middle line, top line and bottom lineI
                 var ML, TL, BL, date, pointEMA, pointATR, i;
                 if (yValLen < period) {
                     return;
@@ -4837,6 +4654,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Keltner Channels. This series requires the `linkedTo` option to be set
              * and should be loaded after the `stock/indicators/indicators.js`,
@@ -4965,7 +4787,7 @@
          * @requires     stock/indicators/keltner-channels
          * @apioption    series.keltnerchannels
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return KeltnerChannelsIndicator;
     });
@@ -5011,22 +4833,7 @@
         var KlingerIndicator = /** @class */ (function (_super) {
             __extends(KlingerIndicator, _super);
             function KlingerIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                _this.volumeSeries = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -5064,10 +4871,10 @@
             };
             KlingerIndicator.prototype.getVolumeForce = function (yVal) {
                 var volumeForce = [];
-                var CM = 0, // cumulative measurement
-                DM, // daily measurement
-                force, i = 1, // start from second point
-                previousCM = 0, previousDM = yVal[0][1] - yVal[0][2], // initial DM
+                var CM = 0, // Cumulative measurement
+                DM, // Daily measurement
+                force, i = 1, // Start from second point
+                previousCM = 0, previousDM = yVal[0][1] - yVal[0][2], // Initial DM
                 previousTrend = 0, trend;
                 for (i; i < yVal.length; i++) {
                     trend = this.calculateTrend(yVal, i);
@@ -5096,9 +4903,7 @@
             };
             KlingerIndicator.prototype.getValues = function (series, params) {
                 var Klinger = [], xVal = series.xData, yVal = series.yData, xData = [], yData = [], calcSingal = [];
-                var KO, i = 0, fastEMA = 0, slowEMA, 
-                // signalEMA: number|undefined = void 0,
-                previousFastEMA = void 0, previousSlowEMA = void 0, signal = null;
+                var KO, i = 0, fastEMA = 0, slowEMA, previousFastEMA = void 0, previousSlowEMA = void 0, signal = null;
                 // If the necessary conditions are not fulfilled, don't proceed.
                 if (!this.isValidData(yVal[0])) {
                     return;
@@ -5140,6 +4945,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Klinger oscillator. This series requires the `linkedTo` option to be set
              * and should be loaded after the `stock/indicators/indicators.js` file.
@@ -5156,7 +4966,7 @@
              */
             KlingerIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Klinger Oscillator.
+                 * Parameters used in calculation of Klinger Oscillator.
                  *
                  * @excluding index, period
                  */
@@ -5246,7 +5056,7 @@
          * @requires  stock/indicators/klinger
          * @apioption series.klinger
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return KlingerIndicator;
     });
@@ -5293,18 +5103,7 @@
         var MACDIndicator = /** @class */ (function (_super) {
             __extends(MACDIndicator, _super);
             function MACDIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                _this.data = void 0;
-                _this.macdZones = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.signalZones = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -5347,7 +5146,6 @@
                         zones: this.macdZones.zones.concat(this.options.signalLine.zones),
                         startIndex: this.macdZones.zones.length
                     };
-                    this.resetZones = true;
                 }
                 // Reset color and index #15608.
                 this.color = originalColor;
@@ -5368,7 +5166,7 @@
                 });
             };
             MACDIndicator.prototype.destroy = function () {
-                // this.graph is null due to removing two times the same SVG element
+                // This.graph is null due to removing two times the same SVG element
                 this.graph = null;
                 this.graphmacd = this.graphmacd && this.graphmacd.destroy();
                 this.graphsignal = this.graphsignal && this.graphsignal.destroy();
@@ -5401,47 +5199,28 @@
                 }
                 // Modify options and generate smoothing line:
                 ['macd', 'signal'].forEach(function (lineName, i) {
+                    var _a;
                     indicator.points = otherSignals[i];
-                    indicator.options = merge(mainLineOptions[lineName + 'Line'].styles, gappedExtend);
-                    indicator.graph = indicator['graph' + lineName];
+                    indicator.options = merge(((_a = mainLineOptions["".concat(lineName, "Line")]) === null || _a === void 0 ? void 0 : _a.styles) || {}, gappedExtend);
+                    indicator.graph = indicator["graph".concat(lineName)];
                     // Zones extension:
-                    indicator.currentLineZone = lineName + 'Zones';
-                    indicator.zones =
-                        indicator[indicator.currentLineZone].zones;
+                    indicator.zones = (indicator["".concat(lineName, "Zones")].zones || []).slice(indicator["".concat(lineName, "Zones")].startIndex || 0);
                     SeriesRegistry.seriesTypes.sma.prototype.drawGraph.call(indicator);
-                    indicator['graph' + lineName] = indicator.graph;
+                    indicator["graph".concat(lineName)] = indicator.graph;
                 });
                 // Restore options:
                 indicator.points = mainLinePoints;
                 indicator.options = mainLineOptions;
                 indicator.zones = histogramZones;
-                indicator.currentLineZone = void 0;
-                // indicator.graph = null;
-            };
-            MACDIndicator.prototype.getZonesGraphs = function (props) {
-                var allZones = _super.prototype.getZonesGraphs.call(this, props);
-                var currentZones = allZones;
-                if (this.currentLineZone) {
-                    currentZones = allZones.splice(this[this.currentLineZone].startIndex + 1);
-                    if (!currentZones.length) {
-                        // Line has no zones, return basic graph "zone"
-                        currentZones = [props[0]];
-                    }
-                    else {
-                        // Add back basic prop:
-                        currentZones.splice(0, 0, props[0]);
-                    }
-                }
-                return currentZones;
             };
             MACDIndicator.prototype.applyZones = function () {
                 // Histogram zones are handled by drawPoints method
                 // Here we need to apply zones for all lines
                 var histogramZones = this.zones;
-                // signalZones.zones contains all zones:
+                // `signalZones.zones` contains all zones:
                 this.zones = this.signalZones.zones;
                 SeriesRegistry.seriesTypes.sma.prototype.applyZones.call(this);
-                // applyZones hides only main series.graph, hide macd line manually
+                // `applyZones` hides only main series.graph, hide macd line manually
                 if (this.graphmacd && this.options.macdLine.zones.length) {
                     this.graphmacd.hide();
                 }
@@ -5500,7 +5279,7 @@
                 // Setting the MACD Histogram. In comparison to the loop with pure
                 // MACD this loop uses MACD x value not xData.
                 for (i = 0; i < MACD.length; i++) {
-                    // detect the first point
+                    // Detect the first point
                     if (MACD[i][0] >= signalLine[0][0]) {
                         MACD[i][2] = signalLine[j][1];
                         yMACD[i] = [0, signalLine[j][1], MACD[i][3]];
@@ -5523,6 +5302,11 @@
                     yData: yMACD
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Moving Average Convergence Divergence (MACD). This series requires
              * `linkedTo` option to be set and should be loaded after the
@@ -5664,7 +5448,7 @@
          * @requires  stock/indicators/macd
          * @apioption series.macd
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return MACDIndicator;
     });
@@ -5673,7 +5457,7 @@
          *
          *  Money Flow Index indicator for Highcharts Stock
          *
-         *  (c) 2010-2021 Grzegorz Blachliński
+         *  (c) 2010-2024 Grzegorz Blachliński
          *
          *  License: www.highcharts.com/license
          *
@@ -5703,17 +5487,29 @@
          *
          * */
         // Utils:
+        /**
+         *
+         */
         function sumArray(array) {
             return array.reduce(function (prev, cur) {
                 return prev + cur;
             });
         }
+        /**
+         *
+         */
         function toFixed(a, n) {
             return parseFloat(a.toFixed(n));
         }
+        /**
+         *
+         */
         function calculateTypicalPrice(point) {
             return (point[1] + point[2] + point[3]) / 3;
         }
+        /**
+         *
+         */
         function calculateRawMoneyFlow(typicalPrice, volume) {
             return typicalPrice * volume;
         }
@@ -5734,21 +5530,7 @@
         var MFIIndicator = /** @class */ (function (_super) {
             __extends(MFIIndicator, _super);
             function MFIIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -5818,6 +5600,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Money Flow Index. This series requires `linkedTo` option to be set and
              * should be loaded after the `stock/indicators/indicators.js` file.
@@ -5878,7 +5665,7 @@
          * @requires  stock/indicators/mfi
          * @apioption series.mfi
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return MFIIndicator;
     });
@@ -5936,21 +5723,7 @@
         var MomentumIndicator = /** @class */ (function (_super) {
             __extends(MomentumIndicator, _super);
             function MomentumIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -5984,6 +5757,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Momentum. This series requires `linkedTo` option to be set.
              *
@@ -6030,7 +5808,7 @@
          * @requires  stock/indicators/momentum
          * @apioption series.momentum
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return MomentumIndicator;
     });
@@ -6076,24 +5854,7 @@
         var NATRIndicator = /** @class */ (function (_super) {
             __extends(NATRIndicator, _super);
             function NATRIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /**
-                 * @lends Highcharts.Series#
-                 */
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -6113,6 +5874,11 @@
                 }
                 return atrData;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Normalized average true range indicator (NATR). This series requires
              * `linkedTo` option to be set and should be loaded after the
@@ -6159,7 +5925,7 @@
          * @requires  stock/indicators/natr
          * @apioption series.natr
          */
-        ''; // to include the above in the js output'
+        ''; // To include the above in the js output'
 
         return NATRIndicator;
     });
@@ -6205,21 +5971,7 @@
         var OBVIndicator = /** @class */ (function (_super) {
             __extends(OBVIndicator, _super);
             function OBVIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -6242,13 +5994,13 @@
                     for (i; i < yVal.length; i++) {
                         curentClose = hasOHLC ?
                             yVal[i][3] : yVal[i];
-                        if (curentClose > previousClose) { // up
+                        if (curentClose > previousClose) { // Up
                             curentOBV = previousOBV + volume[i];
                         }
-                        else if (curentClose === previousClose) { // constant
+                        else if (curentClose === previousClose) { // Constant
                             curentOBV = previousOBV;
                         }
-                        else { // down
+                        else { // Down
                             curentOBV = previousOBV - volume[i];
                         }
                         // Add point.
@@ -6273,6 +6025,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * On-Balance Volume (OBV) technical indicator. This series
              * requires the `linkedTo` option to be set and should be loaded after
@@ -6305,7 +6062,7 @@
                     period: void 0,
                     /**
                      * The id of another series to use its data as volume data for the
-                     * indiator calculation.
+                     * indicator calculation.
                      */
                     volumeSeriesID: 'volume'
                 },
@@ -6341,7 +6098,7 @@
          * @requires  stock/indicators/obv
          * @apioption series.obv
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return OBVIndicator;
     });
@@ -6398,16 +6155,7 @@
         var PivotPointsPoint = /** @class */ (function (_super) {
             __extends(PivotPointsPoint, _super);
             function PivotPointsPoint() {
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                _this.P = void 0;
-                _this.pivotLine = void 0;
-                _this.series = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -6473,23 +6221,7 @@
         var PivotPointsIndicator = /** @class */ (function (_super) {
             __extends(PivotPointsIndicator, _super);
             function PivotPointsIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.endPoint = void 0;
-                _this.plotEndPoint = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -6553,7 +6285,7 @@
                 var currentLabel, pointsLength, point, i;
                 if (indicator.options.dataLabels.enabled) {
                     pointsLength = indicator.points.length;
-                    // For every Ressitance/Support group we need to render labels.
+                    // For every Resistance/Support group we need to render labels.
                     // Add one more item, which will just store dataLabels from
                     // previous iteration
                     pointMapping.concat([false]).forEach(function (position, k) {
@@ -6676,6 +6408,11 @@
                 ];
                 return avg;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Pivot points indicator. This series requires the `linkedTo` option to be
              * set and should be loaded after `stock/indicators/indicators.js` file.
@@ -6698,7 +6435,7 @@
                     index: void 0,
                     period: 28,
                     /**
-                     * Algorithm used to calculate ressistance and support lines based
+                     * Algorithm used to calculate resistance and support lines based
                      * on pivot points. Implemented algorithms: `'standard'`,
                      * `'fibonacci'` and `'camarilla'`
                      */
@@ -6752,7 +6489,7 @@
          * @requires  stock/indicators/pivotpoints
          * @apioption series.pivotpoints
          */
-        ''; // to include the above in the js output'
+        ''; // To include the above in the js output'
 
         return PivotPointsIndicator;
     });
@@ -6798,21 +6535,7 @@
         var PPOIndicator = /** @class */ (function (_super) {
             __extends(PPOIndicator, _super);
             function PPOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -6860,6 +6583,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Percentage Price Oscillator. This series requires the
              * `linkedTo` option to be set and should be loaded after the
@@ -6880,7 +6608,7 @@
              */
             PPOIndicator.defaultOptions = merge(EMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Percentage Price Oscillator series
+                 * Parameters used in calculation of Percentage Price Oscillator series
                  * points.
                  *
                  * @excluding period
@@ -6927,14 +6655,14 @@
          * @requires  stock/indicators/ppo
          * @apioption series.ppo
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return PPOIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/ArrayUtilities.js', [], function () {
         /**
          *
-         *  (c) 2010-2021 Pawel Fus & Daniel Studencki
+         *  (c) 2010-2024 Pawel Fus & Daniel Studencki
          *
          *  License: www.highcharts.com/license
          *
@@ -7022,21 +6750,7 @@
         var PCIndicator = /** @class */ (function (_super) {
             __extends(PCIndicator, _super);
             function PCIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -7047,7 +6761,7 @@
                 var period = params.period, xVal = series.xData, yVal = series.yData, yValLen = yVal ? yVal.length : 0, 
                 // 0- date, 1-top line, 2-middle line, 3-bottom line
                 PC = [], 
-                // middle line, top line and bottom line
+                // Middle line, top line and bottom line
                 low = 2, high = 1, xData = [], yData = [];
                 var ML, TL, BL, date, slicedY, extremes, i;
                 if (yValLen < period) {
@@ -7070,6 +6784,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Price channel (PC). This series requires the `linkedTo` option to be
              * set and should be loaded after the `stock/indicators/indicators.js`.
@@ -7178,7 +6897,7 @@
          * @requires     stock/indicators/price-channel
          * @apioption    series.pc
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return PCIndicator;
     });
@@ -7224,21 +6943,7 @@
         var PriceEnvelopesIndicator = /** @class */ (function (_super) {
             __extends(PriceEnvelopesIndicator, _super);
             function PriceEnvelopesIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -7265,7 +6970,7 @@
                 var period = params.period, topPercent = params.topBand, botPercent = params.bottomBand, xVal = series.xData, yVal = series.yData, yValLen = yVal ? yVal.length : 0, 
                 // 0- date, 1-top line, 2-middle line, 3-bottom line
                 PE = [], 
-                // middle line, top line and bottom line
+                // Middle line, top line and bottom line
                 xData = [], yData = [];
                 var ML, TL, BL, date, slicedX, slicedY, point, i;
                 // Price envelopes requires close value
@@ -7295,6 +7000,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Price envelopes indicator based on [SMA](#plotOptions.sma) calculations.
              * This series requires the `linkedTo` option to be set and should be loaded
@@ -7409,7 +7119,7 @@
          * @requires  stock/indicators/price-envelopes
          * @apioption series.priceenvelopes
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return PriceEnvelopesIndicator;
     });
@@ -7418,7 +7128,7 @@
          *
          *  Parabolic SAR indicator for Highcharts Stock
          *
-         *  (c) 2010-2021 Grzegorz Blachliński
+         *  (c) 2010-2024 Grzegorz Blachliński
          *
          *  License: www.highcharts.com/license
          *
@@ -7448,9 +7158,15 @@
          *
          * */
         // Utils:
+        /**
+         *
+         */
         function toFixed(a, n) {
             return parseFloat(a.toFixed(n));
         }
+        /**
+         *
+         */
         function calculateDirection(previousDirection, low, high, PSAR) {
             if ((previousDirection === 1 && low > PSAR) ||
                 (previousDirection === -1 && high > PSAR)) {
@@ -7468,6 +7184,9 @@
          * maxAcc - maximum acceleration factor
          * initAcc - initial acceleration factor
          */
+        /**
+         *
+         */
         function getAccelerationFactor(dir, pDir, eP, pEP, pAcc, inc, maxAcc, initAcc) {
             if (dir === pDir) {
                 if (dir === 1 && (eP > pEP)) {
@@ -7480,15 +7199,24 @@
             }
             return initAcc;
         }
+        /**
+         *
+         */
         function getExtremePoint(high, low, previousDirection, previousExtremePoint) {
             if (previousDirection === 1) {
                 return (high > previousExtremePoint) ? high : previousExtremePoint;
             }
             return (low < previousExtremePoint) ? low : previousExtremePoint;
         }
+        /**
+         *
+         */
         function getEPMinusPSAR(EP, PSAR) {
             return EP - PSAR;
         }
+        /**
+         *
+         */
         function getAccelerationFactorMultiply(accelerationFactor, EPMinusSAR) {
             return accelerationFactor * EPMinusSAR;
         }
@@ -7503,6 +7231,9 @@
          * sHigh - second previous high
          * pHigh - previous high
          * pEP - previous extreme point
+         */
+        /**
+         *
          */
         function getPSAR(pdir, sDir, PSAR, pACCMulti, sLow, pLow, pHigh, sHigh, pEP) {
             if (pdir === sDir) {
@@ -7540,15 +7271,7 @@
                  *
                  * */
                 var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
                 _this.nameComponents = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
                 return _this;
             }
             /* *
@@ -7703,14 +7426,14 @@
          * @requires  stock/indicators/psar
          * @apioption series.psar
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return PSARIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/ROC/ROCIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Kacper Madej
+         *  (c) 2010-2024 Kacper Madej
          *
          *  License: www.highcharts.com/license
          *
@@ -7740,6 +7463,9 @@
          *
          * */
         // Utils:
+        /**
+         *
+         */
         function populateAverage(xVal, yVal, i, period, index) {
             /* Calculated as:
 
@@ -7749,14 +7475,14 @@
                Return y as null when avoiding division by zero */
             var nDaysAgoY, rocY;
             if (index < 0) {
-                // y data given as an array of values
+                // Y data given as an array of values
                 nDaysAgoY = yVal[i - period];
                 rocY = nDaysAgoY ?
                     (yVal[i] - nDaysAgoY) / nDaysAgoY * 100 :
                     null;
             }
             else {
-                // y data given as an array of arrays and the index should be used
+                // Y data given as an array of arrays and the index should be used
                 nDaysAgoY = yVal[i - period][index];
                 rocY = nDaysAgoY ?
                     (yVal[i][index] - nDaysAgoY) / nDaysAgoY * 100 :
@@ -7781,21 +7507,7 @@
         var ROCIndicator = /** @class */ (function (_super) {
             __extends(ROCIndicator, _super);
             function ROCIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -7814,7 +7526,7 @@
                 if (isArray(yVal[0])) {
                     index = params.index;
                 }
-                // i = period <-- skip first N-points
+                // I = period <-- skip first N-points
                 // Calculate value one-by-one for each period in visible data
                 for (i = period; i < yValLen; i++) {
                     ROCPoint = populateAverage(xVal, yVal, i, period, index);
@@ -7828,6 +7540,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Rate of change indicator (ROC). The indicator value for each point
              * is defined as:
@@ -7895,7 +7612,7 @@
          * @requires  stock/indicators/roc
          * @apioption series.roc
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return ROCIndicator;
     });
@@ -7930,6 +7647,9 @@
          *
          * */
         // Utils:
+        /**
+         *
+         */
         function toFixed(a, n) {
             return parseFloat(a.toFixed(n));
         }
@@ -7950,21 +7670,7 @@
         var RSIIndicator = /** @class */ (function (_super) {
             __extends(RSIIndicator, _super);
             function RSIIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -7984,7 +7690,7 @@
                     values = yVal;
                 }
                 else {
-                    // in case of the situation, where the series type has data length
+                    // In case of the situation, where the series type has data length
                     // longer then 4 (HLC, range), this ensures that we are not trying
                     // to reach the index out of bounds
                     index = Math.min(index, yVal[0].length - 1);
@@ -8041,6 +7747,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Relative strength index (RSI) technical indicator. This series
              * requires the `linkedTo` option to be set and should be loaded after
@@ -8087,7 +7798,7 @@
          * @requires  stock/indicators/rsi
          * @apioption series.rsi
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return RSIIndicator;
     });
@@ -8133,21 +7844,7 @@
         var StochasticIndicator = /** @class */ (function (_super) {
             __extends(StochasticIndicator, _super);
             function StochasticIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -8231,6 +7928,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Stochastic oscillator. This series requires the `linkedTo` option to be
              * set and should be loaded after the `stock/indicators/indicators.js` file.
@@ -8333,7 +8035,7 @@
          * @requires  stock/indicators/stochastic
          * @apioption series.stochastic
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return StochasticIndicator;
     });
@@ -8379,21 +8081,7 @@
         var SlowStochasticIndicator = /** @class */ (function (_super) {
             __extends(SlowStochasticIndicator, _super);
             function SlowStochasticIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -8436,6 +8124,11 @@
                 }
                 return slowValues;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Slow Stochastic oscillator. This series requires the `linkedTo` option
              * to be set and should be loaded after `stock/indicators/indicators.js`
@@ -8491,11 +8184,11 @@
          * @requires  stock/indicators/slowstochastic
          * @apioption series.slowstochastic
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return SlowStochasticIndicator;
     });
-    _registerModule(_modules, 'Stock/Indicators/Supertrend/SupertrendIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js'], _modules['Core/Chart/StockChart.js']], function (SeriesRegistry, U, StockChart) {
+    _registerModule(_modules, 'Stock/Indicators/Supertrend/SupertrendIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
          *  License: www.highcharts.com/license
@@ -8553,22 +8246,7 @@
         var SupertrendIndicator = /** @class */ (function (_super) {
             __extends(SupertrendIndicator, _super);
             function SupertrendIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.linkedParent = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -8579,7 +8257,7 @@
                 var indicator = this;
                 _super.prototype.init.apply(indicator, arguments);
                 // Only after series are linked add some additional logic/properties.
-                var unbinder = addEvent(StockChart, 'afterLinkSeries', function () {
+                var unbinder = addEvent(this.chart.constructor, 'afterLinkSeries', function () {
                     // Protection for a case where the indicator is being updated,
                     // for a brief moment the indicator is deleted.
                     if (indicator.options) {
@@ -8608,7 +8286,7 @@
                     }
                 }, 
                 // Sorted supertrend points array
-                groupedPoitns = {
+                groupedPoints = {
                     top: [],
                     bottom: [],
                     intersect: [] // Change trend line points
@@ -8644,7 +8322,7 @@
                 prevMainPoint, prevPrevMainPoint, 
                 // Used when particular point color is set
                 pointColor, 
-                // Temporary points that fill groupedPoitns array
+                // Temporary points that fill groupedPoints array
                 newPoint, newNextPoint, indicPointsLen = indicPoints.length;
                 // Loop which sort supertrend points
                 while (indicPointsLen--) {
@@ -8715,19 +8393,19 @@
                             nextPoint.y >= nextMainPoint.close) {
                             point.color = (pointColor || indicOptions.fallingTrendColor ||
                                 indicOptions.color);
-                            groupedPoitns.top.push(newPoint);
+                            groupedPoints.top.push(newPoint);
                         }
                         else if (point.y < mainPoint.close &&
                             nextPoint.y < nextMainPoint.close) {
                             point.color = (pointColor || indicOptions.risingTrendColor ||
                                 indicOptions.color);
-                            groupedPoitns.bottom.push(newPoint);
+                            groupedPoints.bottom.push(newPoint);
                         }
                         else {
-                            groupedPoitns.intersect.push(newPoint);
-                            groupedPoitns.intersect.push(newNextPoint);
+                            groupedPoints.intersect.push(newPoint);
+                            groupedPoints.intersect.push(newNextPoint);
                             // Additional null point to make a gap in line
-                            groupedPoitns.intersect.push(merge(newNextPoint, {
+                            groupedPoints.intersect.push(merge(newNextPoint, {
                                 isNull: true
                             }));
                             if (point.y >= mainPoint.close &&
@@ -8736,8 +8414,8 @@
                                     indicOptions.color);
                                 nextPoint.color = (pointColor || indicOptions.risingTrendColor ||
                                     indicOptions.color);
-                                groupedPoitns.top.push(newPoint);
-                                groupedPoitns.top.push(merge(newNextPoint, {
+                                groupedPoints.top.push(newPoint);
+                                groupedPoints.top.push(merge(newNextPoint, {
                                     isNull: true
                                 }));
                             }
@@ -8747,8 +8425,8 @@
                                     indicOptions.color);
                                 nextPoint.color = (pointColor || indicOptions.fallingTrendColor ||
                                     indicOptions.color);
-                                groupedPoitns.bottom.push(newPoint);
-                                groupedPoitns.bottom.push(merge(newNextPoint, {
+                                groupedPoints.bottom.push(newPoint);
+                                groupedPoints.bottom.push(merge(newNextPoint, {
                                     isNull: true
                                 }));
                             }
@@ -8758,17 +8436,17 @@
                         if (point.y >= mainPoint.close) {
                             point.color = (pointColor || indicOptions.fallingTrendColor ||
                                 indicOptions.color);
-                            groupedPoitns.top.push(newPoint);
+                            groupedPoints.top.push(newPoint);
                         }
                         else {
                             point.color = (pointColor || indicOptions.risingTrendColor ||
                                 indicOptions.color);
-                            groupedPoitns.bottom.push(newPoint);
+                            groupedPoints.bottom.push(newPoint);
                         }
                     }
                 }
                 // Generate lines:
-                objectEach(groupedPoitns, function (values, lineName) {
+                objectEach(groupedPoints, function (values, lineName) {
                     indicator.points = values;
                     indicator.options = merge(supertrendLineOptions[lineName].styles, gappedExtend);
                     indicator.graph = indicator['graph' + lineName + 'Line'];
@@ -8817,7 +8495,7 @@
                 var period = params.period, multiplier = params.multiplier, xVal = series.xData, yVal = series.yData, 
                 // 0- date, 1- Supertrend indicator
                 st = [], xData = [], yData = [], close = 3, low = 2, high = 1, periodsOffset = (period === 0) ? 0 : period - 1, finalUp = [], finalDown = [];
-                var atrData = [], basicUp, basicDown, supertrend, prevFinalUp, prevFinalDown, prevST, // previous Supertrend
+                var atrData = [], basicUp, basicDown, supertrend, prevFinalUp, prevFinalDown, prevST, // Previous Supertrend
                 prevY, y, i;
                 if ((xVal.length <= period) || !isArray(yVal[0]) ||
                     yVal[0].length !== 4 || period < 0) {
@@ -8869,6 +8547,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Supertrend indicator. This series requires the `linkedTo` option to be
              * set and should be loaded after the `stock/indicators/indicators.js` and
@@ -8890,7 +8573,7 @@
              */
             SupertrendIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Supertrend indicator series points.
+                 * Parameters used in calculation of Supertrend indicator series points.
                  *
                  * @excluding index
                  */
@@ -8992,7 +8675,7 @@
          * @requires  stock/indicators/supertrend
          * @apioption series.supertrend
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return SupertrendIndicator;
     });
@@ -9053,10 +8736,10 @@
 
         return VBPPoint;
     });
-    _registerModule(_modules, 'Stock/Indicators/VBP/VBPIndicator.js', [_modules['Stock/Indicators/VBP/VBPPoint.js'], _modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Globals.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js'], _modules['Core/Chart/StockChart.js']], function (VBPPoint, A, H, SeriesRegistry, U, StockChart) {
+    _registerModule(_modules, 'Stock/Indicators/VBP/VBPIndicator.js', [_modules['Stock/Indicators/VBP/VBPPoint.js'], _modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Globals.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (VBPPoint, A, H, SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Paweł Dalek
+         *  (c) 2010-2024 Paweł Dalek
          *
          *  Volume By Price (VBP) indicator for Highcharts Stock
          *
@@ -9133,28 +8816,7 @@
         var VBPIndicator = /** @class */ (function (_super) {
             __extends(VBPIndicator, _super);
             function VBPIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.negWidths = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.posWidths = void 0;
-                _this.priceZones = void 0;
-                _this.rangeStep = void 0;
-                _this.volumeDataArray = void 0;
-                _this.zoneStarts = void 0;
-                _this.zoneLinesSVG = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -9163,12 +8825,12 @@
              * */
             VBPIndicator.prototype.init = function (chart, options) {
                 var indicator = this;
-                // series.update() sends data that is not necessary
-                // as everything is calculated in getValues(), #17007
+                // Series.update() sends data that is not necessary as everything is
+                // calculated in getValues(), #17007
                 delete options.data;
                 _super.prototype.init.apply(indicator, arguments);
                 // Only after series are linked add some additional logic/properties.
-                var unbinder = addEvent(StockChart, 'afterLinkSeries', function () {
+                var unbinder = addEvent(this.chart.constructor, 'afterLinkSeries', function () {
                     // Protection for a case where the indicator is being updated,
                     // for a brief moment the indicator is deleted.
                     if (indicator.options) {
@@ -9323,6 +8985,25 @@
                     }
                 }
             };
+            VBPIndicator.prototype.getExtremes = function () {
+                var prevCompare = this.options.compare, prevCumulative = this.options.cumulative;
+                var ret;
+                // Temporarily disable cumulative and compare while getting the extremes
+                if (this.options.compare) {
+                    this.options.compare = void 0;
+                    ret = _super.prototype.getExtremes.call(this);
+                    this.options.compare = prevCompare;
+                }
+                else if (this.options.cumulative) {
+                    this.options.cumulative = false;
+                    ret = _super.prototype.getExtremes.call(this);
+                    this.options.cumulative = prevCumulative;
+                }
+                else {
+                    ret = _super.prototype.getExtremes.call(this);
+                }
+                return ret;
+            };
             VBPIndicator.prototype.getValues = function (series, params) {
                 var indicator = this, xValues = series.processedXData, yValues = series.processedYData, chart = indicator.chart, ranges = params.ranges, VBP = [], xData = [], yData = [], volumeSeries = chart.get(params.volumeSeriesID);
                 // Checks if base series exists
@@ -9363,7 +9044,7 @@
                     yData: yData
                 };
             };
-            // Specifing where each zone should start ans end
+            // Specifying where each zone should start ans end
             VBPIndicator.prototype.specifyZones = function (isOHLC, xValues, yValues, ranges, volumeSeries) {
                 var indicator = this, rangeExtremes = (isOHLC ? arrayExtremesOHLC(yValues) : false), zoneStarts = indicator.zoneStarts = [], priceZones = [];
                 var lowRange = rangeExtremes ?
@@ -9415,7 +9096,7 @@
                 // Checks if each point has a corresponding volume value
                 if (abs(baseSeriesLength - volumeSeriesLength)) {
                     // If the first point don't have volume, add 0 value at the
-                    // beggining of the volume array
+                    // beginning of the volume array
                     if (xValues[0] !== volumeXData[0]) {
                         volumeYData.unshift(0);
                     }
@@ -9474,7 +9155,7 @@
                 });
                 return priceZones;
             };
-            // Function responsoble for drawing additional lines indicating zones
+            // Function responsible for drawing additional lines indicating zones
             VBPIndicator.prototype.drawZones = function (chart, yAxis, zonesValues, zonesStyles) {
                 var indicator = this, renderer = chart.renderer, leftLinePos = 0, rightLinePos = chart.plotWidth, verticalOffset = chart.plotTop;
                 var zoneLinesSVG = indicator.zoneLinesSVG, zoneLinesPath = [], verticalLinePos;
@@ -9509,6 +9190,11 @@
                             .add(indicator.group);
                 }
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Volume By Price indicator.
              *
@@ -9648,14 +9334,14 @@
          * @requires  stock/indicators/volume-by-price
          * @apioption series.vbp
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return VBPIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/VWAP/VWAPIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Paweł Dalek
+         *  (c) 2010-2024 Paweł Dalek
          *
          *  Volume Weighted Average Price (VWAP) indicator for Highcharts Stock
          *
@@ -9698,21 +9384,7 @@
         var VWAPIndicator = /** @class */ (function (_super) {
             __extends(VWAPIndicator, _super);
             function VWAPIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -9799,6 +9471,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Volume Weighted Average Price indicator.
              *
@@ -9855,7 +9532,7 @@
          * @requires  stock/indicators/vwap
          * @apioption series.vwap
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return VWAPIndicator;
     });
@@ -9901,21 +9578,7 @@
         var WilliamsRIndicator = /** @class */ (function (_super) {
             __extends(WilliamsRIndicator, _super);
             function WilliamsRIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -9957,6 +9620,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Williams %R. This series requires the `linkedTo` option to be
              * set and should be loaded after the `stock/indicators/indicators.js`.
@@ -9976,7 +9644,7 @@
              */
             WilliamsRIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Williams %R series points.
+                 * Parameters used in calculation of Williams %R series points.
                  * @excluding index
                  */
                 params: {
@@ -10017,14 +9685,14 @@
          * @requires  stock/indicators/williams-r
          * @apioption series.williamsr
          */
-        ''; // adds doclets above to the transpiled file
+        ''; // Adds doclets above to the transpiled file
 
         return WilliamsRIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/WMA/WMAIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Kacper Madej
+         *  (c) 2010-2024 Kacper Madej
          *
          *  License: www.highcharts.com/license
          *
@@ -10069,7 +9737,7 @@
             // If there are 5 days, the triangular numbers are 5, 4, 3, 2, and 1.
             // The sum is 5 + 4 + 3 + 2 + 1 = 15.
             var denominator = (pLen + 1) / 2 * pLen;
-            // reduce VS loop => reduce
+            // Reduce VS loop => reduce
             return array.reduce(function (prev, cur, i) {
                 return [null, prev[1] + cur[1] * (i + 1)];
             })[1] / denominator;
@@ -10079,7 +9747,7 @@
          */
         function populateAverage(points, xVal, yVal, i) {
             var pLen = points.length, wmaY = weightedSumArray(points, pLen), wmaX = xVal[i - 1];
-            points.shift(); // remove point until range < period
+            points.shift(); // Remove point until range < period
             return [wmaX, wmaY];
         }
         /* *
@@ -10099,21 +9767,7 @@
         var WMAIndicator = /** @class */ (function (_super) {
             __extends(WMAIndicator, _super);
             function WMAIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -10156,6 +9810,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Weighted moving average indicator (WMA). This series requires `linkedTo`
              * option to be set.
@@ -10201,14 +9860,14 @@
          * @requires  stock/indicators/wma
          * @apioption series.wma
          */
-        ''; // adds doclet above to the transpiled file
+        ''; // Adds doclet above to the transpiled file
 
         return WMAIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/Zigzag/ZigzagIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Kacper Madej
+         *  (c) 2010-2024 Kacper Madej
          *
          *  License: www.highcharts.com/license
          *
@@ -10249,21 +9908,7 @@
         var ZigzagIndicator = /** @class */ (function (_super) {
             __extends(ZigzagIndicator, _super);
             function ZigzagIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -10276,7 +9921,7 @@
                     'high': 1 - deviation
                 }, xVal = series.xData, yVal = series.yData, yValLen = yVal ? yVal.length : 0, zigzag = [], xData = [], yData = [];
                 var i, j, zigzagPoint, directionUp, exitLoop = false, yIndex = false;
-                // Exit if not enught points or no low or high values
+                // Exit if not enough points or no low or high values
                 if (!xVal || xVal.length <= 1 ||
                     (yValLen &&
                         (typeof yVal[0][lowIndex] === 'undefined' ||
@@ -10288,21 +9933,21 @@
                 // Search for a second zigzag point candidate,
                 // this will also set first zigzag point
                 for (i = 1; i < yValLen; i++) {
-                    // requried change to go down
+                    // Required change to go down
                     if (yVal[i][lowIndex] <= firstZigzagHigh * deviations.high) {
                         zigzag.push([xVal[0], firstZigzagHigh]);
-                        // second zigzag point candidate
+                        // Second zigzag point candidate
                         zigzagPoint = [xVal[i], yVal[i][lowIndex]];
-                        // next line will be going up
+                        // Next line will be going up
                         directionUp = true;
                         exitLoop = true;
-                        // requried change to go up
+                        // Required change to go up
                     }
                     else if (yVal[i][highIndex] >= firstZigzagLow * deviations.low) {
                         zigzag.push([xVal[0], firstZigzagLow]);
-                        // second zigzag point candidate
+                        // Second zigzag point candidate
                         zigzagPoint = [xVal[i], yVal[i][highIndex]];
-                        // next line will be going down
+                        // Next line will be going down
                         directionUp = false;
                         exitLoop = true;
                     }
@@ -10315,31 +9960,31 @@
                 }
                 // Search for next zigzags
                 for (i = j; i < yValLen; i++) {
-                    if (directionUp) { // next line up
+                    if (directionUp) { // Next line up
                         // lower when going down -> change zigzag candidate
                         if (yVal[i][lowIndex] <= zigzagPoint[1]) {
                             zigzagPoint = [xVal[i], yVal[i][lowIndex]];
                         }
-                        // requried change to go down -> new zigzagpoint and
+                        // Required change to go down -> new zigzagpoint and
                         // direction change
                         if (yVal[i][highIndex] >=
                             zigzagPoint[1] * deviations.low) {
                             yIndex = highIndex;
                         }
                     }
-                    else { // next line down
+                    else { // Next line down
                         // higher when going up -> change zigzag candidate
                         if (yVal[i][highIndex] >= zigzagPoint[1]) {
                             zigzagPoint = [xVal[i], yVal[i][highIndex]];
                         }
-                        // requried change to go down -> new zigzagpoint and
+                        // Required change to go down -> new zigzagpoint and
                         // direction change
                         if (yVal[i][lowIndex] <=
                             zigzagPoint[1] * deviations.high) {
                             yIndex = lowIndex;
                         }
                     }
-                    if (yIndex !== false) { // new zigzag point and direction change
+                    if (yIndex !== false) { // New zigzag point and direction change
                         zigzag.push(zigzagPoint);
                         xData.push(zigzagPoint[0]);
                         yData.push(zigzagPoint[1]);
@@ -10349,10 +9994,10 @@
                     }
                 }
                 var zigzagLen = zigzag.length;
-                // no zigzag for last point
+                // No zigzag for last point
                 if (zigzagLen !== 0 &&
                     zigzag[zigzagLen - 1][0] < xVal[yValLen - 1]) {
-                    // set last point from zigzag candidate
+                    // Set last point from zigzag candidate
                     zigzag.push(zigzagPoint);
                     xData.push(zigzagPoint[0]);
                     yData.push(zigzagPoint[1]);
@@ -10363,6 +10008,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Zig Zag indicator.
              *
@@ -10441,14 +10091,14 @@
          * @requires  stock/indicators/zigzag
          * @apioption series.zigzag
          */
-        ''; // adds doclets above to transpiled file
+        ''; // Adds doclets above to transpiled file
 
         return ZigzagIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/LinearRegression/LinearRegressionIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Kamil Kulig
+         *  (c) 2010-2024 Kamil Kulig
          *
          *  License: www.highcharts.com/license
          *
@@ -10489,21 +10139,7 @@
         var LinearRegressionIndicator = /** @class */ (function (_super) {
             __extends(LinearRegressionIndicator, _super);
             function LinearRegressionIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -10526,7 +10162,7 @@
              * function.
              */
             LinearRegressionIndicator.prototype.getRegressionLineParameters = function (xData, yData) {
-                // least squares method
+                // Least squares method
                 var yIndex = this.options.params.index, getSingleYValue = function (yValue, yIndex) {
                     return isArray(yValue) ? yValue[yIndex] : yValue;
                 }, xSum = xData.reduce(function (accX, val) {
@@ -10542,7 +10178,7 @@
                     formulaDenominator += Math.pow(xError, 2);
                 }
                 var slope = formulaDenominator ?
-                    formulaNumerator / formulaDenominator : 0; // don't divide by 0
+                    formulaNumerator / formulaDenominator : 0; // Don't divide by 0
                 return {
                     slope: slope,
                     intercept: yMean - slope * xMean
@@ -10608,7 +10244,7 @@
             // Required to be implemented - starting point for indicator's logic
             LinearRegressionIndicator.prototype.getValues = function (baseSeries, regressionSeriesParams) {
                 var xData = baseSeries.xData, yData = baseSeries.yData, period = regressionSeriesParams.period, 
-                // format required to be returned
+                // Format required to be returned
                 indicatorData = {
                     xData: [],
                     yData: [],
@@ -10620,7 +10256,7 @@
                 // (end point) is used to represent the y value (regression)
                 // of the entire period.
                 for (i = period - 1; i <= xData.length - 1; i++) {
-                    periodStart = i - period + 1; // adjusted for slice() function
+                    periodStart = i - period + 1; // Adjusted for slice() function
                     periodEnd = i + 1; // (as above)
                     endPointX = xData[i];
                     periodXData = xData.slice(periodStart, periodEnd);
@@ -10639,6 +10275,11 @@
                 }
                 return indicatorData;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Linear regression indicator. This series requires `linkedTo` option to be
              * set.
@@ -10657,10 +10298,10 @@
                 params: {
                     /**
                      * Unit (in milliseconds) for the x axis distances used to
-                     * compute the regression line paramters (slope & intercept) for
-                     * every range. In Highcharts Stock the x axis values are always
-                     * represented in milliseconds which may cause that distances
-                     * between points are "big" integer numbers.
+                     * compute the regression line parameters (slope & intercept)
+                     * for every range. In Highcharts Stock the x axis values are
+                     * always represented in milliseconds which may cause that
+                     * distances between points are "big" integer numbers.
                      *
                      * Highcharts Stock's linear regression algorithm (least squares
                      * method) will utilize these "big" integers for finding the
@@ -10668,10 +10309,10 @@
                      * period. In consequence, this value may be a very "small"
                      * decimal number that's hard to interpret by a human.
                      *
-                     * For instance: `xAxisUnit` equealed to `86400000` ms (1 day)
+                     * For instance: `xAxisUnit` equaled to `86400000` ms (1 day)
                      * forces the algorithm to treat `86400000` as `1` while
-                     * computing the slope and the intercept. This may enchance the
-                     * legiblitity of the indicator's values.
+                     * computing the slope and the intercept. This may enhance the
+                     * legibility of the indicator's values.
                      *
                      * Default value is the closest distance between two data
                      * points.
@@ -10737,14 +10378,14 @@
          * @requires  stock/indicators/regressions
          * @apioption series.linearregression
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return LinearRegressionIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/LinearRegressionSlopes/LinearRegressionSlopesIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Kamil Kulig
+         *  (c) 2010-2024 Kamil Kulig
          *
          *  License: www.highcharts.com/license
          *
@@ -10785,21 +10426,7 @@
         var LinearRegressionSlopesIndicator = /** @class */ (function (_super) {
             __extends(LinearRegressionSlopesIndicator, _super);
             function LinearRegressionSlopesIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -10809,6 +10436,11 @@
             LinearRegressionSlopesIndicator.prototype.getEndPointY = function (lineParameters) {
                 return lineParameters.slope;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Linear regression slope indicator. This series requires `linkedTo`
              * option to be set.
@@ -10853,14 +10485,14 @@
          * @requires  stock/indicators/regressions
          * @apioption series.linearregressionslope
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return LinearRegressionSlopesIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/LinearRegressionIntercept/LinearRegressionInterceptIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Kamil Kulig
+         *  (c) 2010-2024 Kamil Kulig
          *
          *  License: www.highcharts.com/license
          *
@@ -10901,21 +10533,7 @@
         var LinearRegressionInterceptIndicator = /** @class */ (function (_super) {
             __extends(LinearRegressionInterceptIndicator, _super);
             function LinearRegressionInterceptIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -10925,6 +10543,11 @@
             LinearRegressionInterceptIndicator.prototype.getEndPointY = function (lineParameters) {
                 return lineParameters.intercept;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Linear regression intercept indicator. This series requires `linkedTo`
              * option to be set.
@@ -10969,14 +10592,14 @@
          * @requires  stock/indicators/regressions
          * @apioption series.linearregressionintercept
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return LinearRegressionInterceptIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/LinearRegressionAngle/LinearRegressionAngleIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /**
          *
-         *  (c) 2010-2021 Kamil Kulig
+         *  (c) 2010-2024 Kamil Kulig
          *
          *  License: www.highcharts.com/license
          *
@@ -11017,21 +10640,7 @@
         var LinearRegressionAngleIndicator = /** @class */ (function (_super) {
             __extends(LinearRegressionAngleIndicator, _super);
             function LinearRegressionAngleIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -11046,11 +10655,16 @@
              * @return {number} angle in degrees
              */
             LinearRegressionAngleIndicator.prototype.slopeToAngle = function (slope) {
-                return Math.atan(slope) * (180 / Math.PI); // rad to deg
+                return Math.atan(slope) * (180 / Math.PI); // Rad to deg
             };
             LinearRegressionAngleIndicator.prototype.getEndPointY = function (lineParameters) {
                 return this.slopeToAngle(lineParameters.slope);
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Linear regression angle indicator. This series requires `linkedTo`
              * option to be set.
@@ -11095,7 +10709,7 @@
          * @requires  stock/indicators/regressions
          * @apioption series.linearregressionangle
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return LinearRegressionAngleIndicator;
     });
@@ -11165,21 +10779,7 @@
         var ABandsIndicator = /** @class */ (function (_super) {
             __extends(ABandsIndicator, _super);
             function ABandsIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -11195,7 +10795,7 @@
                 // ABANDS array structure:
                 // 0-date, 1-top line, 2-middle line, 3-bottom line
                 ABANDS = [], low = 2, high = 1, xData = [], yData = [];
-                // middle line, top line and bottom line
+                // Middle line, top line and bottom line
                 var ML, TL, BL, date, bandBase, pointSMA, ubSMA, lbSMA, slicedX, slicedY, i;
                 if (yValLen < period) {
                     return;
@@ -11247,6 +10847,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Acceleration bands (ABANDS). This series requires the `linkedTo` option
              * to be set and should be loaded after the
@@ -11347,7 +10952,7 @@
          * @requires  stock/indicators/acceleration-bands
          * @apioption series.abands
          */
-        ''; // to include the above in jsdoc
+        ''; // To include the above in jsdoc
 
         return ABandsIndicator;
     });
@@ -11399,14 +11004,6 @@
                  *
                  * */
                 var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
                 _this.updateAllPoints = true;
                 return _this;
             }
@@ -11416,28 +11013,35 @@
              *
              * */
             TrendLineIndicator.prototype.getValues = function (series, params) {
-                var xVal = series.xData, yVal = series.yData, LR = [], xData = [], yData = [], xValLength = xVal.length, index = params.index;
-                var sumX = (xValLength - 1) * xValLength / 2, sumY = 0, sumXY = 0, sumX2 = ((xValLength - 1) * (xValLength) * (2 * xValLength - 1)) / 6, alpha, i, y;
-                // Get sums:
-                for (i = 0; i < xValLength; i++) {
-                    y = isArray(yVal[i]) ? yVal[i][index] : yVal[i];
-                    sumY += y;
-                    sumXY += i * y;
+                var orgXVal = series.xData, yVal = series.yData, xVal = [], LR = [], xData = [], yData = [], index = params.index;
+                var numerator = 0, denominator = 0, xValSum = 0, yValSum = 0, counter = 0;
+                // Create an array of consecutive xValues, (don't remove duplicates)
+                for (var i = 0; i < orgXVal.length; i++) {
+                    if (i === 0 || orgXVal[i] !== orgXVal[i - 1]) {
+                        counter++;
+                    }
+                    xVal.push(counter);
                 }
-                // Get slope and offset:
-                alpha = (xValLength * sumXY - sumX * sumY) /
-                    (xValLength * sumX2 - sumX * sumX);
-                if (isNaN(alpha)) {
-                    alpha = 0;
+                for (var i = 0; i < xVal.length; i++) {
+                    xValSum += xVal[i];
+                    yValSum += isArray(yVal[i]) ? yVal[i][index] : yVal[i];
                 }
-                var beta = (sumY - alpha * sumX) / xValLength;
+                var meanX = xValSum / xVal.length, meanY = yValSum / yVal.length;
+                for (var i = 0; i < xVal.length; i++) {
+                    var y = isArray(yVal[i]) ? yVal[i][index] : yVal[i];
+                    numerator += (xVal[i] - meanX) * (y - meanY);
+                    denominator += Math.pow(xVal[i] - meanX, 2);
+                }
                 // Calculate linear regression:
-                for (i = 0; i < xValLength; i++) {
-                    y = alpha * i + beta;
-                    // Prepare arrays required for getValues() method
-                    LR[i] = [xVal[i], y];
-                    xData[i] = xVal[i];
-                    yData[i] = y;
+                for (var i = 0; i < xVal.length; i++) {
+                    // Check if the xVal is already used
+                    if (orgXVal[i] === xData[xData.length - 1]) {
+                        continue;
+                    }
+                    var x = orgXVal[i], y = meanY + (numerator / denominator) * (xVal[i] - meanX);
+                    LR.push([x, y]);
+                    xData.push(x);
+                    yData.push(y);
                 }
                 return {
                     xData: xData,
@@ -11480,7 +11084,7 @@
         }(SMAIndicator));
         extend(TrendLineIndicator.prototype, {
             nameBase: 'Trendline',
-            nameComponents: false
+            nameComponents: void 0
         });
         SeriesRegistry.registerSeriesType('trendline', TrendLineIndicator);
         /* *
@@ -11505,13 +11109,13 @@
          * @requires  stock/indicators/trendline
          * @apioption series.trendline
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return TrendLineIndicator;
     });
     _registerModule(_modules, 'Stock/Indicators/DisparityIndex/DisparityIndexIndicator.js', [_modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (SeriesRegistry, U) {
         /* *
-         *  (c) 2010-2021 Rafal Sebestjanski
+         *  (c) 2010-2024 Rafal Sebestjanski
          *
          *  Disparity Index technical indicator for Highcharts Stock
          *
@@ -11554,22 +11158,7 @@
         var DisparityIndexIndicator = /** @class */ (function (_super) {
             __extends(DisparityIndexIndicator, _super);
             function DisparityIndexIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.averageIndicator = void 0;
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -11578,7 +11167,7 @@
              * */
             DisparityIndexIndicator.prototype.init = function () {
                 var args = arguments, ctx = this, // Disparity Index indicator
-                params = args[1].params, // options.params
+                params = args[1].params, // Options.params
                 averageType = params && params.average ? params.average : void 0;
                 ctx.averageIndicator = SeriesRegistry
                     .seriesTypes[averageType] || SMAIndicator;
@@ -11615,6 +11204,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Disparity Index.
              * This series requires the `linkedTo` option to be set and should
@@ -11686,12 +11280,13 @@
          * @requires  stock/indicators/disparity-index
          * @apioption series.disparityindex
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return DisparityIndexIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/indicators-all.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/indicators-all.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

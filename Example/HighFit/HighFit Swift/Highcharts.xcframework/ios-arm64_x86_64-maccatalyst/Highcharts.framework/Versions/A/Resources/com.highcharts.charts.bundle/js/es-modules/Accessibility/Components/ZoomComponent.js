@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2024 Øystein Moseng
  *
  *  Accessibility component for chart zoom.
  *
@@ -134,7 +134,7 @@ class ZoomComponent extends AccessibilityComponent {
     createZoomProxyButton(buttonEl, buttonProp, label) {
         this[buttonProp] = this.proxyProvider.addProxyElement('zoom', {
             click: buttonEl
-        }, {
+        }, 'button', {
             'aria-label': label,
             tabindex: -1
         });
@@ -280,11 +280,11 @@ class ZoomComponent extends AccessibilityComponent {
             validate: function () {
                 const hasButton = (chart[buttonProp] &&
                     chart[buttonProp].box &&
-                    component[proxyProp].buttonElement);
+                    component[proxyProp].innerElement);
                 return hasButton;
             },
             init: function () {
-                chart.setFocusToElement(chart[buttonProp].box, component[proxyProp].buttonElement);
+                chart.setFocusToElement(chart[buttonProp].box, component[proxyProp].innerElement);
             }
         });
     }

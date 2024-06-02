@@ -2,7 +2,7 @@
  *
  *  Experimental Highcharts module which enables visualization of a word cloud.
  *
- *  (c) 2016-2021 Highsoft AS
+ *  (c) 2016-2024 Highsoft AS
  *  Authors: Jon Arild Nygard
  *
  *  License: www.highcharts.com/license
@@ -11,26 +11,18 @@
  * */
 'use strict';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-const { seriesTypes: { column: { prototype: { pointClass: ColumnPoint } } } } = SeriesRegistry;
+const { column: { prototype: { pointClass: ColumnPoint } } } = SeriesRegistry.seriesTypes;
 import U from '../../Core/Utilities.js';
 const { extend } = U;
+/* *
+ *
+ *  Class
+ *
+ * */
 class WordcloudPoint extends ColumnPoint {
-    constructor() {
-        /* *
-         *
-         * Properties
-         *
-         * */
-        super(...arguments);
-        this.dimensions = void 0;
-        this.options = void 0;
-        this.polygon = void 0;
-        this.rect = void 0;
-        this.series = void 0;
-    }
     /* *
      *
-     * Functions
+     *  Functions
      *
      * */
     isValid() {

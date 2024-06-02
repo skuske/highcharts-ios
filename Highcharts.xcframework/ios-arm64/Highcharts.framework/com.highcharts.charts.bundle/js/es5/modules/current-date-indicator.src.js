@@ -1,9 +1,9 @@
 /**
- * @license Highcharts Gantt JS v11.1.0 (2023-06-05)
+ * @license Highcharts Gantt JS v11.4.3 (2024-05-22)
  *
  * CurrentDateIndicator
  *
- * (c) 2010-2021 Lars A. V. Cabrera
+ * (c) 2010-2024 Lars A. V. Cabrera
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Extensions/CurrentDateIndication.js', [_modules['Core/Utilities.js']], function (U) {
+    _registerModule(_modules, 'Extensions/CurrentDateIndication.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (H, U) {
         /* *
          *
-         *  (c) 2016-2021 Highsoft AS
+         *  (c) 2016-2024 Highsoft AS
          *
          *  Author: Lars A. V. Cabrera
          *
@@ -49,13 +47,13 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var addEvent = U.addEvent, merge = U.merge, wrap = U.wrap;
+        var composed = H.composed;
+        var addEvent = U.addEvent, merge = U.merge, pushUnique = U.pushUnique, wrap = U.wrap;
         /* *
          *
          *  Constants
          *
          * */
-        var composedMembers = [];
         /**
          * Show an indicator on the axis for the current date and time. Can be a
          * boolean or a configuration object similar to
@@ -113,10 +111,8 @@
          * @private
          */
         function compose(AxisClass, PlotLineOrBandClass) {
-            if (U.pushUnique(composedMembers, AxisClass)) {
+            if (pushUnique(composed, 'CurrentDateIndication')) {
                 addEvent(AxisClass, 'afterSetOptions', onAxisAfterSetOptions);
-            }
-            if (U.pushUnique(composedMembers, PlotLineOrBandClass)) {
                 addEvent(PlotLineOrBandClass, 'render', onPlotLineOrBandRender);
                 wrap(PlotLineOrBandClass.prototype, 'getLabelText', wrapPlotLineOrBandGetLabelText);
             }
@@ -181,5 +177,6 @@
         var G = Highcharts;
         CurrentDateIndication.compose(G.Axis, G.PlotLineOrBand);
 
+        return Highcharts;
     });
 }));

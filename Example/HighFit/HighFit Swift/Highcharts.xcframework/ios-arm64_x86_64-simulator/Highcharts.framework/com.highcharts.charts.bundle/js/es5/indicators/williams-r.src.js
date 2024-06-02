@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Wojciech Chmiel
+ * (c) 2010-2024 Wojciech Chmiel
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Stock/Indicators/ArrayUtilities.js', [], function () {
         /**
          *
-         *  (c) 2010-2021 Pawel Fus & Daniel Studencki
+         *  (c) 2010-2024 Pawel Fus & Daniel Studencki
          *
          *  License: www.highcharts.com/license
          *
@@ -128,21 +126,7 @@
         var WilliamsRIndicator = /** @class */ (function (_super) {
             __extends(WilliamsRIndicator, _super);
             function WilliamsRIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -184,6 +168,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Williams %R. This series requires the `linkedTo` option to be
              * set and should be loaded after the `stock/indicators/indicators.js`.
@@ -203,7 +192,7 @@
              */
             WilliamsRIndicator.defaultOptions = merge(SMAIndicator.defaultOptions, {
                 /**
-                 * Paramters used in calculation of Williams %R series points.
+                 * Parameters used in calculation of Williams %R series points.
                  * @excluding index
                  */
                 params: {
@@ -244,12 +233,13 @@
          * @requires  stock/indicators/williams-r
          * @apioption series.williamsr
          */
-        ''; // adds doclets above to the transpiled file
+        ''; // Adds doclets above to the transpiled file
 
         return WilliamsRIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/williams-r.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/williams-r.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

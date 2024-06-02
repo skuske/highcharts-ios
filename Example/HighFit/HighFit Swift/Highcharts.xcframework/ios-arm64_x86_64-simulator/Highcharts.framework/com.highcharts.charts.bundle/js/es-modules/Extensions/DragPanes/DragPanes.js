@@ -2,7 +2,7 @@
  *
  *  Plugin for resizing axes / panes in a chart.
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2024 Highsoft AS
  *
  *  Author: Kacper Madej
  *
@@ -13,14 +13,10 @@
  * */
 'use strict';
 import AxisResizer from './AxisResizer.js';
+import D from '../../Core/Defaults.js';
+const { defaultOptions } = D;
 import U from '../../Core/Utilities.js';
 const { addEvent, merge, wrap } = U;
-/* *
- *
- *  Constants
- *
- * */
-const composedMembers = [];
 /* *
  *
  *  Functions
@@ -30,14 +26,12 @@ const composedMembers = [];
  * @private
  */
 function compose(AxisClass, PointerClass) {
-    if (U.pushUnique(composedMembers, AxisClass)) {
-        merge(true, AxisClass.defaultOptions, AxisResizer.resizerOptions);
+    if (!AxisClass.keepProps.includes('resizer')) {
+        merge(true, defaultOptions.yAxis, AxisResizer.resizerOptions);
         // Keep resizer reference on axis update
         AxisClass.keepProps.push('resizer');
         addEvent(AxisClass, 'afterRender', onAxisAfterRender);
         addEvent(AxisClass, 'destroy', onAxisDestroy);
-    }
-    if (U.pushUnique(composedMembers, PointerClass)) {
         wrap(PointerClass.prototype, 'runPointActions', wrapPointerRunPointActions);
         wrap(PointerClass.prototype, 'drag', wrapPointerDrag);
     }
@@ -47,9 +41,9 @@ function compose(AxisClass, PointerClass) {
  * @private
  */
 function onAxisAfterRender() {
-    let axis = this, resizer = axis.resizer, resizerOptions = axis.options.resize, enabled;
+    const axis = this, resizer = axis.resizer, resizerOptions = axis.options.resize;
     if (resizerOptions) {
-        enabled = resizerOptions.enabled !== false;
+        const enabled = resizerOptions.enabled !== false;
         if (resizer) {
             // Resizer present and enabled
             if (enabled) {
@@ -77,8 +71,9 @@ function onAxisAfterRender() {
  * @private
  */
 function onAxisDestroy(e) {
-    if (!e.keepEvents && this.resizer) {
-        this.resizer.destroy();
+    const axis = this;
+    if (!e.keepEvents && axis.resizer) {
+        axis.resizer.destroy();
     }
 }
 /**
@@ -87,8 +82,9 @@ function onAxisDestroy(e) {
  * @private
  */
 function wrapPointerDrag(proceed) {
-    if (!this.chart.activeResizer) {
-        proceed.apply(this, Array.prototype.slice.call(arguments, 1));
+    const pointer = this;
+    if (!pointer.chart.activeResizer) {
+        proceed.apply(pointer, [].slice.call(arguments, 1));
     }
 }
 /**
@@ -96,8 +92,9 @@ function wrapPointerDrag(proceed) {
  * @private
  */
 function wrapPointerRunPointActions(proceed) {
-    if (!this.chart.activeResizer) {
-        proceed.apply(this, Array.prototype.slice.call(arguments, 1));
+    const pointer = this;
+    if (!pointer.chart.activeResizer) {
+        proceed.apply(pointer, [].slice.call(arguments, 1));
     }
 }
 /* *

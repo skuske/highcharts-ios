@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
  * Exporting module
  *
- * (c) 2010-2021 Torstein Honsi
+ * (c) 2010-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Core/Chart/ChartNavigationComposition.js', [], function () {
         /**
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -134,7 +132,7 @@
     _registerModule(_modules, 'Extensions/Exporting/ExportingDefaults.js', [_modules['Core/Globals.js']], function (H) {
         /* *
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -258,14 +256,31 @@
              * @apioption exporting.filename
              */
             /**
-             * An object containing additional key value data for the POST form that
-             * sends the SVG to the export server. For example, a `target` can be set to
-             * make sure the generated image is received in another frame, or a custom
-             * `enctype` or `encoding` can be set.
+             * Highcharts v11.2.0 and older. An object containing additional key value
+             * data for the POST form that sends the SVG to the export server. For
+             * example, a `target` can be set to make sure the generated image is
+             * received in another frame, or a custom `enctype` or `encoding` can be
+             * set.
              *
+             * With Highcharts v11.3.0, the `fetch` API replaced the old HTML form. To
+             * modify the request, now use [fetchOptions](#exporting.fetchOptions)
+             * instead.
+             *
+             * @deprecated
              * @type      {Highcharts.HTMLAttributes}
              * @since     3.0.8
              * @apioption exporting.formAttributes
+             */
+            /**
+             * Options for the fetch request used when sending the SVG to the export
+             * server.
+             *
+             * See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+             * for more information
+             *
+             * @type {Object}
+             * @since 11.3.0
+             * @apioption exporting.fetchOptions
              */
             /**
              * Path where Highcharts will look for export module dependencies to
@@ -882,20 +897,22 @@
                      * The default fill exists only to capture hover events.
                      *
                      * @type      {Highcharts.ColorString|Highcharts.GradientColorObject|Highcharts.PatternObject}
-                     * @default   #ffffff
-                     * @apioption navigation.buttonOptions.theme.fill
                      */
+                    fill: "#ffffff" /* Palette.backgroundColor */,
+                    /**
+                     * Padding for the button.
+                     */
+                    padding: 5,
                     /**
                      * Default stroke for the buttons.
                      *
                      * @type      {Highcharts.ColorString}
-                     * @default   none
-                     * @apioption navigation.buttonOptions.theme.stroke
                      */
+                    stroke: 'none',
                     /**
-                     * Padding for the button.
+                     * Default stroke linecap for the buttons.
                      */
-                    padding: 5
+                    'stroke-linecap': 'round'
                 }
             },
             /**
@@ -990,7 +1007,7 @@
          *
          *  Exporting module
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -1060,10 +1077,10 @@
 
         return ExportingSymbols;
     });
-    _registerModule(_modules, 'Extensions/Exporting/Fullscreen.js', [_modules['Core/Renderer/HTML/AST.js'], _modules['Core/Utilities.js']], function (AST, U) {
+    _registerModule(_modules, 'Extensions/Exporting/Fullscreen.js', [_modules['Core/Renderer/HTML/AST.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (AST, H, U) {
         /* *
          *
-         *  (c) 2009-2021 Rafal Sebestjanski
+         *  (c) 2009-2024 Rafal Sebestjanski
          *
          *  Full screen for Highcharts
          *
@@ -1077,18 +1094,8 @@
          * Used in StockTools too.
          * Based on default solutions in browsers.
          */
-        /* *
-         *
-         *  Imports
-         *
-         * */
-        var addEvent = U.addEvent, fireEvent = U.fireEvent;
-        /* *
-         *
-         *  Constants
-         *
-         * */
-        var composedMembers = [];
+        var composed = H.composed;
+        var addEvent = U.addEvent, fireEvent = U.fireEvent, pushUnique = U.pushUnique;
         /* *
          *
          *  Functions
@@ -1187,7 +1194,7 @@
              * The chart class to decorate with fullscreen support.
              */
             Fullscreen.compose = function (ChartClass) {
-                if (U.pushUnique(composedMembers, ChartClass)) {
+                if (pushUnique(composed, 'Fullscreen')) {
                     // Initialize fullscreen
                     addEvent(ChartClass, 'beforeRender', onChartBeforeRender);
                 }
@@ -1257,7 +1264,7 @@
                     fullscreen.origHeight = chart.chartHeight;
                     // Handle exitFullscreen() method when user clicks 'Escape' button.
                     if (fullscreen.browserProps) {
-                        var unbindChange_1 = addEvent(chart.container.ownerDocument, // chart's document
+                        var unbindChange_1 = addEvent(chart.container.ownerDocument, // Chart's document
                         fullscreen.browserProps.fullscreenChange, function () {
                             // Handle lack of async of browser's
                             // fullScreenChange event.
@@ -1357,10 +1364,10 @@
          * @callback Highcharts.FullScreenfullscreenCloseCallbackFunction
          *
          * @param {Highcharts.Chart} chart
-         *        The chart on which the event occured.
+         *        The chart on which the event occurred.
          *
          * @param {global.Event} event
-         *        The event that occured.
+         *        The event that occurred.
          */
         /**
          * Gets fired when opening the fullscreen
@@ -1368,12 +1375,12 @@
          * @callback Highcharts.FullScreenfullscreenOpenCallbackFunction
          *
          * @param {Highcharts.Chart} chart
-         *        The chart on which the event occured.
+         *        The chart on which the event occurred.
          *
          * @param {global.Event} event
-         *        The event that occured.
+         *        The event that occurred.
          */
-        (''); // keeps doclets above separated from following code
+        (''); // Keeps doclets above separated from following code
         /* *
          *
          *  API Options
@@ -1406,22 +1413,33 @@
          * @requires  modules/full-screen
          * @apioption chart.events.fullscreenOpen
          */
-        (''); // keeps doclets above in transpiled file
+        (''); // Keeps doclets above in transpiled file
 
         return Fullscreen;
     });
     _registerModule(_modules, 'Core/HttpUtilities.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (G, U) {
         /* *
          *
-         *  (c) 2010-2021 Christer Vasseng, Torstein Honsi
+         *  (c) 2010-2024 Christer Vasseng, Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var doc = G.doc;
-        var createElement = U.createElement, discardElement = U.discardElement, merge = U.merge, objectEach = U.objectEach;
+        var __assign = (this && this.__assign) || function () {
+            __assign = Object.assign || function(t) {
+                for (var s, i = 1, n = arguments.length; i < n; i++) {
+                    s = arguments[i];
+                    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                        t[p] = s[p];
+                }
+                return t;
+            };
+            return __assign.apply(this, arguments);
+        };
+        var win = G.win;
+        var discardElement = U.discardElement, objectEach = U.objectEach;
         /* *
          *
          *  Functions
@@ -1436,7 +1454,7 @@
          *        The Ajax settings to use.
          *
          * @return {false|undefined}
-         *         Returns false, if error occured.
+         *         Returns false, if error occurred.
          */
         function ajax(settings) {
             var headers = {
@@ -1451,7 +1469,7 @@
              * @param {XMLHttpRequest} xhr
              * Internal request object.
              * @param {string|Error} err
-             * Occured error.
+             * Occurred error.
              */
             function handleError(xhr, err) {
                 if (settings.error) {
@@ -1536,30 +1554,31 @@
          * @param {Object} data
          * Post data
          *
-         * @param {Highcharts.Dictionary<string>} [formAttributes]
+         * @param {RequestInit} [fetchOptions]
          * Additional attributes for the post request
          */
-        function post(url, data, formAttributes) {
-            // create the form
-            var form = createElement('form', merge({
-                method: 'post',
-                action: url,
-                enctype: 'multipart/form-data'
-            }, formAttributes), {
-                display: 'none'
-            }, doc.body);
-            // add the data
+        /**
+         *
+         */
+        function post(url, data, fetchOptions) {
+            var formData = new win.FormData();
+            // Add the data
             objectEach(data, function (val, name) {
-                createElement('input', {
-                    type: 'hidden',
-                    name: name,
-                    value: val
-                }, void 0, form);
+                formData.append(name, val);
             });
-            // submit
-            form.submit();
-            // clean up
-            discardElement(form);
+            formData.append('b64', 'true');
+            var filename = data.filename, type = data.type;
+            return win.fetch(url, __assign({ method: 'POST', body: formData }, fetchOptions)).then(function (res) {
+                if (res.ok) {
+                    res.text().then(function (text) {
+                        var link = document.createElement('a');
+                        link.href = "data:".concat(type, ";base64,").concat(text);
+                        link.download = filename;
+                        link.click();
+                        discardElement(link);
+                    });
+                }
+            });
         }
         /* *
          *
@@ -1608,7 +1627,7 @@
         * @name Highcharts.AjaxSettingsObject#url
         * @type {string}
         */
-        (''); // keeps doclets above in JS file
+        (''); // Keeps doclets above in JS file
 
         return HttpUtilities;
     });
@@ -1617,14 +1636,25 @@
          *
          *  Exporting module
          *
-         *  (c) 2010-2021 Torstein Honsi
+         *  (c) 2010-2024 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var defaultOptions = D.defaultOptions, setOptions = D.setOptions;
+        var __assign = (this && this.__assign) || function () {
+            __assign = Object.assign || function(t) {
+                for (var s, i = 1, n = arguments.length; i < n; i++) {
+                    s = arguments[i];
+                    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                        t[p] = s[p];
+                }
+                return t;
+            };
+            return __assign.apply(this, arguments);
+        };
+        var defaultOptions = D.defaultOptions;
         var doc = G.doc, SVG_NS = G.SVG_NS, win = G.win;
         var addEvent = U.addEvent, css = U.css, createElement = U.createElement, discardElement = U.discardElement, extend = U.extend, find = U.find, fireEvent = U.fireEvent, isObject = U.isObject, merge = U.merge, objectEach = U.objectEach, pick = U.pick, removeEvent = U.removeEvent, uniqueKey = U.uniqueKey;
         /* *
@@ -1644,7 +1674,6 @@
              *  Constants
              *
              * */
-            var composedMembers = [];
             // These CSS properties are not inlined. Remember camelCase.
             var inlineDenylist = [
                 /-/,
@@ -1652,6 +1681,7 @@
                 /^font$/,
                 /[lL]ogical(Width|Height)$/,
                 /^parentRule$/,
+                /^(cssRules|ownerRules)$/,
                 /perspective/,
                 /TapHighlightColor/,
                 /^transition/,
@@ -1686,7 +1716,6 @@
              *  Functions
              *
              * */
-            /* eslint-disable valid-jsdoc */
             /**
              * Add the export button to the chart, with options.
              *
@@ -1709,12 +1738,8 @@
                 if (btnOptions.enabled === false || !btnOptions.theme) {
                     return;
                 }
-                var attr = btnOptions.theme;
+                var theme = chart.styledMode ? {} : btnOptions.theme;
                 var callback;
-                if (!chart.styledMode) {
-                    attr.fill = pick(attr.fill, "#ffffff" /* Palette.backgroundColor */);
-                    attr.stroke = pick(attr.stroke, 'none');
-                }
                 if (onclick) {
                     callback = function (e) {
                         if (e) {
@@ -1725,31 +1750,26 @@
                 }
                 else if (menuItems) {
                     callback = function (e) {
-                        // consistent with onclick call (#3495)
+                        // Consistent with onclick call (#3495)
                         if (e) {
                             e.stopPropagation();
                         }
-                        chart.contextMenu(button.menuClassName, menuItems, button.translateX, button.translateY, button.width, button.height, button);
+                        chart.contextMenu(button.menuClassName, menuItems, button.translateX || 0, button.translateY || 0, button.width || 0, button.height || 0, button);
                         button.setState(2);
                     };
                 }
                 if (btnOptions.text && btnOptions.symbol) {
-                    attr.paddingLeft = pick(attr.paddingLeft, 30);
+                    theme.paddingLeft = pick(theme.paddingLeft, 30);
                 }
                 else if (!btnOptions.text) {
-                    extend(attr, {
+                    extend(theme, {
                         width: btnOptions.width,
                         height: btnOptions.height,
                         padding: 0
                     });
                 }
-                if (!chart.styledMode) {
-                    attr['stroke-linecap'] = 'round';
-                    attr.fill = pick(attr.fill, "#ffffff" /* Palette.backgroundColor */);
-                    attr.stroke = pick(attr.stroke, 'none');
-                }
                 var button = renderer
-                    .button(btnOptions.text, 0, 0, callback, attr, void 0, void 0, void 0, void 0, btnOptions.useHTML)
+                    .button(btnOptions.text, 0, 0, callback, theme, void 0, void 0, void 0, void 0, btnOptions.useHTML)
                     .addClass(options.className)
                     .attr({
                     title: pick(chart.options.lang[btnOptions._titleKey || btnOptions.titleKey], '')
@@ -1758,7 +1778,7 @@
                     'highcharts-menu-' + chart.btnCount++);
                 if (btnOptions.symbol) {
                     symbol = renderer
-                        .symbol(btnOptions.symbol, btnOptions.symbolX - (symbolSize / 2), btnOptions.symbolY - (symbolSize / 2), symbolSize, symbolSize
+                        .symbol(btnOptions.symbol, Math.round((btnOptions.symbolX || 0) - (symbolSize / 2)), Math.round((btnOptions.symbolY || 0) - (symbolSize / 2)), symbolSize, symbolSize
                     // If symbol is an image, scale it (#7957)
                     , {
                         width: symbolSize,
@@ -1783,12 +1803,12 @@
                     width: button.width,
                     x: pick(btnOptions.x, chart.buttonOffset) // #1654
                 }), true, 'spacingBox');
-                chart.buttonOffset += ((button.width + btnOptions.buttonSpacing) *
+                chart.buttonOffset += (((button.width || 0) + btnOptions.buttonSpacing) *
                     (btnOptions.align === 'right' ? -1 : 1));
                 chart.exportSVGElements.push(button, symbol);
             }
             /**
-             * Clena up after printing a chart.
+             * Clean up after printing a chart.
              *
              * @function Highcharts#afterPrint
              *
@@ -1805,9 +1825,9 @@
                     return void 0;
                 }
                 var _a = chart.printReverseInfo, childNodes = _a.childNodes, origDisplay = _a.origDisplay, resetParams = _a.resetParams;
-                // put the chart back in
+                // Put the chart back in
                 chart.moveContainers(chart.renderTo);
-                // restore all body content
+                // Restore all body content
                 [].forEach.call(childNodes, function (node, i) {
                     if (node.nodeType === 1) {
                         node.style.display = (origDisplay[i] || '');
@@ -1833,13 +1853,14 @@
              * @emits Highcharts.Chart#event:beforePrint
              */
             function beforePrint() {
+                var _a;
                 var chart = this, body = doc.body, printMaxWidth = chart.options.exporting.printMaxWidth, printReverseInfo = {
                     childNodes: body.childNodes,
                     origDisplay: [],
                     resetParams: void 0
                 };
                 chart.isPrinting = true;
-                chart.pointer.reset(null, 0);
+                (_a = chart.pointer) === null || _a === void 0 ? void 0 : _a.reset(void 0, 0);
                 fireEvent(chart, 'beforePrint');
                 // Handle printMaxWidth
                 var handleMaxWidth = printMaxWidth &&
@@ -1852,14 +1873,14 @@
                     ];
                     chart.setSize(printMaxWidth, void 0, false);
                 }
-                // hide all body content
+                // Hide all body content
                 [].forEach.call(printReverseInfo.childNodes, function (node, i) {
                     if (node.nodeType === 1) {
                         printReverseInfo.origDisplay[i] = node.style.display;
                         node.style.display = 'none';
                     }
                 });
-                // pull out the chart
+                // Pull out the chart
                 chart.moveContainers(body);
                 // Storage details for undo action after printing
                 chart.printReverseInfo = printReverseInfo;
@@ -1914,8 +1935,8 @@
             function compose(ChartClass, SVGRendererClass) {
                 ExportingSymbols.compose(SVGRendererClass);
                 Fullscreen.compose(ChartClass);
-                if (U.pushUnique(composedMembers, ChartClass)) {
-                    var chartProto = ChartClass.prototype;
+                var chartProto = ChartClass.prototype;
+                if (!chartProto.exportChart) {
                     chartProto.afterPrint = afterPrint;
                     chartProto.exportChart = exportChart;
                     chartProto.inlineStyles = inlineStyles;
@@ -1934,7 +1955,7 @@
                     chartProto.callbacks.push(chartCallback);
                     addEvent(ChartClass, 'init', onChartInit);
                     if (G.isSafari) {
-                        G.win.matchMedia('print').addListener(function (mqlEvent) {
+                        win.matchMedia('print').addListener(function (mqlEvent) {
                             if (!printingChart) {
                                 return void 0;
                             }
@@ -1946,8 +1967,6 @@
                             }
                         });
                     }
-                }
-                if (U.pushUnique(composedMembers, setOptions)) {
                     defaultOptions.exporting = merge(ExportingDefaults.exporting, defaultOptions.exporting);
                     defaultOptions.lang = merge(ExportingDefaults.lang, defaultOptions.lang);
                     // Buttons and menus are collected in a separate config option set
@@ -1977,20 +1996,18 @@
              * @requires modules/exporting
              */
             function contextMenu(className, items, x, y, width, height, button) {
-                var chart = this, navOptions = chart.options.navigation, chartWidth = chart.chartWidth, chartHeight = chart.chartHeight, cacheName = 'cache-' + className, menuPadding = Math.max(width, height); // for mouse leave detection
+                var _a, _b;
+                var chart = this, navOptions = chart.options.navigation, chartWidth = chart.chartWidth, chartHeight = chart.chartHeight, cacheName = 'cache-' + className, 
+                // For mouse leave detection
+                menuPadding = Math.max(width, height);
                 var innerMenu, menu = chart[cacheName];
-                // create the menu only the first time
+                // Create the menu only the first time
                 if (!menu) {
-                    // create a HTML element above the SVG
+                    // Create a HTML element above the SVG
                     chart.exportContextMenu = chart[cacheName] = menu =
                         createElement('div', {
                             className: className
-                        }, {
-                            position: 'absolute',
-                            zIndex: 1000,
-                            padding: menuPadding + 'px',
-                            pointerEvents: 'auto'
-                        }, chart.fixedDiv || chart.container);
+                        }, __assign({ position: 'absolute', zIndex: 1000, padding: menuPadding + 'px', pointerEvents: 'auto' }, chart.renderer.style), ((_a = chart.scrollablePlotArea) === null || _a === void 0 ? void 0 : _a.fixedDiv) || chart.container);
                     innerMenu = createElement('ul', { className: 'highcharts-menu' }, chart.styledMode ? {} : {
                         listStyle: 'none',
                         margin: 0,
@@ -2004,7 +2021,7 @@
                             boxShadow: '3px 3px 10px #888'
                         }, navOptions.menuStyle));
                     }
-                    // hide on mouse out
+                    // Hide on mouse out
                     menu.hideMenu = function () {
                         css(menu, { display: 'none' });
                         if (button) {
@@ -2026,7 +2043,8 @@
                     // Hide it on clicking or touching outside the menu (#2258,
                     // #2335, #2407)
                     addEvent(doc, 'mouseup', function (e) {
-                        if (!chart.pointer.inClass(e.target, className)) {
+                        var _a;
+                        if (!((_a = chart.pointer) === null || _a === void 0 ? void 0 : _a.inClass(e.target, className))) {
                             menu.hideMenu();
                         }
                     }), addEvent(menu, 'click', function () {
@@ -2034,7 +2052,7 @@
                             menu.hideMenu();
                         }
                     }));
-                    // create the items
+                    // Create the items
                     items.forEach(function (item) {
                         if (typeof item === 'string') {
                             item = chart.options.exporting
@@ -2059,9 +2077,8 @@
                                             e.stopPropagation();
                                         }
                                         menu.hideMenu();
-                                        if (item.onclick) {
-                                            item.onclick
-                                                .apply(chart, arguments);
+                                        if (typeof item !== 'string' && item.onclick) {
+                                            item.onclick.apply(chart, arguments);
                                         }
                                     }
                                 }, void 0, innerMenu);
@@ -2090,16 +2107,16 @@
                     chart.exportMenuHeight = menu.offsetHeight;
                 }
                 var menuStyle = { display: 'block' };
-                // if outside right, right align it
-                if (x + chart.exportMenuWidth > chartWidth) {
+                // If outside right, right align it
+                if (x + (chart.exportMenuWidth || 0) > chartWidth) {
                     menuStyle.right = (chartWidth - x - width - menuPadding) + 'px';
                 }
                 else {
                     menuStyle.left = (x - menuPadding) + 'px';
                 }
-                // if outside bottom, bottom align it
-                if (y + height + chart.exportMenuHeight > chartHeight &&
-                    button.alignOptions.verticalAlign !== 'top') {
+                // If outside bottom, bottom align it
+                if (y + height + (chart.exportMenuHeight || 0) > chartHeight &&
+                    ((_b = button.alignOptions) === null || _b === void 0 ? void 0 : _b.verticalAlign) !== 'top') {
                     menuStyle.bottom = (chartHeight - y - menuPadding) + 'px';
                 }
                 else {
@@ -2197,9 +2214,9 @@
              */
             function exportChart(exportingOptions, chartOptions) {
                 var svg = this.getSVGForExport(exportingOptions, chartOptions);
-                // merge the options
+                // Merge the options
                 exportingOptions = merge(this.options.exporting, exportingOptions);
-                // do the post
+                // Do the post
                 HU.post(exportingOptions.url, {
                     filename: exportingOptions.filename ?
                         exportingOptions.filename.replace(/\//g, '-') :
@@ -2208,7 +2225,7 @@
                     width: exportingOptions.width,
                     scale: exportingOptions.scale,
                     svg: svg
-                }, exportingOptions.formAttributes);
+                }, exportingOptions.fetchOptions);
             }
             /**
              * Return the unfiltered innerHTML of the chart container. Used as hook for
@@ -2248,13 +2265,13 @@
                 if (typeof s === 'string') {
                     filename = s
                         .toLowerCase()
-                        .replace(/<\/?[^>]+(>|$)/g, '') // strip HTML tags
+                        .replace(/<\/?[^>]+(>|$)/g, '') // Strip HTML tags
                         .replace(/[\s_]+/g, '-')
-                        .replace(/[^a-z0-9\-]/g, '') // preserve only latin
-                        .replace(/^[\-]+/g, '') // dashes in the start
-                        .replace(/[\-]+/g, '-') // dashes in a row
+                        .replace(/[^a-z0-9\-]/g, '') // Preserve only latin
+                        .replace(/^[\-]+/g, '') // Dashes in the start
+                        .replace(/[\-]+/g, '-') // Dashes in a row
                         .substr(0, 24)
-                        .replace(/[\-]+$/g, ''); // dashes in the end;
+                        .replace(/[\-]+$/g, ''); // Dashes in the end;
                 }
                 if (!filename || filename.length < 5) {
                     filename = 'chart';
@@ -2292,14 +2309,14 @@
                 // ... and likewise with time, avoid that undefined time properties are
                 // merged over legacy global time options
                 options.time = merge(chart.userOptions.time, chartOptions && chartOptions.time);
-                // create a sandbox where a new chart will be generated
+                // Create a sandbox where a new chart will be generated
                 var sandbox = createElement('div', null, {
                     position: 'absolute',
                     top: '-9999em',
                     width: chart.chartWidth + 'px',
                     height: chart.chartHeight + 'px'
                 }, doc.body);
-                // get the source size
+                // Get the source size
                 var cssWidth = chart.renderTo.style.width, cssHeight = chart.renderTo.style.height, sourceWidth = options.exporting.sourceWidth ||
                     options.chart.width ||
                     (/px$/.test(cssWidth) && parseInt(cssWidth, 10)) ||
@@ -2307,7 +2324,7 @@
                     options.chart.height ||
                     (/px$/.test(cssHeight) && parseInt(cssHeight, 10)) ||
                     400;
-                // override some options
+                // Override some options
                 extend(options.chart, {
                     animation: false,
                     renderTo: sandbox,
@@ -2316,7 +2333,7 @@
                     width: sourceWidth,
                     height: sourceHeight
                 });
-                options.exporting.enabled = false; // hide buttons in print
+                options.exporting.enabled = false; // Hide buttons in print
                 delete options.data; // #3004
                 // prepare for replicating the chart
                 options.series = [];
@@ -2348,6 +2365,10 @@
                         }));
                     }
                 });
+                // Make sure the `colorAxis` object of the `defaultOptions` isn't used
+                // in the chart copy's user options, because a color axis should only be
+                // added when the user actually applies it.
+                options.colorAxis = chart.userOptions.colorAxis;
                 // Generate the chart copy
                 var chartCopy = new chart.constructor(options, chart.callback);
                 // Axis options and series options  (#2022, #3900, #5982)
@@ -2377,7 +2398,7 @@
                 svg = chartCopy.getChartHTML();
                 fireEvent(this, 'getSVG', { chartCopy: chartCopy });
                 svg = chart.sanitizeSVG(svg, options);
-                // free up memory
+                // Free up memory
                 options = null;
                 chartCopy.destroy();
                 discardElement(sandbox);
@@ -2452,7 +2473,7 @@
                     var styles, parentStyles, dummy, denylisted, allowlisted, i;
                     /**
                      * Check computed styles and whether they are in the allow/denylist
-                     * for styles or atttributes.
+                     * for styles or attributes.
                      * @private
                      * @param {string} val
                      *        Style value
@@ -2477,6 +2498,9 @@
                         }
                         i = denylist.length;
                         while (i-- && !denylisted) {
+                            if (prop.length > 1000 /* RegexLimits.shortLimit */) {
+                                throw new Error('Input too long');
+                            }
                             denylisted = (denylist[i].test(prop) ||
                                 typeof val === 'function');
                         }
@@ -2512,7 +2536,7 @@
                         // add these
                         if (!defaultStyles[node.nodeName]) {
                             /*
-                            if (!dummySVG) {
+                            If (!dummySVG) {
                                 dummySVG = doc.createElementNS(H.SVG_NS, 'svg');
                                 dummySVG.setAttribute('version', '1.1');
                                 doc.body.appendChild(dummySVG);
@@ -2525,7 +2549,8 @@
                             // won't do)
                             var s = win.getComputedStyle(dummy, null), defaults = {};
                             for (var key in s) {
-                                if (typeof s[key] === 'string' &&
+                                if (key.length < 1000 /* RegexLimits.shortLimit */ &&
+                                    typeof s[key] === 'string' &&
                                     !/^[0-9]+$/.test(key)) {
                                     defaults[key] = s[key];
                                 }
@@ -2586,10 +2611,15 @@
              *        Move target
              */
             function moveContainers(moveTo) {
-                var chart = this;
-                (chart.fixedDiv ? // When scrollablePlotArea is active (#9533)
-                    [chart.fixedDiv, chart.scrollingContainer] :
-                    [chart.container]).forEach(function (div) {
+                var scrollablePlotArea = this.scrollablePlotArea;
+                (
+                // When scrollablePlotArea is active (#9533)
+                scrollablePlotArea ?
+                    [
+                        scrollablePlotArea.fixedDiv,
+                        scrollablePlotArea.scrollingContainer
+                    ] :
+                    [this.container]).forEach(function (div) {
                     moveTo.appendChild(div);
                 });
             }
@@ -2651,7 +2681,7 @@
              */
             function print() {
                 var chart = this;
-                if (chart.isPrinting) { // block the button while in printing mode
+                if (chart.isPrinting) { // Block the button while in printing mode
                     return;
                 }
                 printingChart = chart;
@@ -2663,7 +2693,7 @@
                 setTimeout(function () {
                     win.focus(); // #1510
                     win.print();
-                    // allow the browser to prepare before reverting
+                    // Allow the browser to prepare before reverting
                     if (!G.isSafari) {
                         setTimeout(function () {
                             chart.afterPrint();
@@ -2697,7 +2727,7 @@
             }
             /**
              * Exporting module only. A collection of fixes on the produced SVG to
-             * account for expando properties, browser bugs.
+             * account for expand properties, browser bugs.
              * Returns a cleaned SVG.
              *
              * @private
@@ -2737,13 +2767,13 @@
                     .replace(/url\([^#]+#/g, 'url(#')
                     .replace(/<svg /, '<svg xmlns:xlink="http://www.w3.org/1999/xlink" ')
                     .replace(/ (|NS[0-9]+\:)href=/g, ' xlink:href=') // #3567
-                    .replace(/\n/, ' ')
+                    .replace(/\n+/g, ' ')
                     // Batik doesn't support rgba fills and strokes (#3095)
                     .replace(/(fill|stroke)="rgba\(([ 0-9]+,[ 0-9]+,[ 0-9]+),([ 0-9\.]+)\)"/g, // eslint-disable-line max-len
                 '$1="rgb($2)" $1-opacity="$3"')
                     // Replace HTML entities, issue #347
-                    .replace(/&nbsp;/g, '\u00A0') // no-break space
-                    .replace(/&shy;/g, '\u00AD'); // soft hyphen
+                    .replace(/&nbsp;/g, '\u00A0') // No-break space
+                    .replace(/&shy;/g, '\u00AD'); // Soft hyphen
                 return svg;
             }
         })(Exporting || (Exporting = {}));
@@ -2764,10 +2794,10 @@
          * @callback Highcharts.ExportingAfterPrintCallbackFunction
          *
          * @param {Highcharts.Chart} this
-         *        The chart on which the event occured.
+         *        The chart on which the event occurred.
          *
          * @param {global.Event} event
-         *        The event that occured.
+         *        The event that occurred.
          */
         /**
          * Gets fired before a chart is printed through the context menu item or the
@@ -2776,10 +2806,10 @@
          * @callback Highcharts.ExportingBeforePrintCallbackFunction
          *
          * @param {Highcharts.Chart} this
-         *        The chart on which the event occured.
+         *        The chart on which the event occurred.
          *
          * @param {global.Event} event
-         *        The event that occured.
+         *        The event that occurred.
          */
         /**
          * Function to call if the offline-exporting module fails to export a chart on
@@ -2823,7 +2853,7 @@
          *
          * @typedef {"image/png"|"image/jpeg"|"application/pdf"|"image/svg+xml"} Highcharts.ExportingMimeTypeValue
          */
-        (''); // keeps doclets above in transpiled file
+        (''); // Keeps doclets above in transpiled file
         /* *
          *
          *  API Options
@@ -2855,18 +2885,19 @@
          * @requires  modules/exporting
          * @apioption chart.events.beforePrint
          */
-        (''); // keeps doclets above in transpiled file
+        (''); // Keeps doclets above in transpiled file
 
         return Exporting;
     });
     _registerModule(_modules, 'masters/modules/exporting.src.js', [_modules['Core/Globals.js'], _modules['Extensions/Exporting/Exporting.js'], _modules['Core/HttpUtilities.js']], function (Highcharts, Exporting, HttpUtilities) {
 
         var G = Highcharts;
-        G.HttpUtilities = HttpUtilities;
-        G.ajax = HttpUtilities.ajax;
-        G.getJSON = HttpUtilities.getJSON;
-        G.post = HttpUtilities.post;
+        G.HttpUtilities = G.HttpUtilities || HttpUtilities;
+        G.ajax = G.HttpUtilities.ajax;
+        G.getJSON = G.HttpUtilities.getJSON;
+        G.post = G.HttpUtilities.post;
         Exporting.compose(G.Chart, G.Renderer);
 
+        return Highcharts;
     });
 }));

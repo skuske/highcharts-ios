@@ -1,12 +1,12 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  * @module highcharts/modules/drag-panes
  * @requires highcharts
  * @requires highcharts/modules/stock
  *
  * Drag-panes module
  *
- * (c) 2010-2021 Highsoft AS
+ * (c) 2010-2024 Highsoft AS
  * Author: Kacper Madej
  *
  * License: www.highcharts.com/license
@@ -18,3 +18,4 @@ import DragPanes from '../../Extensions/DragPanes/DragPanes.js';
 const G = Highcharts;
 G.AxisResizer = AxisResizer;
 DragPanes.compose(G.Axis, G.Pointer);
+export default Highcharts;

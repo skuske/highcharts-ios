@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -93,7 +93,7 @@ Rotation of the labels in degrees. When `undefined`, the `autoRotation` option t
 
 **Try it**
 
-* [X axis labels rotated 90Â°](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/xaxis/labels-rotation/)
+* [X axis labels rotated 90°](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/xaxis/labels-rotation/)
 */
 @property(nonatomic, readwrite) NSNumber *rotation;
 /**
@@ -172,11 +172,11 @@ A format string for the axis label. The context is available as format string va
 */
 @property(nonatomic, readwrite) NSString *format;
 /**
-The pixel padding for axis labels, to ensure white space between them.
+The pixel padding for axis labels, to ensure white space between them. Defaults to 4 for horizontal axes, 1 for vertical.
 
-**Defaults to** `5`.
+**Defaults to** `undefined`.
 */
-@property(nonatomic, readwrite) NSNumber *padding;
+@property(nonatomic, readwrite) NSString *padding;
 /**
 To show only every _n_'th label on the axis, set the step to _n_. Setting the step to 2 shows every other label. By default, when 0, the step is calculated automatically to avoid overlap. To prevent this, set it to 1\. This usually only happens on a category axis, and is often a sign that you have chosen the wrong axis type. Read more at [Axis docs](https://www.highcharts.com/docs/chart-concepts/axes) => What axis should I use?
 
@@ -224,7 +224,7 @@ Whether the annotation is visible in the exported data table.
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *includeInDataExport;
 /**
-The border radius in pixels for the annotaiton's label.
+The border radius in pixels for the annotation's label.
 
 **Defaults to** `3`.
 

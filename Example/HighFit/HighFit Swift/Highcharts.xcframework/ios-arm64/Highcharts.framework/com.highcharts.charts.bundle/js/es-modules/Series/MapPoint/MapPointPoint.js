@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,7 +9,7 @@
  * */
 'use strict';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-const { seriesTypes: { scatter: ScatterSeries } } = SeriesRegistry;
+const { scatter: ScatterSeries } = SeriesRegistry.seriesTypes;
 import U from '../../Core/Utilities.js';
 const { isNumber } = U;
 /* *
@@ -18,18 +18,11 @@ const { isNumber } = U;
  *
  * */
 class MapPointPoint extends ScatterSeries.prototype.pointClass {
-    constructor() {
-        super(...arguments);
-        this.options = void 0;
-        this.series = void 0;
-        /* eslint-enable valid-jsdoc */
-    }
     /* *
      *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     isValid() {
         return Boolean(this.options.geometry ||
             (isNumber(this.x) && isNumber(this.y)) ||

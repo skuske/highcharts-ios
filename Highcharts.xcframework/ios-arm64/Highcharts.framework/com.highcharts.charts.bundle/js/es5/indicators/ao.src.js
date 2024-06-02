@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Wojciech Chmiel
+ * (c) 2010-2024 Wojciech Chmiel
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -80,21 +78,7 @@
         var AOIndicator = /** @class */ (function (_super) {
             __extends(AOIndicator, _super);
             function AOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -162,6 +146,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Awesome Oscillator. This series requires the `linkedTo` option to
              * be set and should be loaded after the `stock/indicators/indicators.js`
@@ -225,7 +214,7 @@
         }(SMAIndicator));
         extend(AOIndicator.prototype, {
             nameBase: 'AO',
-            nameComponents: false,
+            nameComponents: void 0,
             // Columns support:
             markerAttribs: noop,
             getColumnMetrics: columnProto.getColumnMetrics,
@@ -258,12 +247,13 @@
          * @requires  stock/indicators/ao
          * @apioption series.ao
          */
-        ''; // for including the above in the doclets
+        ''; // For including the above in the doclets
 
         return AOIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/ao.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/ao.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

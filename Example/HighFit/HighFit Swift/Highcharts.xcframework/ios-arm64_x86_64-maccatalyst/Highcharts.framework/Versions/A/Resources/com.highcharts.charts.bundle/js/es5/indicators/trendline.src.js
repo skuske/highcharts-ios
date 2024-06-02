@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Sebastian Bochan
+ * (c) 2010-2024 Sebastian Bochan
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -85,14 +83,6 @@
                  *
                  * */
                 var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
                 _this.updateAllPoints = true;
                 return _this;
             }
@@ -102,28 +92,35 @@
              *
              * */
             TrendLineIndicator.prototype.getValues = function (series, params) {
-                var xVal = series.xData, yVal = series.yData, LR = [], xData = [], yData = [], xValLength = xVal.length, index = params.index;
-                var sumX = (xValLength - 1) * xValLength / 2, sumY = 0, sumXY = 0, sumX2 = ((xValLength - 1) * (xValLength) * (2 * xValLength - 1)) / 6, alpha, i, y;
-                // Get sums:
-                for (i = 0; i < xValLength; i++) {
-                    y = isArray(yVal[i]) ? yVal[i][index] : yVal[i];
-                    sumY += y;
-                    sumXY += i * y;
+                var orgXVal = series.xData, yVal = series.yData, xVal = [], LR = [], xData = [], yData = [], index = params.index;
+                var numerator = 0, denominator = 0, xValSum = 0, yValSum = 0, counter = 0;
+                // Create an array of consecutive xValues, (don't remove duplicates)
+                for (var i = 0; i < orgXVal.length; i++) {
+                    if (i === 0 || orgXVal[i] !== orgXVal[i - 1]) {
+                        counter++;
+                    }
+                    xVal.push(counter);
                 }
-                // Get slope and offset:
-                alpha = (xValLength * sumXY - sumX * sumY) /
-                    (xValLength * sumX2 - sumX * sumX);
-                if (isNaN(alpha)) {
-                    alpha = 0;
+                for (var i = 0; i < xVal.length; i++) {
+                    xValSum += xVal[i];
+                    yValSum += isArray(yVal[i]) ? yVal[i][index] : yVal[i];
                 }
-                var beta = (sumY - alpha * sumX) / xValLength;
+                var meanX = xValSum / xVal.length, meanY = yValSum / yVal.length;
+                for (var i = 0; i < xVal.length; i++) {
+                    var y = isArray(yVal[i]) ? yVal[i][index] : yVal[i];
+                    numerator += (xVal[i] - meanX) * (y - meanY);
+                    denominator += Math.pow(xVal[i] - meanX, 2);
+                }
                 // Calculate linear regression:
-                for (i = 0; i < xValLength; i++) {
-                    y = alpha * i + beta;
-                    // Prepare arrays required for getValues() method
-                    LR[i] = [xVal[i], y];
-                    xData[i] = xVal[i];
-                    yData[i] = y;
+                for (var i = 0; i < xVal.length; i++) {
+                    // Check if the xVal is already used
+                    if (orgXVal[i] === xData[xData.length - 1]) {
+                        continue;
+                    }
+                    var x = orgXVal[i], y = meanY + (numerator / denominator) * (xVal[i] - meanX);
+                    LR.push([x, y]);
+                    xData.push(x);
+                    yData.push(y);
                 }
                 return {
                     xData: xData,
@@ -166,7 +163,7 @@
         }(SMAIndicator));
         extend(TrendLineIndicator.prototype, {
             nameBase: 'Trendline',
-            nameComponents: false
+            nameComponents: void 0
         });
         SeriesRegistry.registerSeriesType('trendline', TrendLineIndicator);
         /* *
@@ -191,12 +188,13 @@
          * @requires  stock/indicators/trendline
          * @apioption series.trendline
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return TrendLineIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/trendline.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/trendline.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

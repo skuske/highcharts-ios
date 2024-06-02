@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
  * Force directed graph module
  *
- * (c) 2010-2021 Torstein Honsi
+ * (c) 2010-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -28,34 +28,27 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Series/DragNodesComposition.js', [_modules['Core/Utilities.js']], function (U) {
+    _registerModule(_modules, 'Series/DragNodesComposition.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (H, U) {
         /* *
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var addEvent = U.addEvent;
-        /* *
-         *
-         *  Constants
-         *
-         * */
-        var composedMembers = [];
+        var composed = H.composed;
+        var addEvent = U.addEvent, pushUnique = U.pushUnique;
         /* *
          *
          *  Functions
@@ -65,7 +58,7 @@
          * @private
          */
         function compose(ChartClass) {
-            if (U.pushUnique(composedMembers, ChartClass)) {
+            if (pushUnique(composed, 'DragNodes')) {
                 addEvent(ChartClass, 'load', onChartLoad);
             }
         }
@@ -106,12 +99,13 @@
          *
          * @private
          * @param {Highcharts.Point} point
-         *        The point that event occured.
+         *        The point that event occurred.
          * @param {Highcharts.PointerEventObject} event
          *        Browser event, before normalization.
          */
         function onMouseDown(point, event) {
-            var normalizedEvent = this.chart.pointer.normalize(event);
+            var _a;
+            var normalizedEvent = ((_a = this.chart.pointer) === null || _a === void 0 ? void 0 : _a.normalize(event)) || event;
             point.fixedPosition = {
                 chartX: normalizedEvent.chartX,
                 chartY: normalizedEvent.chartY,
@@ -125,15 +119,15 @@
          *
          * @private
          *
+         * @param {Highcharts.Point} point
+         *        The point that event occurred.
          * @param {global.Event} event
          *        Browser event, before normalization.
-         * @param {Highcharts.Point} point
-         *        The point that event occured.
-         *
          */
         function onMouseMove(point, event) {
+            var _a;
             if (point.fixedPosition && point.inDragMode) {
-                var series = this, chart = series.chart, normalizedEvent = chart.pointer.normalize(event), diffX = point.fixedPosition.chartX - normalizedEvent.chartX, diffY = point.fixedPosition.chartY - normalizedEvent.chartY, graphLayoutsLookup = chart.graphLayoutsLookup;
+                var series = this, chart = series.chart, normalizedEvent = ((_a = chart.pointer) === null || _a === void 0 ? void 0 : _a.normalize(event)) || event, diffX = point.fixedPosition.chartX - normalizedEvent.chartX, diffY = point.fixedPosition.chartY - normalizedEvent.chartY, graphLayoutsLookup = chart.graphLayoutsLookup;
                 var newPlotX = void 0, newPlotY = void 0;
                 // At least 5px to apply change (avoids simple click):
                 if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
@@ -156,9 +150,9 @@
          *
          * @private
          * @param {Highcharts.Point} point
-         *        The point that event occured.
+         *        The point that event occurred.
          */
-        function onMouseUp(point, _event) {
+        function onMouseUp(point) {
             if (point.fixedPosition) {
                 if (point.hasDragged) {
                     if (this.layout.enableSimulation) {
@@ -203,12 +197,12 @@
 
         return DragNodesComposition;
     });
-    _registerModule(_modules, 'Series/GraphLayoutComposition.js', [_modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Utilities.js']], function (A, U) {
+    _registerModule(_modules, 'Series/GraphLayoutComposition.js', [_modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (A, H, U) {
         /* *
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -216,13 +210,13 @@
          *
          * */
         var setAnimation = A.setAnimation;
-        var addEvent = U.addEvent;
+        var composed = H.composed;
+        var addEvent = U.addEvent, pushUnique = U.pushUnique;
         /* *
          *
          *  Constants
          *
          * */
-        var composedMembers = [];
         var integrations = {};
         var layouts = {};
         /* *
@@ -234,7 +228,7 @@
          * @private
          */
         function compose(ChartClass) {
-            if (U.pushUnique(composedMembers, ChartClass)) {
+            if (pushUnique(composed, 'GraphLayout')) {
                 addEvent(ChartClass, 'afterPrint', onChartAfterPrint);
                 addEvent(ChartClass, 'beforePrint', onChartBeforePrint);
                 addEvent(ChartClass, 'predraw', onChartPredraw);
@@ -248,7 +242,7 @@
         function onChartAfterPrint() {
             if (this.graphLayoutsLookup) {
                 this.graphLayoutsLookup.forEach(function (layout) {
-                    // return to default simulation
+                    // Return to default simulation
                     layout.updateSimulation();
                 });
                 this.redraw();
@@ -354,12 +348,6 @@
              * */
             /* *
              *
-             *  Constants
-             *
-             * */
-            var composedMembers = [];
-            /* *
-             *
              *  Functions
              *
              * */
@@ -367,17 +355,12 @@
              * @private
              */
             function compose(PointClass, SeriesClass) {
-                if (U.pushUnique(composedMembers, PointClass)) {
-                    var pointProto_1 = PointClass.prototype;
-                    pointProto_1.setNodeState = setNodeState;
-                    pointProto_1.setState = setNodeState;
-                    pointProto_1.update = updateNode;
-                }
-                if (U.pushUnique(composedMembers, SeriesClass)) {
-                    var seriesProto_1 = SeriesClass.prototype;
-                    seriesProto_1.destroy = destroy;
-                    seriesProto_1.setData = setData;
-                }
+                var pointProto = PointClass.prototype, seriesProto = SeriesClass.prototype;
+                pointProto.setNodeState = setNodeState;
+                pointProto.setState = setNodeState;
+                pointProto.update = updateNode;
+                seriesProto.destroy = destroy;
+                seriesProto.setData = setData;
                 return SeriesClass;
             }
             NodesComposition.compose = compose;
@@ -391,7 +374,7 @@
                 var node = findById(this.nodes, id), options;
                 if (!node) {
                     options = this.options.nodes && findById(this.options.nodes, id);
-                    var newNode_1 = (new PointClass()).init(this, extend({
+                    var newNode_1 = new PointClass(this, extend({
                         className: 'highcharts-node',
                         isNode: true,
                         id: id,
@@ -442,7 +425,7 @@
                     node = newNode_1;
                 }
                 node.formatPrefix = 'node';
-                // for use in formats
+                // For use in formats
                 node.name = node.name || node.options.id || '';
                 // Mass is used in networkgraph:
                 node.mass = pick(
@@ -456,7 +439,7 @@
             }
             NodesComposition.createNode = createNode;
             /**
-             * Destroy alll nodes and links.
+             * Destroy all nodes and links.
              * @private
              */
             function destroy() {
@@ -509,7 +492,7 @@
                         nodeLookup[point.to].linksTo.push(point);
                         point.toNode = nodeLookup[point.to];
                     }
-                    point.name = point.name || point.id; // for use in formats
+                    point.name = point.name || point.id; // For use in formats
                 }, this);
                 // Store lookup table for later use
                 this.nodeLookup = nodeLookup;
@@ -565,7 +548,7 @@
                 pointProto.update.call(this, options, this.isNode ? false : redraw, // Hold the redraw for nodes
                 animation, runEvent);
                 if (this.isNode) {
-                    // this.index refers to `series.nodes`, not `options.nodes` array
+                    // `this.index` refers to `series.nodes`, not `options.nodes` array
                     var nodeIndex = (nodes || [])
                         .reduce(// Array.findIndex needs a polyfill
                     function (prevIndex, n, index) {
@@ -616,7 +599,7 @@
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -647,8 +630,23 @@
          * */
         var NetworkgraphPoint = /** @class */ (function (_super) {
             __extends(NetworkgraphPoint, _super);
-            function NetworkgraphPoint() {
-                return _super !== null && _super.apply(this, arguments) || this;
+            /**
+             * Basic `point.init()` and additional styles applied when
+             * `series.draggable` is enabled.
+             * @private
+             */
+            function NetworkgraphPoint(series, options, x) {
+                var _this = _super.call(this, series, options, x) || this;
+                if (_this.series.options.draggable &&
+                    !_this.series.chart.styledMode) {
+                    addEvent(_this, 'mouseOver', function () {
+                        css(this.series.chart.container, { cursor: 'move' });
+                    });
+                    addEvent(_this, 'mouseOut', function () {
+                        css(this.series.chart.container, { cursor: 'default' });
+                    });
+                }
+                return _this;
             }
             /* *
              *
@@ -744,24 +742,6 @@
                 };
             };
             /**
-             * Basic `point.init()` and additional styles applied when
-             * `series.draggable` is enabled.
-             * @private
-             */
-            NetworkgraphPoint.prototype.init = function (series, options, x) {
-                _super.prototype.init.call(this, series, options, x);
-                if (this.series.options.draggable &&
-                    !this.series.chart.styledMode) {
-                    addEvent(this, 'mouseOver', function () {
-                        css(this.series.chart.container, { cursor: 'move' });
-                    });
-                    addEvent(this, 'mouseOut', function () {
-                        css(this.series.chart.container, { cursor: 'default' });
-                    });
-                }
-                return this;
-            };
-            /**
              * @private
              */
             NetworkgraphPoint.prototype.isValid = function () {
@@ -772,7 +752,8 @@
              * @private
              */
             NetworkgraphPoint.prototype.redrawLink = function () {
-                var path = this.getLinkPath(), attribs;
+                var path = this.getLinkPath();
+                var attribs;
                 if (this.graphic) {
                     this.shapeArgs = {
                         d: path
@@ -813,7 +794,8 @@
              *        configuration.
              */
             NetworkgraphPoint.prototype.remove = function (redraw, animation) {
-                var point = this, series = point.series, nodesOptions = series.options.nodes || [], index, i = nodesOptions.length;
+                var point = this, series = point.series, nodesOptions = series.options.nodes || [];
+                var index, i = nodesOptions.length;
                 // For nodes, remove all connected links:
                 if (point.isNode) {
                     // Temporary disable series.points array, because
@@ -905,7 +887,7 @@
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -941,7 +923,8 @@
         var NetworkgraphSeriesDefaults = {
             stickyTracking: false,
             /**
-             * @ignore-option
+             * @default   true
+             * @extends   plotOptions.series.inactiveOtherPoints
              * @private
              */
             inactiveOtherPoints: true,
@@ -974,7 +957,7 @@
             states: {
                 /**
                  * The opposite state of a hover for a single point link. Applied
-                 * to all links that are not comming from the hovered node.
+                 * to all links that are not coming from the hovered node.
                  *
                  * @declare Highcharts.SeriesStatesInactiveOptionsObject
                  */
@@ -1201,7 +1184,7 @@
                 /**
                  * Barnes-Hut approximation only.
                  * Deteremines when distance between cell and node is small enough
-                 * to caculate forces. Value of `theta` is compared directly with
+                 * to calculate forces. Value of `theta` is compared directly with
                  * quotient `s / d`, where `s` is the size of the cell, and `d` is
                  * distance between center of cell's mass and currently compared
                  * node.
@@ -1227,7 +1210,7 @@
                 maxSpeed: 10,
                 /**
                  * Approximation used to calculate repulsive forces affecting nodes.
-                 * By default, when calculateing net force, nodes are compared
+                 * By default, when calculating net force, nodes are compared
                  * against each other, which gives O(N^2) complexity. Using
                  * Barnes-Hut approximation, we decrease this to O(N log N), but the
                  * resulting graph will have different layout. Barnes-Hut
@@ -1259,7 +1242,7 @@
                  * Euler integration, force is applied direct as
                  * `newPosition += velocity;`.
                  * In Verlet integration, new position is based on a previous
-                 * posittion without velocity:
+                 * position without velocity:
                  * `newPosition += previousPosition - newPosition`.
                  *
                  * Note that different integrations give different results as forces
@@ -1351,7 +1334,7 @@
          *
          * @type      {Array<Object|Array|number>}
          * @extends   series.line.data
-         * @excluding drilldown,marker,x,y,draDrop
+         * @excluding drilldown,marker,x,y,dragDrop
          * @sample    {highcharts} highcharts/chart/reflow-true/
          *            Numerical values
          * @sample    {highcharts} highcharts/series/data-array-of-arrays/
@@ -1397,7 +1380,7 @@
          * @apioption series.networkgraph.nodes
          */
         /**
-         * The id of the auto-generated node, refering to the `from` or `to` setting of
+         * The id of the auto-generated node, referring to the `from` or `to` setting of
          * the link.
          *
          * @type      {string}
@@ -1462,7 +1445,7 @@
          *
          * @apioption series.networkgraph.nodes.dataLabels
          */
-        ''; // adds doclets above to transpiled file
+        ''; // Adds doclets above to transpiled file
 
         return NetworkgraphSeriesDefaults;
     });
@@ -1471,7 +1454,7 @@
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -1493,7 +1476,7 @@
          * @param {Highcharts.Point} link
          *        Link that connects two nodes
          * @param {number} force
-         *        Force calcualated in `repulsiveForceFunction`
+         *        Force calculated in `repulsiveForceFunction`
          * @param {Highcharts.PositionObject} distanceXY
          *        Distance between two nodes e.g. `{x, y}`
          * @param {number} distanceR
@@ -1514,7 +1497,7 @@
             }
         }
         /**
-         * Attractive force funtion. Can be replaced by API's
+         * Attractive force function. Can be replaced by API's
          * `layoutAlgorithm.attractiveForce`
          *
          * Other forces that can be used:
@@ -1554,7 +1537,7 @@
             });
         }
         /**
-         * Estiamte the best possible distance between two nodes, making graph
+         * Estimate the best possible distance between two nodes, making graph
          * readable.
          * @private
          */
@@ -1594,12 +1577,11 @@
          *        Node that should be translated
          */
         function integrate(layout, node) {
-            var distanceR;
             node.dispX +=
                 node.dispX * layout.options.friction;
             node.dispY +=
                 node.dispY * layout.options.friction;
-            distanceR = node.temperature = layout.vectorLength({
+            var distanceR = node.temperature = layout.vectorLength({
                 x: node.dispX,
                 y: node.dispY
             });
@@ -1617,7 +1599,7 @@
          * @param {Highcharts.Point} node
          *        Node that should be translated by force.
          * @param {number} force
-         *        Force calcualated in `repulsiveForceFunction`
+         *        Force calculated in `repulsiveForceFunction`
          * @param {Highcharts.PositionObject} distanceXY
          *        Distance between two nodes e.g. `{x, y}`
          */
@@ -1628,7 +1610,7 @@
                 (distanceXY.y / distanceR) * force / node.degree;
         }
         /**
-         * Repulsive force funtion. Can be replaced by API's
+         * Repulsive force function. Can be replaced by API's
          * `layoutAlgorithm.repulsiveForce`.
          *
          * Other forces that can be used:
@@ -1672,7 +1654,7 @@
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -1907,7 +1889,7 @@
             QuadTreeNode.prototype.updateMassAndCenter = function () {
                 var mass = 0, plotX = 0, plotY = 0;
                 if (this.isInternal) {
-                    // Calcualte weightened mass of the quad node:
+                    // Calculate weightened mass of the quad node:
                     for (var _i = 0, _a = this.nodes; _i < _a.length; _i++) {
                         var pointMass = _a[_i];
                         if (!pointMass.isEmpty) {
@@ -1945,7 +1927,7 @@
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -2020,7 +2002,7 @@
                 }
             };
             /**
-             * Depfth first treversal (DFS). Using `before` and `after` callbacks,
+             * Depth first treversal (DFS). Using `before` and `after` callbacks,
              * we can get two results: preorder and postorder traversals, reminder:
              *
              * ```
@@ -2092,7 +2074,7 @@
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -2107,15 +2089,15 @@
         /**
          * Attractive force.
          *
-         * In Verlet integration, force is applied on a node immidatelly to it's
+         * In Verlet integration, force is applied on a node immediately to it's
          * `plotX` and `plotY` position.
          *
          * @private
          * @param {Highcharts.Point} link
          *        Link that connects two nodes
          * @param {number} force
-         *        Force calcualated in `repulsiveForceFunction`
-         * @param {Highcharts.PositionObject} distance
+         *        Force calculated in `repulsiveForceFunction`
+         * @param {Highcharts.PositionObject} distanceXY
          *        Distance between two nodes e.g. `{x, y}`
          */
         function attractive(link, force, distanceXY) {
@@ -2134,7 +2116,7 @@
             }
         }
         /**
-         * Attractive force funtion. Can be replaced by API's
+         * Attractive force function. Can be replaced by API's
          * `layoutAlgorithm.attractiveForce`
          *
          * @private
@@ -2150,18 +2132,15 @@
          * Barycenter force. Calculate and applys barycenter forces on the
          * nodes. Making them closer to the center of their barycenter point.
          *
-         * In Verlet integration, force is applied on a node immidatelly to it's
+         * In Verlet integration, force is applied on a node immediately to it's
          * `plotX` and `plotY` position.
          *
          * @private
          */
         function barycenter() {
-            var gravitationalConstant = this.options.gravitationalConstant, xFactor = this.barycenter.xFactor, yFactor = this.barycenter.yFactor;
-            // To consider:
-            xFactor = (xFactor - (this.box.left + this.box.width) / 2) *
-                gravitationalConstant;
-            yFactor = (yFactor - (this.box.top + this.box.height) / 2) *
-                gravitationalConstant;
+            var gravitationalConstant = this.options.gravitationalConstant || 0, xFactor = (this.barycenter.xFactor -
+                (this.box.left + this.box.width) / 2) * gravitationalConstant, yFactor = (this.barycenter.yFactor -
+                (this.box.top + this.box.height) / 2) * gravitationalConstant;
             this.nodes.forEach(function (node) {
                 if (!node.fixedPosition) {
                     node.plotX -=
@@ -2182,7 +2161,7 @@
         /**
          * Integration method.
          *
-         * In Verlet integration, forces are applied on node immidatelly to it's
+         * In Verlet integration, forces are applied on node immediately to it's
          * `plotX` and `plotY` position.
          *
          * Verlet without velocity:
@@ -2212,14 +2191,13 @@
          */
         function integrate(layout, node) {
             var friction = -layout.options.friction, maxSpeed = layout.options.maxSpeed, prevX = node.prevX, prevY = node.prevY, 
-            // Apply friciton:
-            diffX = ((node.plotX + node.dispX -
-                prevX) * friction), diffY = ((node.plotY + node.dispY -
-                prevY) * friction), abs = Math.abs, signX = abs(diffX) / (diffX || 1), // need to deal with 0
-            signY = abs(diffY) / (diffY || 1);
+            // Apply friction:
+            frictionX = ((node.plotX + node.dispX -
+                prevX) * friction), frictionY = ((node.plotY + node.dispY -
+                prevY) * friction), abs = Math.abs, signX = abs(frictionX) / (frictionX || 1), // Need to deal with 0
+            signY = abs(frictionY) / (frictionY || 1), 
             // Apply max speed:
-            diffX = signX * Math.min(maxSpeed, Math.abs(diffX));
-            diffY = signY * Math.min(maxSpeed, Math.abs(diffY));
+            diffX = signX * Math.min(maxSpeed, Math.abs(frictionX)), diffY = signY * Math.min(maxSpeed, Math.abs(frictionY));
             // Store for the next iteration:
             node.prevX = node.plotX + node.dispX;
             node.prevY = node.plotY + node.dispY;
@@ -2234,15 +2212,15 @@
         /**
          * Repulsive force.
          *
-         * In Verlet integration, force is applied on a node immidatelly to it's
+         * In Verlet integration, force is applied on a node immediately to it's
          * `plotX` and `plotY` position.
          *
          * @private
          * @param {Highcharts.Point} node
          *        Node that should be translated by force.
          * @param {number} force
-         *        Force calcualated in `repulsiveForceFunction`
-         * @param {Highcharts.PositionObject} distance
+         *        Force calculated in `repulsiveForceFunction`
+         * @param {Highcharts.PositionObject} distanceXY
          *        Distance between two nodes e.g. `{x, y}`
          */
         function repulsive(node, force, distanceXY) {
@@ -2253,7 +2231,7 @@
             }
         }
         /**
-         * Repulsive force funtion. Can be replaced by API's
+         * Repulsive force function. Can be replaced by API's
          * `layoutAlgorithm.repulsiveForce`
          *
          * @private
@@ -2287,7 +2265,7 @@
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -2313,16 +2291,11 @@
                  *  Static Functions
                  *
                  * */
-                this.attractiveForce = void 0;
                 this.box = {};
                 this.currentStep = 0;
                 this.initialRendering = true;
-                this.integration = void 0;
                 this.links = [];
                 this.nodes = [];
-                this.options = void 0;
-                this.quadTree = void 0;
-                this.repulsiveForce = void 0;
                 this.series = [];
                 this.simulation = false;
             }
@@ -2704,7 +2677,7 @@
                 for (var _i = 0, nodes_2 = nodes; _i < nodes_2.length; _i++) {
                     var node = nodes_2[_i];
                     if (node.fixedPosition) {
-                        return;
+                        continue;
                     }
                     this.integration.integrate(this, node);
                     this.applyLimitBox(node, this.box);
@@ -2823,7 +2796,7 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var syncTimeout = U.syncTimeout;
+        var merge = U.merge, syncTimeout = U.syncTimeout;
         var animObject = A.animObject;
         /**
          * Create a setTimeout for the first drawDataLabels()
@@ -2835,7 +2808,7 @@
             var _this = this;
             var _a;
             var dlOptions = this.options.dataLabels;
-            // drawDataLabels() fires for the first time after
+            // Method drawDataLabels() fires for the first time after
             // dataLabels.animation.defer time unless
             // the dataLabels.animation = false or dataLabels.defer = false
             // or if the simulation is disabled
@@ -2871,7 +2844,8 @@
                 }
                 return dataLabelsGroup;
             }
-            series.dataLabelsGroup.attr({ opacity: 1 });
+            // Place it on first and subsequent (redraw) calls
+            series.dataLabelsGroup.attr(merge({ opacity: 1 }, this.getPlotBox('data-labels')));
             return series.dataLabelsGroup;
         }
         var DataLabelsDeferUtils = {
@@ -2886,7 +2860,7 @@
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2021 Paweł Fus
+         *  (c) 2010-2024 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -2933,15 +2907,6 @@
                  *
                  * */
                 var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.nodes = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
                 _this.deferDataLabels = true;
                 return _this;
             }
@@ -2971,7 +2936,8 @@
              * @private
              */
             NetworkgraphSeries.prototype.deferLayout = function () {
-                var layoutOptions = this.options.layoutAlgorithm, graphLayoutsStorage = this.chart.graphLayoutsStorage, graphLayoutsLookup = this.chart.graphLayoutsLookup, chartOptions = this.chart.options.chart, layout;
+                var layoutOptions = this.options.layoutAlgorithm, chartOptions = this.chart.options.chart;
+                var layout, graphLayoutsStorage = this.chart.graphLayoutsStorage, graphLayoutsLookup = this.chart.graphLayoutsLookup;
                 if (!this.visible) {
                     return;
                 }
@@ -3006,7 +2972,7 @@
                 NodesComposition.destroy.call(this);
             };
             /**
-             * Networkgraph has two separate collecions of nodes and lines, render
+             * Networkgraph has two separate collections of nodes and lines, render
              * dataLabels for both sets:
              * @private
              */
@@ -3042,7 +3008,7 @@
             NetworkgraphSeries.prototype.generatePoints = function () {
                 var node, i;
                 NodesComposition.generatePoints.apply(this, arguments);
-                // In networkgraph, it's fine to define stanalone nodes, create
+                // In networkgraph, it's fine to define standalone nodes, create
                 // them:
                 if (this.options.nodes) {
                     this.options.nodes.forEach(function (nodeOptions) {
@@ -3124,7 +3090,7 @@
              */
             NetworkgraphSeries.prototype.markerAttribs = function (point, state) {
                 var attribs = Series.prototype.markerAttribs.call(this, point, state);
-                // series.render() is called before initial positions are set:
+                // Series.render() is called before initial positions are set:
                 if (!defined(point.plotY)) {
                     attribs.y = 0;
                 }
@@ -3137,7 +3103,8 @@
              */
             NetworkgraphSeries.prototype.pointAttribs = function (point, state) {
                 // By default, only `selected` state is passed on
-                var pointState = state || point && point.state || 'normal', attribs = Series.prototype.pointAttribs.call(this, point, pointState), stateOptions = this.options.states[pointState];
+                var pointState = state || point && point.state || 'normal', stateOptions = this.options.states[pointState];
+                var attribs = Series.prototype.pointAttribs.call(this, point, pointState);
                 if (point && !point.isNode) {
                     attribs = point.getLinkAttributes();
                     // For link, get prefixed names:
@@ -3300,12 +3267,12 @@
          * @callback Highcharts.NetworkgraphAfterSimulationCallbackFunction
          *
          * @param {Highcharts.Series} this
-         *        The series where the event occured.
+         *        The series where the event occurred.
          *
          * @param {global.Event} event
-         *        The event that occured.
+         *        The event that occurred.
          */
-        ''; // detach doclets above
+        ''; // Detach doclets above
 
         return NetworkgraphSeries;
     });
@@ -3314,5 +3281,6 @@
         var G = Highcharts;
         NetworkgraphSeries.compose(G.Chart);
 
+        return Highcharts;
     });
 }));

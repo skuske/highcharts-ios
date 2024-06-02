@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -395,7 +395,7 @@ A line series displays information as a series of data points connected by strai
 
 **Try it**
 
-* [Line chart](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/line-basic/)
+* [Line chart](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/line-chart/)
 */
 @property(nonatomic, readwrite) HILine *line;
 /**
@@ -440,7 +440,7 @@ A pie chart is a circular graphic which is divided into slices to illustrate num
 
 **Try it**
 
-* [Pie chart](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/pie-basic/)
+* [Pie chart](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/pie-chart/)
 */
 @property(nonatomic, readwrite) HIPie *pie;
 /**
@@ -483,6 +483,8 @@ A box plot is a convenient way of depicting groups of data through their five-nu
 **Try it**
 
 * [Box plot](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/box-plot/)
+* [Box plot in styled mode](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/css/boxplot/)
+* [Jittered scatter plot on top of a box plot](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-scatter/jitter-boxplot)
 */
 @property(nonatomic, readwrite) HIBoxplot *boxplot;
 /**

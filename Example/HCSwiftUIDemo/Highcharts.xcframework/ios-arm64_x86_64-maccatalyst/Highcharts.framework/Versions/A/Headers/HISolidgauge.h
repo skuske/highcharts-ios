@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -52,7 +52,7 @@ Whether to draw rounded edges on the gauge. This options adds the radius of the 
 
 **Try it**
 
-* [Activity Gauge](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/gauge-activity/)
+* [Gauge showing multiple KPIs](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/gauge-multiple-kpi/)
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *rounded;
 /**

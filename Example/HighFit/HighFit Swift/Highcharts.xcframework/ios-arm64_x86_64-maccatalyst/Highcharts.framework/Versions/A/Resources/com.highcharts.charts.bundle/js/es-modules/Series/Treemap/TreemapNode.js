@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2022 Pawel Lysy
+ *  (c) 2010-2024 Pawel Lysy
  *
  *  License: www.highcharts.com/license
  *
@@ -9,25 +9,25 @@
  * */
 'use strict';
 /* *
-*
-*  Class
-*
-* */
+ *
+ *  Class
+ *
+ * */
 class TreemapNode {
     constructor() {
         /* *
-        *
-        *  Properties
-        *
-        * */
+         *
+         *  Properties
+         *
+         * */
         this.childrenTotal = 0;
         this.visible = false;
     }
     /* *
-    *
-    *  Functions
-    *
-    * */
+     *
+     *  Functions
+     *
+     * */
     init(id, i, children, height, level, series, parent) {
         this.id = id;
         this.i = i;
@@ -40,8 +40,8 @@ class TreemapNode {
     }
 }
 /* *
-*
-*  Default Export
-*
-* */
+ *
+ *  Default Export
+ *
+ * */
 export default TreemapNode;

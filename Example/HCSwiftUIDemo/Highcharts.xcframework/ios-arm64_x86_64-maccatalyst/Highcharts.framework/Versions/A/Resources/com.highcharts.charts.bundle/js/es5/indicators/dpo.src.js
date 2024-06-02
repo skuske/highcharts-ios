@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Wojciech Chmiel
+ * (c) 2010-2024 Wojciech Chmiel
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -95,21 +93,7 @@
         var DPOIndicator = /** @class */ (function (_super) {
             __extends(DPOIndicator, _super);
             function DPOIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *   Properties
-                 *
-                 * */
-                _this.options = void 0;
-                _this.data = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -133,11 +117,11 @@
                 for (j = 0; j <= yValLen - range; j++) {
                     periodIndex = j + period - 1;
                     rangeIndex = j + range - 1;
-                    // adding the last period point
+                    // Adding the last period point
                     sum = accumulatePoints(sum, yVal, periodIndex, index);
                     price = pick(yVal[rangeIndex][index], yVal[rangeIndex]);
                     oscillator = price - sum / period;
-                    // substracting the first period point
+                    // Subtracting the first period point
                     sum = accumulatePoints(sum, yVal, j, index, true);
                     DPO.push([xVal[rangeIndex], oscillator]);
                     xData.push(xVal[rangeIndex]);
@@ -149,6 +133,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Detrended Price Oscillator. This series requires the `linkedTo` option to
              * be set and should be loaded after the `stock/indicators/indicators.js`.
@@ -210,12 +199,13 @@
          * @requires  stock/indicators/dpo
          * @apioption series.dpo
          */
-        ''; // to include the above in the js output'
+        ''; // To include the above in the js output'
 
         return DPOIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/dpo.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/dpo.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

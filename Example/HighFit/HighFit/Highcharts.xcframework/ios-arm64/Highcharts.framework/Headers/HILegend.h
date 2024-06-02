@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -95,7 +95,7 @@ When the legend is floating, the plot area ignores it and is allowed to be place
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *floating;
 /**
-The pixel width of the legend item symbol. When the `squareSymbol` option is set, this defaults to the `symbolHeight`, otherwise 16.
+The pixel width of the legend item symbol. When the `squareSymbol` option is set, this defaults to the `symbolHeight`, otherwise 16. Note: This option is a default source of color axis width, if the [colorAxis.width](https://api.highcharts.com/highcharts/colorAxis.width) option is not set.
 
 **Try it**
 
@@ -106,6 +106,11 @@ The pixel width of the legend item symbol. When the `squareSymbol` option is set
 Whether to [use HTML](https://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting#html) to render the legend item texts. Prior to 4.1.7, when using HTML, `legend.navigation` was disabled.
 
 **Defaults to** `false`.
+
+**Try it**
+
+* [Legend with vertical scrollable extension](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/legend/scrollable-vertical/)
+* [Legend with horizontal scrollable extension](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/legend/scrollable-horizontal/)
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *useHTML;
 /**
@@ -196,7 +201,7 @@ A [format string](https://www.highcharts.com/docs/chart-concepts/labels-and-stri
 /**
 CSS styles for each legend item. Only a subset of CSS is supported, notably those options related to text. The default `textOverflow` property makes long texts truncate. Set it to `undefined` to wrap text instead. A `width` property can be added to control the text width.
 
-**Defaults to** `{"color": "#333333", "cursor": "pointer", "fontSize": "0.75em", "fontWeight": "bold", "textOverflow": "ellipsis"}`.
+**Defaults to** `{"color": "#333333", "cursor": "pointer", "fontSize": "0.8em", "fontWeight": "bold", "textOverflow": "ellipsis"}`.
 
 **Try it**
 
@@ -269,6 +274,11 @@ In a legend with horizontal layout, the itemDistance defines the pixel distance 
 @property(nonatomic, readwrite) NSNumber *itemDistance;
 /**
 Options for the paging or navigation appearing when the legend is overflown. Navigation works well on screen, but not in static exported images. One way of working around that is to [increase the chart height in export](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/legend/navigation-enabled-false/).
+
+**Try it**
+
+* [Legend with vertical scrollable extension](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/legend/scrollable-vertical/)
+* [Legend with horizontal scrollable extension](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/legend/scrollable-horizontal/)
 */
 @property(nonatomic, readwrite) HINavigation *navigation;
 /**
@@ -312,7 +322,7 @@ If the `layout` is `horizontal` and the legend items span over two lines or more
 */
 @property(nonatomic, readwrite) NSNumber /* Bool */ *alignColumns;
 /**
-The pixel height of the symbol for series types that use a rectangle in the legend. Defaults to the font size of legend items.
+The pixel height of the symbol for series types that use a rectangle in the legend. Defaults to the font size of legend items. Note: This option is a default source of color axis height, if the [colorAxis.height](https://api.highcharts.com/highcharts/colorAxis.height) option is not set.
 */
 @property(nonatomic, readwrite) NSNumber *symbolHeight;
 /**

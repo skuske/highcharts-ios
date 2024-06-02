@@ -2,7 +2,7 @@
  *
  *  Experimental Highcharts module which enables visualization of a word cloud.
  *
- *  (c) 2016-2021 Highsoft AS
+ *  (c) 2016-2024 Highsoft AS
  *  Authors: Jon Arild Nygard
  *
  *  License: www.highcharts.com/license
@@ -19,7 +19,6 @@ const { extend, find, isNumber, isObject, merge } = U;
  * Functions
  *
  * */
-/* eslint-disable valid-jsdoc */
 /**
  * Detects if there is a collision between two rectangles.
  *
@@ -54,8 +53,8 @@ function isRectanglesIntersecting(r1, r2) {
  *         Returns the two normals in an array.
  */
 function getNormals(p1, p2) {
-    const dx = p2[0] - p1[0], // x2 - x1
-    dy = p2[1] - p1[1]; // y2 - y1
+    const dx = p2[0] - p1[0], // X2 - x1
+    dy = p2[1] - p1[1]; // Y2 - y1
     return [
         [-dy, dx],
         [dy, -dx]
@@ -69,7 +68,7 @@ function getAxesFromPolygon(polygon) {
     if (!axes.length) {
         axes = [];
         points = points = polygon.concat([polygon[0]]);
-        points.reduce(function findAxis(p1, p2) {
+        points.reduce((p1, p2) => {
             const normals = getNormals(p1, p2), axis = normals[0]; // Use the left normal as axis.
             // Check that the axis is unique.
             if (!find(axes, (existing) => existing[0] === axis[0] &&
@@ -147,7 +146,7 @@ function isPolygonsColliding(polygon1, polygon2) {
  * Returns true if there is collision.
  */
 function intersectsAnyWord(point, points) {
-    let intersects = false, rect = point.rect, polygon = point.polygon, lastCollidedWith = point.lastCollidedWith, isIntersecting = function (p) {
+    const rect = point.rect, polygon = point.polygon, lastCollidedWith = point.lastCollidedWith, isIntersecting = function (p) {
         let result = isRectanglesIntersecting(rect, p.rect);
         if (result &&
             (point.rotation % 90 || p.rotation % 90)) {
@@ -155,6 +154,7 @@ function intersectsAnyWord(point, points) {
         }
         return result;
     };
+    let intersects = false;
     // If the point has already intersected a different point, chances are
     // they are still intersecting. So as an enhancement we check this
     // first.
@@ -195,7 +195,8 @@ function intersectsAnyWord(point, points) {
  * the visualization.
  */
 function archimedeanSpiral(attempt, params) {
-    let field = params.field, result = false, maxDelta = (field.width * field.width) + (field.height * field.height), t = attempt * 0.8; // 0.2 * 4 = 0.8. Enlarging the spiral.
+    const field = params.field, maxDelta = (field.width * field.width) + (field.height * field.height), t = attempt * 0.8; // 0.2 * 4 = 0.8. Enlarging the spiral.
+    let result = false;
     // Emergency brake. TODO make spiralling logic more foolproof.
     if (attempt <= 10000) {
         result = {
@@ -209,7 +210,7 @@ function archimedeanSpiral(attempt, params) {
     return result;
 }
 /**
- * Gives a set of cordinates for an rectangular spiral.
+ * Gives a set of coordinates for an rectangular spiral.
  *
  * @private
  * @function squareSpiral
@@ -224,10 +225,11 @@ function archimedeanSpiral(attempt, params) {
  * Resulting coordinates, x and y. False if the word should be dropped from
  * the visualization.
  */
-function squareSpiral(attempt, params) {
-    let a = attempt * 4, k = Math.ceil((Math.sqrt(a) - 1) / 2), t = 2 * k + 1, m = Math.pow(t, 2), isBoolean = function (x) {
-        return typeof x === 'boolean';
-    }, result = false;
+function squareSpiral(attempt, 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+params) {
+    const a = attempt * 4, k = Math.ceil((Math.sqrt(a) - 1) / 2), isBoolean = (x) => (typeof x === 'boolean');
+    let t = 2 * k + 1, m = Math.pow(t, 2), result = false;
     t -= 1;
     if (attempt <= 10000) {
         if (isBoolean(result) && a >= m - t) {
@@ -264,7 +266,7 @@ function squareSpiral(attempt, params) {
     return result;
 }
 /**
- * Gives a set of cordinates for an rectangular spiral.
+ * Gives a set of coordinates for an rectangular spiral.
  *
  * @private
  * @function rectangularSpiral
@@ -314,9 +316,6 @@ function getRandomPosition(size) {
  *
  * @param {Object} field
  * The playing field.
- *
- * @param {Highcharts.Series} series
- * Series object.
  *
  * @return {number}
  * Returns the value to scale the playing field up to the size of the target
@@ -436,14 +435,12 @@ function getRotation(orientations, index, from, to) {
  * Function with access to spiral positions.
  */
 function getSpiral(fn, params) {
-    let length = 10000, i, arr = [];
-    for (i = 1; i < length; i++) {
-        // @todo unnecessary amount of precaclulation
+    const length = 10000, arr = [];
+    for (let i = 1; i < length; i++) {
+        // @todo unnecessary amount of precalculation
         arr.push(fn(i, params));
     }
-    return function (attempt) {
-        return attempt <= length ? arr[attempt - 1] : false;
-    };
+    return (attempt) => (attempt <= length ? arr[attempt - 1] : false);
 }
 /**
  * Detects if a word is placed outside the playing field.
@@ -502,15 +499,16 @@ function movePolygon(deltaX, deltaY, polygon) {
  * if the word should not be placed at all.
  */
 function intersectionTesting(point, options) {
-    let placed = options.placed, field = options.field, rectangle = options.rectangle, polygon = options.polygon, spiral = options.spiral, attempt = 1, delta = {
-        x: 0,
-        y: 0
-    }, 
+    const placed = options.placed, field = options.field, rectangle = options.rectangle, polygon = options.polygon, spiral = options.spiral, 
     // Make a copy to update values during intersection testing.
     rect = point.rect = extend({}, rectangle);
+    let attempt = 1, delta = {
+        x: 0,
+        y: 0
+    };
     point.polygon = polygon;
     point.rotation = options.rotation;
-    /* while w intersects any previously placed words:
+    /* While w intersects any previously placed words:
         do {
         move w a little bit along a spiral path
         } while any part of w is outside the playing field and
@@ -691,7 +689,7 @@ function rotate2DToPoint(point, origin, angle) {
 }
 /* *
  *
- * Default export
+ *  Default Export
  *
  * */
 const WordcloudUtils = {

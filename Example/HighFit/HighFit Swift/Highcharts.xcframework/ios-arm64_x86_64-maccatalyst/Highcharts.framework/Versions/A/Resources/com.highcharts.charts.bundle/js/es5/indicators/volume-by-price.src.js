@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Paweł Dalek
+ * (c) 2010-2024 Paweł Dalek
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -94,10 +92,10 @@
 
         return VBPPoint;
     });
-    _registerModule(_modules, 'Stock/Indicators/VBP/VBPIndicator.js', [_modules['Stock/Indicators/VBP/VBPPoint.js'], _modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Globals.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js'], _modules['Core/Chart/StockChart.js']], function (VBPPoint, A, H, SeriesRegistry, U, StockChart) {
+    _registerModule(_modules, 'Stock/Indicators/VBP/VBPIndicator.js', [_modules['Stock/Indicators/VBP/VBPPoint.js'], _modules['Core/Animation/AnimationUtilities.js'], _modules['Core/Globals.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (VBPPoint, A, H, SeriesRegistry, U) {
         /* *
          *
-         *  (c) 2010-2021 Paweł Dalek
+         *  (c) 2010-2024 Paweł Dalek
          *
          *  Volume By Price (VBP) indicator for Highcharts Stock
          *
@@ -174,28 +172,7 @@
         var VBPIndicator = /** @class */ (function (_super) {
             __extends(VBPIndicator, _super);
             function VBPIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.negWidths = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.posWidths = void 0;
-                _this.priceZones = void 0;
-                _this.rangeStep = void 0;
-                _this.volumeDataArray = void 0;
-                _this.zoneStarts = void 0;
-                _this.zoneLinesSVG = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -204,12 +181,12 @@
              * */
             VBPIndicator.prototype.init = function (chart, options) {
                 var indicator = this;
-                // series.update() sends data that is not necessary
-                // as everything is calculated in getValues(), #17007
+                // Series.update() sends data that is not necessary as everything is
+                // calculated in getValues(), #17007
                 delete options.data;
                 _super.prototype.init.apply(indicator, arguments);
                 // Only after series are linked add some additional logic/properties.
-                var unbinder = addEvent(StockChart, 'afterLinkSeries', function () {
+                var unbinder = addEvent(this.chart.constructor, 'afterLinkSeries', function () {
                     // Protection for a case where the indicator is being updated,
                     // for a brief moment the indicator is deleted.
                     if (indicator.options) {
@@ -364,6 +341,25 @@
                     }
                 }
             };
+            VBPIndicator.prototype.getExtremes = function () {
+                var prevCompare = this.options.compare, prevCumulative = this.options.cumulative;
+                var ret;
+                // Temporarily disable cumulative and compare while getting the extremes
+                if (this.options.compare) {
+                    this.options.compare = void 0;
+                    ret = _super.prototype.getExtremes.call(this);
+                    this.options.compare = prevCompare;
+                }
+                else if (this.options.cumulative) {
+                    this.options.cumulative = false;
+                    ret = _super.prototype.getExtremes.call(this);
+                    this.options.cumulative = prevCumulative;
+                }
+                else {
+                    ret = _super.prototype.getExtremes.call(this);
+                }
+                return ret;
+            };
             VBPIndicator.prototype.getValues = function (series, params) {
                 var indicator = this, xValues = series.processedXData, yValues = series.processedYData, chart = indicator.chart, ranges = params.ranges, VBP = [], xData = [], yData = [], volumeSeries = chart.get(params.volumeSeriesID);
                 // Checks if base series exists
@@ -404,7 +400,7 @@
                     yData: yData
                 };
             };
-            // Specifing where each zone should start ans end
+            // Specifying where each zone should start ans end
             VBPIndicator.prototype.specifyZones = function (isOHLC, xValues, yValues, ranges, volumeSeries) {
                 var indicator = this, rangeExtremes = (isOHLC ? arrayExtremesOHLC(yValues) : false), zoneStarts = indicator.zoneStarts = [], priceZones = [];
                 var lowRange = rangeExtremes ?
@@ -456,7 +452,7 @@
                 // Checks if each point has a corresponding volume value
                 if (abs(baseSeriesLength - volumeSeriesLength)) {
                     // If the first point don't have volume, add 0 value at the
-                    // beggining of the volume array
+                    // beginning of the volume array
                     if (xValues[0] !== volumeXData[0]) {
                         volumeYData.unshift(0);
                     }
@@ -515,7 +511,7 @@
                 });
                 return priceZones;
             };
-            // Function responsoble for drawing additional lines indicating zones
+            // Function responsible for drawing additional lines indicating zones
             VBPIndicator.prototype.drawZones = function (chart, yAxis, zonesValues, zonesStyles) {
                 var indicator = this, renderer = chart.renderer, leftLinePos = 0, rightLinePos = chart.plotWidth, verticalOffset = chart.plotTop;
                 var zoneLinesSVG = indicator.zoneLinesSVG, zoneLinesPath = [], verticalLinePos;
@@ -550,6 +546,11 @@
                             .add(indicator.group);
                 }
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Volume By Price indicator.
              *
@@ -689,12 +690,13 @@
          * @requires  stock/indicators/volume-by-price
          * @apioption series.vbp
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return VBPIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/volume-by-price.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/volume-by-price.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

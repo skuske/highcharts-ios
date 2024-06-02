@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2014-2021 Highsoft AS
+ *  (c) 2014-2024 Highsoft AS
  *
  *  Authors: Jon Arild Nygard / Oystein Moseng
  *
@@ -12,7 +12,7 @@
 'use strict';
 import DPU from '../DrawPointUtilities.js';
 import SeriesRegistry from '../../Core/Series/SeriesRegistry.js';
-const { series: { prototype: { pointClass: Point } }, seriesTypes: { pie: { prototype: { pointClass: PiePoint } }, scatter: { prototype: { pointClass: ScatterPoint } } } } = SeriesRegistry;
+const { pie: { prototype: { pointClass: PiePoint } }, scatter: { prototype: { pointClass: ScatterPoint } } } = SeriesRegistry.seriesTypes;
 import U from '../../Core/Utilities.js';
 const { extend, isNumber, pick } = U;
 /* *
@@ -28,25 +28,19 @@ class TreemapPoint extends ScatterPoint {
          *
          * */
         super(...arguments);
-        this.name = void 0;
-        this.node = void 0;
-        this.options = void 0;
-        this.series = void 0;
         this.shapeType = 'rect';
-        this.value = void 0;
-        /* eslint-enable valid-jsdoc */
     }
     /* *
      *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     draw(params) {
         DPU.draw(this, params);
     }
     getClassName() {
-        let className = Point.prototype.getClassName.call(this), series = this.series, options = series.options;
+        const series = this.series, options = series.options;
+        let className = super.getClassName();
         // Above the current level
         if (this.node.level <= series.nodeMap[series.rootNode].level) {
             className += ' highcharts-above-level';
@@ -71,7 +65,7 @@ class TreemapPoint extends ScatterPoint {
         return Boolean(this.id || isNumber(this.value));
     }
     setState(state) {
-        Point.prototype.setState.call(this, state);
+        super.setState.apply(this, arguments);
         // Graphic does not exist when point is not visible.
         if (this.graphic) {
             this.graphic.attr({

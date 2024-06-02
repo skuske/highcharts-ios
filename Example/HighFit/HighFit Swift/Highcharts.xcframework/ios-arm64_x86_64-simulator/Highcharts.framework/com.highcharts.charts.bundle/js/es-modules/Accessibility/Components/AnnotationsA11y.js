@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2021 Øystein Moseng
+ *  (c) 2009-2024 Øystein Moseng
  *
  *  Annotations accessibility code.
  *
@@ -110,7 +110,7 @@ function getAnnotationLabelDescription(label) {
 function getAnnotationListItems(chart) {
     const labels = getChartAnnotationLabels(chart);
     return labels.map((label) => {
-        const desc = escapeStringForHTML(stripHTMLTagsFromString(getAnnotationLabelDescription(label)));
+        const desc = escapeStringForHTML(stripHTMLTagsFromString(getAnnotationLabelDescription(label), chart.renderer.forExport));
         return desc ? `<li>${desc}</li>` : '';
     });
 }

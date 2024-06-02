@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Rafał Sebestjański
+ * (c) 2010-2024 Rafał Sebestjański
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -79,22 +77,7 @@
         var DEMAIndicator = /** @class */ (function (_super) {
             __extends(DEMAIndicator, _super);
             function DEMAIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.EMApercent = void 0;
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -125,7 +108,7 @@
                 // Accumulate first N-points
                 accumulatePeriodPoints =
                     _super.prototype.accumulatePeriodPoints.call(this, period, index, yVal);
-                // first point
+                // First point
                 SMA = accumulatePeriodPoints / period;
                 accumulatePeriodPoints = 0;
                 // Calculate value one-by-one for each period in visible data
@@ -163,6 +146,11 @@
                     yData: yDataDema
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Double exponential moving average (DEMA) indicator. This series requires
              * `linkedTo` option to be set and should be loaded after the
@@ -210,12 +198,13 @@
          * @requires  stock/indicators/dema
          * @apioption series.dema
          */
-        ''; // adds doclet above to the transpiled file
+        ''; // Adds doclet above to the transpiled file
 
         return DEMAIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/dema.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/dema.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

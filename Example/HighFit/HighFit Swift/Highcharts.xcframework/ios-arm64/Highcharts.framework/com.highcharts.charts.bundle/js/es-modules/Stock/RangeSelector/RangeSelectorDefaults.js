@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -116,7 +116,7 @@ const rangeSelector = {
      * }]
      * ```
      *
-     * @sample {highstock} stock/rangeselector/datagrouping/
+     * @sample {highstock} stock/demo/rangeselector-datagrouping/
      *         Data grouping by buttons
      *
      * @type      {Array<*>}
@@ -191,7 +191,7 @@ const rangeSelector = {
      *
      * @see [series.dataGrouping](#plotOptions.series.dataGrouping)
      *
-     * @sample {highstock} stock/rangeselector/datagrouping/
+     * @sample {highstock} stock/demo/rangeselector-datagrouping/
      *         Data grouping by range selector buttons
      *
      * @type      {*}
@@ -443,7 +443,9 @@ const rangeSelector = {
      */
     inputSpacing: 5,
     /**
-     * The index of the button to appear pre-selected.
+     * The index of the button to appear pre-selected. If the selected range
+     * exceeds the total data range and the 'all' option is available,
+     * the 'all' option, showing the full range, is automatically selected.
      *
      * @type      {number}
      */

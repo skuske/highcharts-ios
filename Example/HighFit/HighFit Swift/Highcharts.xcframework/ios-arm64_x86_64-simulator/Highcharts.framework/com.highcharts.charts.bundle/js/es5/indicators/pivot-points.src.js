@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Paweł Fus
+ * (c) 2010-2024 Paweł Fus
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -90,16 +88,7 @@
         var PivotPointsPoint = /** @class */ (function (_super) {
             __extends(PivotPointsPoint, _super);
             function PivotPointsPoint() {
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                _this.P = void 0;
-                _this.pivotLine = void 0;
-                _this.series = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -165,23 +154,7 @@
         var PivotPointsIndicator = /** @class */ (function (_super) {
             __extends(PivotPointsIndicator, _super);
             function PivotPointsIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                _this.endPoint = void 0;
-                _this.plotEndPoint = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -245,7 +218,7 @@
                 var currentLabel, pointsLength, point, i;
                 if (indicator.options.dataLabels.enabled) {
                     pointsLength = indicator.points.length;
-                    // For every Ressitance/Support group we need to render labels.
+                    // For every Resistance/Support group we need to render labels.
                     // Add one more item, which will just store dataLabels from
                     // previous iteration
                     pointMapping.concat([false]).forEach(function (position, k) {
@@ -368,6 +341,11 @@
                 ];
                 return avg;
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Pivot points indicator. This series requires the `linkedTo` option to be
              * set and should be loaded after `stock/indicators/indicators.js` file.
@@ -390,7 +368,7 @@
                     index: void 0,
                     period: 28,
                     /**
-                     * Algorithm used to calculate ressistance and support lines based
+                     * Algorithm used to calculate resistance and support lines based
                      * on pivot points. Implemented algorithms: `'standard'`,
                      * `'fibonacci'` and `'camarilla'`
                      */
@@ -444,12 +422,13 @@
          * @requires  stock/indicators/pivotpoints
          * @apioption series.pivotpoints
          */
-        ''; // to include the above in the js output'
+        ''; // To include the above in the js output'
 
         return PivotPointsIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/pivot-points.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/pivot-points.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

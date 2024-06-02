@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2023 Highsoft AS
+ *  (c) 2009-2024 Highsoft AS
  *
  *  License: www.highcharts.com/license
  *
@@ -35,7 +35,10 @@ class MathModifier extends DataModifier {
      * */
     constructor(options) {
         super();
-        this.options = Object.assign(Object.assign({}, MathModifier.defaultOptions), options);
+        this.options = {
+            ...MathModifier.defaultOptions,
+            ...options
+        };
     }
     /* *
      *
@@ -87,15 +90,15 @@ class MathModifier extends DataModifier {
             if (typeof cell === 'string' &&
                 cell[0] === '=') {
                 try {
-                    // use cache while formula string is repetitive
+                    // Use cache while formula string is repetitive
                     cacheFormula = (cacheString === cell ?
                         cacheFormula :
                         FormulaParser.parseFormula(cell.substring(1), alternativeSeparators));
-                    // process parsed formula string
+                    // Process parsed formula string
                     column[i] =
                         FormulaProcessor.processFormula(cacheFormula, table);
                 }
-                catch (_a) {
+                catch {
                     column[i] = NaN;
                 }
             }
@@ -131,7 +134,7 @@ class MathModifier extends DataModifier {
             try {
                 column[i] = FormulaProcessor.processFormula(formula, modified);
             }
-            catch (_a) {
+            catch {
                 column[i] = NaN;
             }
             finally {
@@ -151,8 +154,8 @@ class MathModifier extends DataModifier {
  * @private
  */
 MathModifier.defaultOptions = {
-    alternativeSeparators: false,
-    modifier: 'Math'
+    type: 'Math',
+    alternativeSeparators: false
 };
 DataModifier.registerType('Math', MathModifier);
 /* *

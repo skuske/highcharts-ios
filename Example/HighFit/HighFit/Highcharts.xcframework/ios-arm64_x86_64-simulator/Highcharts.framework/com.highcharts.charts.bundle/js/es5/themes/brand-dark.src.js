@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -26,19 +26,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
     _registerModule(_modules, 'Extensions/Themes/BrandDark.js', [_modules['Core/Defaults.js'], _modules['Core/Utilities.js']], function (D, U) {
         /* *
          *
-         *   (c) 2010-2021 Highsoft AS
+         *   (c) 2010-2024 Highsoft AS
          *
          *  Author: Nancy Dillon
          *
@@ -64,8 +62,10 @@
              *
              * */
             BrandDarkTheme.options = {
-                colors: ['#8087E8', '#A3EDBA', '#F19E53', '#6699A1',
-                    '#E1D369', '#87B4E7', '#DA6D85', '#BBBAC5'],
+                colors: [
+                    '#8087E8', '#A3EDBA', '#F19E53', '#6699A1',
+                    '#E1D369', '#87B4E7', '#DA6D85', '#BBBAC5'
+                ],
                 chart: {
                     backgroundColor: {
                         linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
@@ -146,7 +146,7 @@
                         lowColor: '#f0f0f0'
                     },
                     map: {
-                        borderColor: 'rgba(200, 200, 200, 1)',
+                        borderColor: '#909090',
                         nullColor: '#78758C'
                     }
                 },
@@ -199,6 +199,18 @@
                         }
                     }
                 },
+                colorAxis: {
+                    gridLineColor: '#45445d',
+                    labels: {
+                        style: {
+                            color: '#fff',
+                            fontSize: '12px'
+                        }
+                    },
+                    minColor: '#342f95',
+                    maxColor: '#2caffe',
+                    tickColor: '#45445d'
+                },
                 mapNavigation: {
                     enabled: true,
                     buttonOptions: {
@@ -228,11 +240,10 @@
                                     }
                                 }
                             }
-                        },
-                        verticalAlign: 'bottom'
+                        }
                     }
                 },
-                // scroll charts
+                // Scroll charts
                 rangeSelector: {
                     buttonTheme: {
                         fill: '#46465C',
@@ -306,7 +317,7 @@
             function apply() {
                 // Load the fonts
                 createElement('link', {
-                    href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:200,300,400,600,700',
+                    href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300;400;600;700',
                     rel: 'stylesheet',
                     type: 'text/css'
                 }, null, document.getElementsByTagName('head')[0]);
@@ -328,5 +339,6 @@
         H.theme = BrandDark.options;
         BrandDark.apply();
 
+        return H;
     });
 }));

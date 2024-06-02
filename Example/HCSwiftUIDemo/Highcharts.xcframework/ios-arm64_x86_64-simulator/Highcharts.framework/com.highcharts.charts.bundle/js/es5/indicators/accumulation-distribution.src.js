@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Sebastian Bochan
+ * (c) 2010-2024 Sebastian Bochan
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -78,28 +76,16 @@
         var ADIndicator = /** @class */ (function (_super) {
             __extends(ADIndicator, _super);
             function ADIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
              *  Static Functions
              *
              * */
-            ADIndicator.populateAverage = function (xVal, yVal, yValVolume, i, _period) {
+            ADIndicator.populateAverage = function (xVal, yVal, yValVolume, i, 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            _period) {
                 var high = yVal[i][1], low = yVal[i][2], close = yVal[i][3], volume = yValVolume[i], adY = close === high && close === low || high === low ?
                     0 :
                     ((2 * close - low - high) / (high - low)) * volume, adX = xVal[i];
@@ -124,7 +110,7 @@
                         ' not found! Check `volumeSeriesID`.', true, series.chart);
                     return;
                 }
-                // i = period <-- skip first N-points
+                // When i = period <-- skip first N-points
                 // Calculate value one-by-one for each period in visible data
                 for (i = period; i < yValLen; i++) {
                     len = AD.length;
@@ -142,6 +128,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Accumulation Distribution (AD). This series requires `linkedTo` option to
              * be set.
@@ -201,12 +192,13 @@
          * @requires  stock/indicators/accumulation-distribution
          * @apioption series.ad
          */
-        ''; // add doclet above to transpiled file
+        ''; // Add doclet above to transpiled file
 
         return ADIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/accumulation-distribution.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/accumulation-distribution.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

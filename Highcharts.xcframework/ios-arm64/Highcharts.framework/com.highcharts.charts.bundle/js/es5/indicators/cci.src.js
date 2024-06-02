@@ -1,9 +1,9 @@
 /**
- * @license Highstock JS v11.1.0 (2023-06-05)
+ * @license Highstock JS v11.4.3 (2024-05-22)
  *
  * Indicator series type for Highcharts Stock
  *
- * (c) 2010-2021 Sebastian Bochan
+ * (c) 2010-2024 Sebastian Bochan
  *
  * License: www.highcharts.com/license
  */
@@ -28,12 +28,10 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
@@ -103,21 +101,7 @@
         var CCIIndicator = /** @class */ (function (_super) {
             __extends(CCIIndicator, _super);
             function CCIIndicator() {
-                /* *
-                 *
-                 *  Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 *  Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.points = void 0;
-                _this.options = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
@@ -133,7 +117,7 @@
                     yVal[0].length !== 4) {
                     return;
                 }
-                // accumulate first N-points
+                // Accumulate first N-points
                 while (range < period) {
                     p = yVal[range - 1];
                     TP.push((p[1] + p[2] + p[3]) / 3);
@@ -157,6 +141,11 @@
                     yData: yData
                 };
             };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
             /**
              * Commodity Channel Index (CCI). This series requires `linkedTo` option to
              * be set.
@@ -176,7 +165,7 @@
                  * @excluding index
                  */
                 params: {
-                    index: void 0 // unused index, do not inherit (#15362)
+                    index: void 0 // Unused index, do not inherit (#15362)
                 }
             });
             return CCIIndicator;
@@ -204,12 +193,13 @@
          * @requires  stock/indicators/cci
          * @apioption series.cci
          */
-        ''; // to include the above in the js output
+        ''; // To include the above in the js output
 
         return CCIIndicator;
     });
-    _registerModule(_modules, 'masters/indicators/cci.src.js', [], function () {
+    _registerModule(_modules, 'masters/indicators/cci.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -9,8 +9,8 @@
 #import "HICSSObject.h"
 #import "HIFilter.h"
 #import "HITextPath.h"
-#import "HIParentNodeTextPath.h"
 #import "HILinkTextPath.h"
+#import "HIParentNodeTextPath.h"
 #import "HISVGAttributes.h"
 #import "HIColor.h"
 #import "HIFunction.h"
@@ -36,9 +36,7 @@ Styles for the label. The default `color` setting is `"contrast"`, which is a ps
 */
 @property(nonatomic, readwrite) HICSSObject *style;
 /**
-Decides how the data label will be rotated relative to the perimeter of the sunburst. Valid values are `auto`, `circular`, `parallel` and `perpendicular`. When `auto`, the best fit will be computed for the point. The `circular` option works similiar to `auto`, but uses the `textPath` feature - labels are curved, resulting in a better layout, however multiple lines and `textOutline` are not supported. The `series.rotation` option takes precedence over `rotationMode`.
-
-**Accepted values:** `["auto", "perpendicular", "parallel", "circular"]`.
+Decides how the data label will be rotated relative to the perimeter of the sunburst. Valid values are `circular`, `auto`, `parallel` and `perpendicular`. When `circular`, the best fit will be computed for the point, so that the label is curved around the center when there is room for it, otherwise perpendicular. The legacy `auto` option works similar to `circular`, but instead of curving the labels they are tangent to the perimeter. The `rotation` option takes precedence over `rotationMode`.
 
 **Defaults to** `circular`.
 
@@ -189,11 +187,15 @@ The name of a symbol to use for the border around the label. Symbols are predefi
 */
 @property(nonatomic, readwrite) NSString *shape;
 /**
-How to handle data labels that flow outside the plot area. The default is `"justify"`, which aligns them inside the plot area. For columns and bars, this means it will be moved inside the bar. To display data labels outside the plot area, set `crop` to `false` and `overflow` to `"allow"`.
+Text rotation in degrees. Note that due to a more complex structure, backgrounds, borders and padding will be lost on a rotated data label.
 
-**Defaults to** `justify`.
+**Defaults to** `0`.
+
+**Try it**
+
+* [Vertical labels](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-datalabels-rotation/)
 */
-@property(nonatomic, readwrite) NSString *overflow;
+@property(nonatomic, readwrite) NSNumber *rotation;
 /**
 The border color for the data label. Setting it to `auto` will use the point's color. Defaults to `undefined`.
 
@@ -270,15 +272,11 @@ The x position offset of the label relative to the point in pixels.
 */
 @property(nonatomic, readwrite) NSNumber *x;
 /**
-Text rotation in degrees. Note that due to a more complex structure, backgrounds, borders and padding will be lost on a rotated data label.
+How to handle data labels that flow outside the plot area. The default is `"justify"`, which aligns them inside the plot area. For columns and bars, this means it will be moved inside the bar. To display data labels outside the plot area, set `crop` to `false` and `overflow` to `"allow"`.
 
-**Defaults to** `0`.
-
-**Try it**
-
-* [Vertical labels](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/plotoptions/series-datalabels-rotation/)
+**Defaults to** `justify`.
 */
-@property(nonatomic, readwrite) NSNumber *rotation;
+@property(nonatomic, readwrite) NSString *overflow;
 /**
 The z index of the data labels. Use a `zIndex` of 6 to display it above the series, or use a `zIndex` of 2 to display it behind the series.
 

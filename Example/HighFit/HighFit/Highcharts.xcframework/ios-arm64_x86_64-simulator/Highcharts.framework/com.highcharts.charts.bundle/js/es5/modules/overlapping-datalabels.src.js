@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -26,17 +26,19 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'masters/modules/overlapping-datalabels.src.js', [], function () {
+    _registerModule(_modules, 'masters/modules/overlapping-datalabels.src.js', [_modules['Core/Globals.js'], _modules['Extensions/OverlappingDataLabels.js']], function (Highcharts, OverlappingDataLabels) {
 
+        var G = Highcharts;
+        G.OverlappingDataLabels = G.OverlappingDataLabels || OverlappingDataLabels;
+        G.OverlappingDataLabels.compose(G.Chart);
 
+        return Highcharts;
     });
 }));

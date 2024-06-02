@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -7,6 +7,7 @@
 */
 
 #import "HISeries.h"
+#import "HILowMarker.h"
 #import "HIColor.h"
 
 
@@ -52,15 +53,21 @@ Pixel width of the line that connects the dumbbell point's values.
 @property(nonatomic, readwrite) NSNumber *connectorWidth;
 @property(nonatomic, readwrite) NSNumber *pointPadding;
 @property(nonatomic, readwrite) NSNumber *pointRange;
+/**
+Options for the lower markers of the dumbbell-like series. When `lowMarker` is not defined, options inherit form the marker.
+
+**Defaults to** `undefined`.
+*/
+@property(nonatomic, readwrite) HILowMarker *lowMarker;
 @property(nonatomic, readwrite) NSNumber *groupPadding;
 /**
-Color of the start markers in a dumbbell graph.
+Color of the start markers in a dumbbell graph. This option takes priority over the series color. To avoid this, set `lowColor` to `undefined`.
 
 **Defaults to** `#333333`.
 */
 @property(nonatomic, readwrite) HIColor *lowColor;
 /**
-A separate color for the negative part of the area. In styled mode, a negative color is set with the `.highcharts-negative` class name.
+A separate color for the negative part of the area. Note that `zones` takes precedence over the negative fill color. In styled mode, a negative color is set with the `.highcharts-negative` class name.
 
 **Try it**
 

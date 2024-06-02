@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
  * Dot plot series type for Highcharts
  *
- * (c) 2010-2021 Torstein Honsi
+ * (c) 2010-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -28,19 +28,53 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Series/DotPlot/DotPlotSeries.js', [_modules['Series/Column/ColumnSeries.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (ColumnSeries, SeriesRegistry, U) {
+    _registerModule(_modules, 'Series/DotPlot/DotPlotSeriesDefaults.js', [], function () {
         /* *
          *
-         *  (c) 2009-2021 Torstein Honsi
+         *  (c) 2009-2024 Torstein Honsi
+         *
+         *  Dot plot series type for Highcharts
+         *
+         *  License: www.highcharts.com/license
+         *
+         *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
+         *
+         * */
+        /* *
+         *
+         *  API Options
+         *
+         * */
+        var DotPlotSeriesDefaults = {
+            itemPadding: 0.1,
+            marker: {
+                symbol: 'circle',
+                states: {
+                    hover: {},
+                    select: {}
+                }
+            },
+            slotsPerBar: void 0
+        };
+        /* *
+         *
+         *  Default Export
+         *
+         * */
+
+        return DotPlotSeriesDefaults;
+    });
+    _registerModule(_modules, 'Series/DotPlot/DotPlotSeries.js', [_modules['Series/DotPlot/DotPlotSeriesDefaults.js'], _modules['Core/Series/SeriesRegistry.js'], _modules['Core/Utilities.js']], function (DotPlotSeriesDefaults, SeriesRegistry, U) {
+        /* *
+         *
+         *  (c) 2009-2024 Torstein Honsi
          *
          *  Dot plot series type for Highcharts
          *
@@ -71,7 +105,8 @@
                 d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
             };
         })();
-        var extend = U.extend, merge = U.merge, pick = U.pick;
+        var ColumnSeries = SeriesRegistry.seriesTypes.column;
+        var extend = U.extend, isNumber = U.isNumber, merge = U.merge, pick = U.pick;
         /* *
          *
          *  Class
@@ -87,35 +122,38 @@
         var DotPlotSeries = /** @class */ (function (_super) {
             __extends(DotPlotSeries, _super);
             function DotPlotSeries() {
-                /* *
-                 *
-                 * Static Properties
-                 *
-                 * */
-                var _this = _super !== null && _super.apply(this, arguments) || this;
-                /* *
-                 *
-                 * Properties
-                 *
-                 * */
-                _this.data = void 0;
-                _this.options = void 0;
-                _this.points = void 0;
-                return _this;
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             /* *
              *
-             * Functions
+             *  Functions
              *
              * */
             DotPlotSeries.prototype.drawPoints = function () {
-                var series = this, renderer = series.chart.renderer, seriesMarkerOptions = this.options.marker, itemPaddingTranslated = this.yAxis.transA *
-                    series.options.itemPadding, borderWidth = this.borderWidth, crisp = borderWidth % 2 ? 0.5 : 1;
-                this.points.forEach(function (point) {
-                    var yPos, attr, graphics, pointAttr, pointMarkerOptions = point.marker || {}, symbol = (pointMarkerOptions.symbol ||
-                        seriesMarkerOptions.symbol), radius = pick(pointMarkerOptions.radius, seriesMarkerOptions.radius), size, yTop, isSquare = symbol !== 'rect', x, y;
+                var _a, _b, _c;
+                var series = this, options = series.options, renderer = series.chart.renderer, seriesMarkerOptions = options.marker, total = this.points.reduce(function (acc, point) { return acc + Math.abs(point.y || 0); }, 0), totalHeight = this.points.reduce(function (acc, point) { var _a; return acc + (((_a = point.shapeArgs) === null || _a === void 0 ? void 0 : _a.height) || 0); }, 0), itemPadding = options.itemPadding || 0, columnWidth = ((_b = (_a = this.points[0]) === null || _a === void 0 ? void 0 : _a.shapeArgs) === null || _b === void 0 ? void 0 : _b.width) || 0;
+                var slotsPerBar = options.slotsPerBar, slotWidth = columnWidth;
+                // Find the suitable number of slots per column
+                if (!isNumber(slotsPerBar)) {
+                    slotsPerBar = 1;
+                    while (slotsPerBar < total) {
+                        if (total / slotsPerBar <
+                            (totalHeight / slotWidth) * 1.2) {
+                            break;
+                        }
+                        slotsPerBar++;
+                        slotWidth = columnWidth / slotsPerBar;
+                    }
+                }
+                var height = (totalHeight * slotsPerBar) / total;
+                for (var _i = 0, _d = series.points; _i < _d.length; _i++) {
+                    var point = _d[_i];
+                    var pointMarkerOptions = point.marker || {}, symbol = (pointMarkerOptions.symbol ||
+                        seriesMarkerOptions.symbol), radius = pick(pointMarkerOptions.radius, seriesMarkerOptions.radius), isSquare = symbol !== 'rect', width = isSquare ? height : slotWidth, shapeArgs = point.shapeArgs || {}, startX = (shapeArgs.x || 0) + ((shapeArgs.width || 0) -
+                        slotsPerBar * width) / 2, positiveYValue = Math.abs((_c = point.y) !== null && _c !== void 0 ? _c : 0), shapeY = (shapeArgs.y || 0), shapeHeight = (shapeArgs.height || 0);
+                    var graphics = void 0, x = startX, y = point.negative ? shapeY : shapeY + shapeHeight - height, slotColumn = 0;
                     point.graphics = graphics = point.graphics || [];
-                    pointAttr = point.pointAttr ?
+                    var pointAttr = point.pointAttr ?
                         (point.pointAttr[point.selected ? 'selected' : ''] ||
                             series.pointAttr['']) :
                         series.pointAttribs(point, point.selected && 'select');
@@ -124,67 +162,61 @@
                         delete pointAttr.stroke;
                         delete pointAttr['stroke-width'];
                     }
-                    if (point.y !== null) {
+                    if (typeof point.y === 'number') {
                         if (!point.graphic) {
                             point.graphic = renderer.g('point').add(series.group);
                         }
-                        yTop = pick(point.stackY, point.y);
-                        size = Math.min(point.pointWidth, series.yAxis.transA - itemPaddingTranslated);
-                        var i = Math.floor(yTop);
-                        for (yPos = yTop; yPos > yTop - point.y; yPos--, i--) {
-                            x = point.barX + (isSquare ?
-                                point.pointWidth / 2 - size / 2 :
-                                0);
-                            y = series.yAxis.toPixels(yPos, true) +
-                                itemPaddingTranslated / 2;
-                            if (series.options.crisp) {
-                                x = Math.round(x) - crisp;
-                                y = Math.round(y) + crisp;
-                            }
-                            attr = {
-                                x: x,
-                                y: y,
-                                width: Math.round(isSquare ? size : point.pointWidth),
-                                height: Math.round(size),
+                        for (var val = 0; val < positiveYValue; val++) {
+                            var attr = {
+                                x: x + width * itemPadding,
+                                y: y + height * itemPadding,
+                                width: width * (1 - 2 * itemPadding),
+                                height: height * (1 - 2 * itemPadding),
                                 r: radius
                             };
-                            var graphic = graphics[i];
+                            var graphic = graphics[val];
                             if (graphic) {
                                 graphic.animate(attr);
                             }
                             else {
-                                graphic = renderer.symbol(symbol)
+                                graphic = renderer
+                                    .symbol(symbol)
                                     .attr(extend(attr, pointAttr))
                                     .add(point.graphic);
                             }
                             graphic.isActive = true;
-                            graphics[i] = graphic;
+                            graphics[val] = graphic;
+                            x += width;
+                            slotColumn++;
+                            if (slotColumn >= slotsPerBar) {
+                                slotColumn = 0;
+                                x = startX;
+                                y = point.negative ? y + height : y - height;
+                            }
                         }
                     }
-                    graphics.forEach(function (graphic, i) {
-                        if (!graphic) {
-                            return;
+                    var i = -1;
+                    for (var _e = 0, graphics_1 = graphics; _e < graphics_1.length; _e++) {
+                        var graphic = graphics_1[_e];
+                        ++i;
+                        if (graphic) {
+                            if (!graphic.isActive) {
+                                graphic.destroy();
+                                graphics.splice(i, 1);
+                            }
+                            else {
+                                graphic.isActive = false;
+                            }
                         }
-                        if (!graphic.isActive) {
-                            graphic.destroy();
-                            graphics.splice(i, 1);
-                        }
-                        else {
-                            graphic.isActive = false;
-                        }
-                    });
-                });
-            };
-            DotPlotSeries.defaultOptions = merge(ColumnSeries.defaultOptions, {
-                itemPadding: 0.2,
-                marker: {
-                    symbol: 'circle',
-                    states: {
-                        hover: {},
-                        select: {}
                     }
                 }
-            });
+            };
+            /* *
+             *
+             *  Static Properties
+             *
+             * */
+            DotPlotSeries.defaultOptions = merge(ColumnSeries.defaultOptions, DotPlotSeriesDefaults);
             return DotPlotSeries;
         }(ColumnSeries));
         extend(DotPlotSeries.prototype, {
@@ -193,14 +225,15 @@
         SeriesRegistry.registerSeriesType('dotplot', DotPlotSeries);
         /* *
          *
-         * Default Export
+         *  Default Export
          *
          * */
 
         return DotPlotSeries;
     });
-    _registerModule(_modules, 'masters/modules/dotplot.src.js', [], function () {
+    _registerModule(_modules, 'masters/modules/dotplot.src.js', [_modules['Core/Globals.js']], function (Highcharts) {
 
 
+        return Highcharts;
     });
 }));

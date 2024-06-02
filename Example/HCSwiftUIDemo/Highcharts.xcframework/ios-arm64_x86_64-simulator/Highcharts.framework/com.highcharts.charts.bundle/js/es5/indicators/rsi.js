@@ -1,15 +1,9 @@
-/*
- Highstock JS v11.1.0 (2023-06-05)
-
- Indicator series type for Highcharts Stock
-
- (c) 2010-2021 Pawe Fus
-
- License: www.highcharts.com/license
-*/
-'use strict';(function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/indicators/rsi",["highcharts","highcharts/modules/stock"],function(d){a(d);a.Highcharts=d;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function d(a,b,d,h){a.hasOwnProperty(b)||(a[b]=h.apply(null,d),"function"===typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:b,
-module:a[b]}})))}a=a?a._modules:{};d(a,"Stock/Indicators/RSI/RSIIndicator.js",[a["Core/Series/SeriesRegistry.js"],a["Core/Utilities.js"]],function(a,b){var d=this&&this.__extends||function(){var a=function(b,c){a=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(a,c){a.__proto__=c}||function(a,c){for(var b in c)Object.prototype.hasOwnProperty.call(c,b)&&(a[b]=c[b])};return a(b,c)};return function(b,c){function m(){this.constructor=b}if("function"!==typeof c&&null!==c)throw new TypeError("Class extends value "+
-String(c)+" is not a constructor or null");a(b,c);b.prototype=null===c?Object.create(c):(m.prototype=c.prototype,new m)}}(),h=a.seriesTypes.sma,t=b.isNumber,u=b.merge;b=function(a){function b(){var b=null!==a&&a.apply(this,arguments)||this;b.data=void 0;b.points=void 0;b.options=void 0;return b}d(b,a);b.prototype.getValues=function(a,b){var c=b.period,d=a.xData,e=a.yData;a=e?e.length:0;var k=b.decimals,h=[],m=[],r=[],g=0,n=0,q=b.index,f=1;if(!(d.length<c)){if(t(e[0]))var p=e;else q=Math.min(q,e[0].length-
-1),p=e.map(function(a){return a[q]});for(;f<c;){var l=parseFloat((p[f]-p[f-1]).toFixed(k));0<l?g+=l:n+=Math.abs(l);f++}b=parseFloat((g/(c-1)).toFixed(k));for(e=parseFloat((n/(c-1)).toFixed(k));f<a;f++)l=parseFloat((p[f]-p[f-1]).toFixed(k)),0<l?(g=l,n=0):(g=0,n=Math.abs(l)),b=parseFloat(((b*(c-1)+g)/c).toFixed(k)),e=parseFloat(((e*(c-1)+n)/c).toFixed(k)),g=0===e?100:0===b?0:parseFloat((100-100/(1+b/e)).toFixed(k)),h.push([d[f],g]),m.push(d[f]),r.push(g);return{values:h,xData:m,yData:r}}};b.defaultOptions=
-u(h.defaultOptions,{params:{decimals:4,index:3}});return b}(h);a.registerSeriesType("rsi",b);"";return b});d(a,"masters/indicators/rsi.src.js",[],function(){})});
-//# sourceMappingURL=rsi.js.map
+!/**
+ * Highstock JS v11.4.3 (2024-05-22)
+ *
+ * Indicator series type for Highcharts Stock
+ *
+ * (c) 2010-2024 Paweł Fus
+ *
+ * License: www.highcharts.com/license
+ */function(t){"object"==typeof module&&module.exports?(t.default=t,module.exports=t):"function"==typeof define&&define.amd?define("highcharts/indicators/rsi",["highcharts","highcharts/modules/stock"],function(e){return t(e),t.Highcharts=e,t}):t("undefined"!=typeof Highcharts?Highcharts:void 0)}(function(t){"use strict";var e=t?t._modules:{};function n(t,e,n,r){t.hasOwnProperty(e)||(t[e]=r.apply(null,n),"function"==typeof CustomEvent&&window.dispatchEvent(new CustomEvent("HighchartsModuleLoaded",{detail:{path:e,module:t[e]}})))}n(e,"Stock/Indicators/RSI/RSIIndicator.js",[e["Core/Series/SeriesRegistry.js"],e["Core/Utilities.js"]],function(t,e){var n,r=this&&this.__extends||(n=function(t,e){return(n=Object.setPrototypeOf||({__proto__:[]})instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&(t[n]=e[n])})(t,e)},function(t,e){if("function"!=typeof e&&null!==e)throw TypeError("Class extends value "+String(e)+" is not a constructor or null");function r(){this.constructor=t}n(t,e),t.prototype=null===e?Object.create(e):(r.prototype=e.prototype,new r)}),o=t.seriesTypes.sma,i=e.isNumber,s=e.merge;function a(t,e){return parseFloat(t.toFixed(e))}var u=function(t){function e(){return null!==t&&t.apply(this,arguments)||this}return r(e,t),e.prototype.getValues=function(t,e){var n,r,o,s,u,c,p=e.period,f=t.xData,l=t.yData,h=l?l.length:0,d=e.decimals,y=[],m=[],g=[],v=0,_=0,j=e.index,x=1;if(!(f.length<p)){for(i(l[0])?c=l:(j=Math.min(j,l[0].length-1),c=l.map(function(t){return t[j]}));x<p;)(r=a(c[x]-c[x-1],d))>0?v+=r:_+=Math.abs(r),x++;for(o=a(v/(p-1),d),s=a(_/(p-1),d),u=x;u<h;u++)(r=a(c[u]-c[u-1],d))>0?(v=r,_=0):(v=0,_=Math.abs(r)),o=a((o*(p-1)+v)/p,d),n=0===(s=a((s*(p-1)+_)/p,d))?100:0===o?0:a(100-100/(1+o/s),d),y.push([f[u],n]),m.push(f[u]),g.push(n);return{values:y,xData:m,yData:g}}},e.defaultOptions=s(o.defaultOptions,{params:{decimals:4,index:3}}),e}(o);return t.registerSeriesType("rsi",u),u}),n(e,"masters/indicators/rsi.src.js",[e["Core/Globals.js"]],function(t){return t})});

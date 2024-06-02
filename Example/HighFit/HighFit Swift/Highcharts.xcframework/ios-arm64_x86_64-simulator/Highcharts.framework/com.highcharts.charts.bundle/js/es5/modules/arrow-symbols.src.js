@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v11.1.0 (2023-06-05)
+ * @license Highcharts JS v11.4.3 (2024-05-22)
  *
  * Arrow Symbols
  *
- * (c) 2017-2021 Lars A. V. Cabrera
+ * (c) 2017-2024 Lars A. V. Cabrera
  *
  * License: www.highcharts.com/license
  */
@@ -28,16 +28,14 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Extensions/ArrowSymbols.js', [_modules['Core/Utilities.js']], function (U) {
+    _registerModule(_modules, 'Extensions/ArrowSymbols.js', [], function () {
         /* *
          *
          *  (c) 2017 Highsoft AS
@@ -48,12 +46,6 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        /* *
-         *
-         *  Constants
-         *
-         * */
-        var composedMembers = [];
         /* *
          *
          *  Functions
@@ -132,15 +124,13 @@
          * @private
          */
         function compose(SVGRendererClass) {
-            if (U.pushUnique(composedMembers, SVGRendererClass)) {
-                var symbols = SVGRendererClass.prototype.symbols;
-                symbols.arrow = arrow;
-                symbols['arrow-filled'] = triangleLeft;
-                symbols['arrow-filled-half'] = triangleLeftHalf;
-                symbols['arrow-half'] = arrowHalf;
-                symbols['triangle-left'] = triangleLeft;
-                symbols['triangle-left-half'] = triangleLeftHalf;
-            }
+            var symbols = SVGRendererClass.prototype.symbols;
+            symbols.arrow = arrow;
+            symbols['arrow-filled'] = triangleLeft;
+            symbols['arrow-filled-half'] = triangleLeftHalf;
+            symbols['arrow-half'] = arrowHalf;
+            symbols['triangle-left'] = triangleLeft;
+            symbols['triangle-left-half'] = triangleLeftHalf;
         }
         /**
          * Creates a left-oriented triangle.
@@ -225,5 +215,6 @@
         var G = Highcharts;
         ArrowSymbols.compose(G.SVGRenderer);
 
+        return Highcharts;
     });
 }));

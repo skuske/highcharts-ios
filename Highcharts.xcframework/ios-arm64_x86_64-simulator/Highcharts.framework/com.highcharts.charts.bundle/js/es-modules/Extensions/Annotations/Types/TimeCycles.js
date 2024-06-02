@@ -87,7 +87,8 @@ class TimeCycles extends CrookedLine {
         const shape = this.initShape(merge(typeOptions.line, {
             type: 'path',
             d: this.getPath(),
-            points: this.options.points
+            points: this.options.points,
+            className: 'highcharts-timecycles-lines'
         }), 0);
         typeOptions.line = shape.options;
     }
@@ -153,8 +154,8 @@ TimeCycles.prototype.defaultOptions = merge(CrookedLine.prototype.defaultOptions
                 positioner: function (target) {
                     const point = target.points[0], position = target.anchor(point).absolutePosition;
                     return {
-                        x: position.x - this.graphic.width / 2,
-                        y: target.y - this.graphic.height
+                        x: position.x - (this.graphic.width || 0) / 2,
+                        y: target.y - (this.graphic.height || 0)
                     };
                 },
                 events: {
@@ -168,8 +169,8 @@ TimeCycles.prototype.defaultOptions = merge(CrookedLine.prototype.defaultOptions
                 positioner: function (target) {
                     const point = target.points[1], position = target.anchor(point).absolutePosition;
                     return {
-                        x: position.x - this.graphic.width / 2,
-                        y: target.y - this.graphic.height
+                        x: position.x - (this.graphic.width || 0) / 2,
+                        y: target.y - (this.graphic.height || 0)
                     };
                 },
                 events: {

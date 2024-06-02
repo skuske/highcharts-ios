@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -18,29 +18,16 @@ const { defined, isNumber } = U;
  *
  * */
 class AreaRangePoint extends AreaPoint {
-    constructor() {
-        /* *
-         *
-         *  Properties
-         *
-         * */
-        super(...arguments);
-        /**
-         * Range series only. The high or maximum value for each data point.
-         * @name Highcharts.Point#high
-         * @type {number|undefined}
-         */
-        this.high = void 0;
-        /**
-         * Range series only. The low or minimum value for each data point.
-         * @name Highcharts.Point#low
-         * @type {number|undefined}
-         */
-        this.low = void 0;
-        this.options = void 0;
-        this.plotX = void 0;
-        this.series = void 0;
-    }
+    /**
+     * Range series only. The high or maximum value for each data point.
+     * @name Highcharts.Point#high
+     * @type {number|undefined}
+     */
+    /**
+     * Range series only. The low or minimum value for each data point.
+     * @name Highcharts.Point#low
+     * @type {number|undefined}
+     */
     /* *
      *
      *  Functions
@@ -59,10 +46,8 @@ class AreaRangePoint extends AreaPoint {
             // Boost doesn't calculate plotLow
             this.plotLow = this.plotY = series.yAxis.toPixels(this.low, true);
         }
-        if (series.stateMarkerGraphic) {
-            series.lowerStateMarkerGraphic = series.stateMarkerGraphic;
-            series.stateMarkerGraphic = series.upperStateMarkerGraphic;
-        }
+        series.lowerStateMarkerGraphic = series.stateMarkerGraphic;
+        series.stateMarkerGraphic = series.upperStateMarkerGraphic;
         // Change state also for the top marker
         this.graphic = this.graphics && this.graphics[1];
         this.plotY = this.plotHigh;
@@ -78,14 +63,16 @@ class AreaRangePoint extends AreaPoint {
         if (isPolar && isNumber(this.plotLowX)) {
             this.plotX = this.plotLowX;
         }
-        if (series.stateMarkerGraphic) {
-            series.upperStateMarkerGraphic = series.stateMarkerGraphic;
-            series.stateMarkerGraphic = series.lowerStateMarkerGraphic;
-            // Lower marker is stored at stateMarkerGraphic
-            // to avoid reference duplication (#7021)
-            series.lowerStateMarkerGraphic = void 0;
-        }
+        series.upperStateMarkerGraphic = series.stateMarkerGraphic;
+        series.stateMarkerGraphic = series.lowerStateMarkerGraphic;
+        // Lower marker is stored at stateMarkerGraphic
+        // to avoid reference duplication (#7021)
+        series.lowerStateMarkerGraphic = void 0;
+        const originalSettings = series.modifyMarkerSettings();
+        // Bottom state
         areaProto.setState.apply(this, arguments);
+        // Restore previous state
+        series.restoreMarkerSettings(originalSettings);
     }
     haloPath() {
         const isPolar = this.series.chart.polar;

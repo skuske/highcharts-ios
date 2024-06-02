@@ -1,5 +1,5 @@
 /**
-* (c) 2009-2021 Highsoft AS
+* (c) 2009-2024 Highsoft AS
 *
 * License: www.highcharts.com/license
 * For commercial usage, a valid license is required. To purchase a license for Highcharts iOS, please see our website: https://shop.highsoft.com/
@@ -55,9 +55,13 @@ The offset of an arc diagram nodes column in relation to the `plotArea`. The off
 */
 @property(nonatomic, readwrite) NSString *offset;
 /**
-The global link weight. If not set, width is calculated per link, depending on the weight value.
+The global link weight, in pixels. If not set, width is calculated per link, depending on the weight value.
 
 **Defaults to** `undefined`.
+
+**Try it**
+
+* [Link weight](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-arcdiagram/link-weight)
 */
 @property(nonatomic, readwrite) NSNumber *linkWeight;
 /**
@@ -104,11 +108,16 @@ The minimal width for a line of a sankey. By default, 0 values are not shown.
 */
 @property(nonatomic, readwrite) NSNumber *minLinkWidth;
 /**
-The pixel width of each node in a sankey diagram or dependency wheel, or the height in case the chart is inverted.
+The distance between nodes in a sankey diagram in the longitudinal direction. The longitudinal direction means the direction that the chart flows - in a horizontal chart the distance is horizontal, in an inverted chart (vertical), the distance is vertical. If a number is given, it denotes pixels. If a percentage string is given, the distance is a percentage of the rendered node width. A `nodeDistance` of `100%` will render equal widths for the nodes and the gaps between them. This option applies only when the `nodeWidth` option is `auto`, making the node width respond to the number of columns.
 
-**Defaults to** `20`.
+**Defaults to** `30`.
+
+**Try it**
+
+* [Sankey with dnode distance of 100% means equal to node width](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-sankey/node-distance)
+* [Organization chart with node distance of 50%](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-organization/node-distance)
 */
-@property(nonatomic, readwrite) NSNumber *nodeWidth;
+@property(nonatomic, readwrite) id /* NSNumber, NSString */ nodeDistance;
 /**
 Set options on specific levels. Takes precedence over series options, but not node and link options.
 
@@ -126,11 +135,33 @@ The width of the border surrounding each column or bar. Defaults to `1` when the
 */
 @property(nonatomic, readwrite) NSNumber *borderWidth;
 /**
+The pixel width of each node in a sankey diagram or dependency wheel, or the height in case the chart is inverted. Can be a number or a percentage string. Sankey series also support setting it to `auto`. With this setting, the nodes are sized to fill up the plot area in the longitudinal direction, regardless of the number of levels.
+
+**Defaults to** `20`.
+
+**Try it**
+
+* [Sankey with auto node width combined with node distance](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-sankey/node-distance)
+* [Organization chart with node distance of 50%](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-organization/node-distance)
+*/
+@property(nonatomic, readwrite) id /* NSNumber, NSString */ nodeWidth;
+/**
 Opacity for the links between nodes in the sankey diagram.
 
 **Defaults to** `0.5`.
 */
 @property(nonatomic, readwrite) NSNumber *linkOpacity;
+/**
+Determines color mode for sankey links. Available options: - `from` color of the sankey link will be the same as the 'from node' - `gradient` color of the sankey link will be set to gradient between colors of 'from node' and 'to node' - `to` color of the sankey link will be same as the 'to node'.
+
+**Defaults to** `from`.
+
+**Try it**
+
+* [Vertical sankey diagram with gradients](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/vertical-sankey)
+* [Sankey diagram with gradients and explanation](https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/series-sankey/link-color-mode)
+*/
+@property(nonatomic, readwrite) NSString *linkColorMode;
 /**
 A series specific or series type specific color set to apply instead of the global `colors` when `colorByPoint` is true.
 */

@@ -1,8 +1,8 @@
 /**
- * @license Highcharts JS v11.4.5 (2024-07-04)
+ * @license Highcharts JS v11.4.7 (2024-08-14)
  * @module highcharts/modules/pyramid3d
  * @requires highcharts
- * @requires highcharts-3d
+ * @requires highcharts/highcharts-3d
  * @requires highcharts/modules/cylinder
  * @requires highcharts/modules/funnel3d
  *
